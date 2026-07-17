@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PenRunner — Specifica Funzionale &amp; Flussi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --accent-600:#15803D; --accent-500:#16A34A; --accent-50:#DCFCE7;
+    --ink-900:#0F172A; --slate-700:#334155; --slate-500:#64748B;
+    --slate-400:#94A3B8; --slate-300:#CBD5E1; --slate-100:#F1F5F9; --slate-50:#F8FAFC;
+    --white:#FFFFFF;
+    --warning:#B45309; --warningbg:#FFF7ED; --danger:#B91C1C; --dangerbg:#FEF2F2;
+    --info:#1D4ED8; --infobg:#EFF4FF; --live:#DC2626;
+    --gold:#C8902F;
+    --r-sm:6px; --r-md:8px; --r-lg:12px;
+    --maxw:1000px;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{font-family:'Inter',system-ui,sans-serif; color:var(--ink-900); background:var(--slate-50); line-height:1.62; -webkit-font-smoothing:antialiased;}
+  .wrap{max-width:var(--maxw); margin:0 auto; padding:0 24px;}
+  code,.mono{font-family:'JetBrains Mono',monospace; font-size:0.86em;}
+
+  header.top{position:sticky; top:0; z-index:50; background:var(--ink-900); color:#fff; border-bottom:1px solid #ffffff14;}
+  .top .wrap{display:flex; align-items:center; gap:12px; height:56px;}
+  .logo-mark{width:27px; height:27px; border-radius:7px; background:var(--accent-600); display:flex; align-items:center; justify-content:center; font-weight:800; font-size:15px;}
+  .logo-txt{font-weight:700; font-size:16px; letter-spacing:-0.3px;}
+  .top .meta{margin-left:auto; font-size:12.5px; color:var(--slate-400);}
+
+  nav.subnav{background:var(--white); border-bottom:1px solid #0F172A14; position:sticky; top:56px; z-index:40;}
+  nav.subnav .wrap{display:flex; gap:2px; overflow-x:auto; height:44px; align-items:center;}
+  nav.subnav a{font-size:12px; font-weight:500; color:var(--slate-500); text-decoration:none; padding:5px 10px; border-radius:var(--r-md); white-space:nowrap;}
+  nav.subnav a:hover{background:var(--slate-100); color:var(--ink-900);}
+
+  .hero{background:var(--ink-900); color:#fff; padding:40px 0 44px;}
+  .hero h1{font-size:33px; font-weight:800; letter-spacing:-0.8px; line-height:1.1; margin-bottom:12px;}
+  .hero p{font-size:15px; color:var(--slate-300); max-width:680px;}
+  .hero .pills{display:flex; gap:8px; margin-top:18px; flex-wrap:wrap;}
+  .hero .pills span{font-size:11.5px; font-weight:500; color:var(--slate-300); background:#ffffff12; border:1px solid #ffffff1c; padding:4px 11px; border-radius:20px;}
+
+  section{padding:38px 0; border-bottom:1px solid #0F172A0D;}
+  .eyebrow{font-size:11px; font-weight:600; color:var(--accent-600); text-transform:uppercase; letter-spacing:1.2px; margin-bottom:8px;}
+  h2{font-size:24px; font-weight:700; letter-spacing:-0.5px; margin-bottom:8px;}
+  .lead{font-size:14.5px; color:var(--slate-500); max-width:720px; margin-bottom:22px;}
+  h3{font-size:16.5px; font-weight:600; color:var(--ink-900); margin:26px 0 10px; padding-top:4px;}
+  h4{font-size:14px; font-weight:600; color:var(--slate-700); margin:18px 0 8px;}
+  p.body{font-size:14px; color:var(--slate-700); margin-bottom:12px; max-width:740px;}
+
+  .card{background:#fff; border:1px solid #0F172A12; border-radius:var(--r-lg); padding:18px 20px; margin-bottom:14px;}
+
+  table{width:100%; border-collapse:collapse; font-size:13px; margin:8px 0 18px;}
+  th{text-align:left; font-weight:600; color:var(--slate-500); font-size:10.5px; text-transform:uppercase; letter-spacing:0.4px; padding:8px 10px; border-bottom:1.5px solid #0F172A14; vertical-align:bottom;}
+  td{padding:9px 10px; border-bottom:0.5px solid #0F172A0D; color:var(--slate-700); vertical-align:top;}
+  tr:last-child td{border-bottom:none;}
+  td strong{color:var(--ink-900); font-weight:600;}
+  .center{text-align:center;}
+  .yes{color:var(--accent-600); font-weight:700;}
+  .partial{color:var(--warning); font-weight:700;}
+  .no{color:var(--slate-300);}
+
+  /* flow steps */
+  .flow{display:flex; align-items:stretch; gap:0; flex-wrap:wrap; margin:10px 0 16px;}
+  .step{background:#fff; border:1px solid #0F172A12; border-radius:var(--r-md); padding:10px 13px; font-size:12.5px; color:var(--slate-700); position:relative; min-width:0;}
+  .step .n{display:inline-flex; width:18px; height:18px; border-radius:50%; background:var(--accent-50); color:var(--accent-600); font-size:10px; font-weight:700; align-items:center; justify-content:center; margin-right:6px;}
+  .step b{color:var(--ink-900); font-weight:600;}
+  .flowarrow{display:flex; align-items:center; color:var(--slate-300); font-size:16px; padding:0 7px;}
+
+  /* state pills */
+  .states{display:flex; gap:7px; flex-wrap:wrap; align-items:center; margin:6px 0 10px;}
+  .state{font-size:11.5px; font-weight:600; padding:5px 11px; border-radius:20px; border:1px solid;}
+  .arrow{color:var(--slate-300); font-size:14px;}
+
+  .callout{border-radius:var(--r-lg); padding:14px 16px; font-size:13.5px; line-height:1.55; display:flex; gap:11px; margin:14px 0;}
+  .callout .ic{flex-shrink:0; font-size:15px; font-weight:700; line-height:1.4;}
+  .callout.decision{background:var(--infobg); border:1px solid #1D4ED822;}
+  .callout.decision .ic{color:var(--info);}
+  .callout.decision .lbl{font-weight:700; color:var(--info); text-transform:uppercase; font-size:10.5px; letter-spacing:0.6px;}
+  .callout.warn{background:var(--warningbg); border:1px solid #B4530922;}
+  .callout.warn .ic{color:var(--warning);}
+  .callout.warn .lbl{font-weight:700; color:var(--warning); text-transform:uppercase; font-size:10.5px; letter-spacing:0.6px;}
+  .callout.danger{background:var(--dangerbg); border:1px solid #B91C1C22;}
+  .callout.danger .ic{color:var(--danger);}
+  .callout.danger .lbl{font-weight:700; color:var(--danger); text-transform:uppercase; font-size:10.5px; letter-spacing:0.6px;}
+
+  ul.clean{margin:2px 0 14px; padding-left:18px;}
+  ul.clean li{font-size:13.5px; color:var(--slate-700); margin-bottom:6px;}
+  ul.clean li b{color:var(--ink-900); font-weight:600;}
+
+  .edge{background:#fff; border:1px solid #0F172A12; border-left:3px solid var(--warning); border-radius:var(--r-md); padding:11px 14px; margin-bottom:8px;}
+  .edge .q{font-size:13px; font-weight:600; color:var(--ink-900); margin-bottom:3px;}
+  .edge .a{font-size:12.5px; color:var(--slate-700);}
+  .edge.err{border-left-color:var(--danger);}
+
+  .rule{display:flex; gap:12px; padding:11px 0; border-bottom:0.5px solid #0F172A0D;}
+  .rule:last-child{border-bottom:none;}
+  .rule .id{font-family:'JetBrains Mono',monospace; font-size:11.5px; font-weight:600; color:var(--accent-600); flex-shrink:0; width:54px; padding-top:1px;}
+  .rule .txt{font-size:13.5px; color:var(--slate-700);}
+  .rule .txt b{color:var(--ink-900);}
+
+  .tag{font-size:10px; font-weight:600; padding:2px 7px; border-radius:4px; display:inline-block;}
+  .tag.mvp{background:var(--accent-50); color:var(--accent-600);}
+  .tag.p2{background:#F1F5F9; color:var(--slate-500);}
+
+  footer{padding:28px 0 46px; color:var(--slate-400); font-size:12.5px;}
+
+  @media(max-width:680px){ .hero h1{font-size:26px;} table{font-size:12px;} .flowarrow{display:none;} .step{width:100%; margin-bottom:6px;} }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <div class="logo-mark">P</div>
+    <span class="logo-txt">PenRunner</span>
+    <span class="meta">Specifica Funzionale &amp; Flussi · v1.0</span>
+  </div>
+</header>
+
+<nav class="subnav">
+  <div class="wrap">
+    <a href="#intro">Intro</a>
+    <a href="#ruoli">Ruoli &amp; permessi</a>
+    <a href="#identita">Modello identità</a>
+    <a href="#onboarding">Onboarding</a>
+    <a href="#flussi">Flussi end-to-end</a>
+    <a href="#edge">Edge case critici</a>
+    <a href="#stati">Macchine a stati</a>
+    <a href="#regole">Regole di business</a>
+    <a href="#notifiche">Notifiche</a>
+    <a href="#decisioni">Decisioni aperte</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="wrap">
+    <h1>Specifica Funzionale &amp; Flussi</h1>
+    <p>La fonte di verità unica prima dello sviluppo: chi fa cosa, come entra nel sistema, ogni flusso end-to-end con le sue diramazioni, gli edge case e gli stati di errore, le macchine a stati complete e il catalogo delle regole. Completa il trio con il Data Model e la Style Guide.</p>
+    <div class="pills">
+      <span>7 ruoli</span><span>4 onboarding</span><span>11 flussi</span><span>5 macchine a stati</span><span>Catalogo regole BR</span>
+    </div>
+  </div>
+</div>
+
+<!-- INTRO -->
+<section id="intro">
+  <div class="wrap">
+    <div class="eyebrow">Come leggere</div>
+    <h2>Cosa c'è qui dentro</h2>
+    <p class="body">Questo documento descrive il <strong>comportamento</strong> del prodotto, non la sua implementazione. Dove il regolamento o il design impongono una regola, è esplicita. Dove ho dovuto prendere una decisione di prodotto per chiudere un buco, la trovi in un riquadro <span style="color:var(--info); font-weight:600;">DECISIONE</span> — sono ratificabili o vetabili. Dove serve la conferma di un giudice sul Patternbook, è nei punti aperti finali.</p>
+    <p class="body">Convenzioni: <span class="tag mvp">MVP</span> indica ciò che entra nella prima versione; <span class="tag p2">Fase 2</span> ciò che è progettato ma rimandato. I flussi felici sono già prototipati (vedi <code>prototypes/</code>); qui il valore aggiunto sono le <strong>diramazioni</strong> e gli <strong>stati di errore</strong> intorno a quei percorsi.</p>
+    <div class="callout decision">
+      <span class="ic">◆</span>
+      <div><span class="lbl">Principio guida</span><br>Tutto ciò che è caro sbagliare e caro cambiare dopo che esiste codice va deciso qui. Il dev riceve regole, non domande aperte: se una regola non è qui, qualcuno la inventerà al momento sbagliato.</div>
+    </div>
+  </div>
+</section>
+
+<!-- RUOLI -->
+<section id="ruoli">
+  <div class="wrap">
+    <div class="eyebrow">Ruoli &amp; permessi</div>
+    <h2>Chi fa cosa</h2>
+    <p class="lead">Sette ruoli. Alcuni sono account persistenti (organizzatore, scuderia, concorrente), altri sono assegnati nel contesto di un evento (giudice, scribe, segreteria). Il pubblico non ha account.</p>
+
+    <table>
+      <tr>
+        <th style="width:30%">Capacità</th>
+        <th class="center">Organizz.</th>
+        <th class="center">Segreteria</th>
+        <th class="center">Giudice</th>
+        <th class="center">Scribe</th>
+        <th class="center">Scuderia</th>
+        <th class="center">Concorr.</th>
+        <th class="center">Pubblico</th>
+      </tr>
+      <tr><td><strong>Crea e configura evento</strong> (classi, fee, montepremi)</td><td class="center yes">✓</td><td class="center no">—</td><td class="center no">—</td><td class="center no">—</td><td class="center no">—</td><td class="center no">—</td><td class="center no">—</td></tr>
+      <tr><td>Gestisce anagrafiche dell'evento</td><td class="center yes">✓</td><td class="center partial">◐</td><td class="center no">—</td><td class="center no">—</td><td class="center no">—</td><td class="center no">—</td><td class="center no">—</td></tr>
+      <tr><td>Check-in binomi (verifica microchip/tessera)</td><td class="center yes">✓</td><td class="center yes">✓</td><td class="center no">—</td><td class="center no">—</td><td class="center no">—</td><td class="center no">—</td><td class="center no">—</td></tr>
+      <tr><td>Genera e modifica il draw</td><td class="center yes">✓</td><td class="center partial">◐</td><td class="center no">—</td><td class="center no">—</td><td class="center no">—</td><td class="center no">—</td><td class="center no">—</td></tr>
+      <tr><td>Inserisce i punteggi (per conto del giudice)</td><td class="center no">—</td><td class="center no">—</td><td class="center partial">◐</td><td class="center yes">✓</td><td class="center no">—</td><td class="center no">—</td><td class="center no">—</td></tr>
+      <tr><td><strong>Firma la ScoreCard</strong></td><td class="center no">—</td><td class="center no">—</td><td class="center yes">✓</td><td class="center no">—</td><td class="center no">—</td><td class="center no">—</td><td class="center no">—</td></tr>
+      <tr><td>Valida e pubblica i risultati</td><td class="center yes">✓</td><td class="center no">—</td><td class="center no">—</td><td class="center no">—</td><td class="center no">—</td><td class="center no">—</td><td class="center no">—</td></tr>
+      <tr><td>Corregge uno score pubblicato (con audit)</td><td class="center yes">✓</td><td class="center no">—</td><td class="center no">—</td><td class="center no">—</td><td class="center no">—</td><td class="center no">—</td><td class="center no">—</td></tr>
+      <tr><td>Iscrizione massiva di binomi</td><td class="center no">—</td><td class="center no">—</td><td class="center no">—</td><td class="center no">—</td><td class="center yes">✓</td><td class="center no">—</td><td class="center no">—</td></tr>
+      <tr><td>Iscrizione individuale</td><td class="center no">—</td><td class="center no">—</td><td class="center no">—</td><td class="center no">—</td><td class="center no">—</td><td class="center yes">✓</td><td class="center no">—</td></tr>
+      <tr><td>Gestisce il proprio roster (cavalli/cavalieri)</td><td class="center no">—</td><td class="center no">—</td><td class="center no">—</td><td class="center no">—</td><td class="center yes">✓</td><td class="center partial">◐</td><td class="center no">—</td></tr>
+      <tr><td>Vede i risultati propri (storico binomio)</td><td class="center yes">✓</td><td class="center no">—</td><td class="center no">—</td><td class="center no">—</td><td class="center yes">✓</td><td class="center yes">✓</td><td class="center no">—</td></tr>
+      <tr><td>Vede calendario e risultati pubblici</td><td class="center yes">✓</td><td class="center yes">✓</td><td class="center yes">✓</td><td class="center yes">✓</td><td class="center yes">✓</td><td class="center yes">✓</td><td class="center yes">✓</td></tr>
+      <tr><td>Gestisce payout e rendicontazione fee</td><td class="center yes">✓</td><td class="center no">—</td><td class="center no">—</td><td class="center no">—</td><td class="center no">—</td><td class="center no">—</td><td class="center no">—</td></tr>
+    </table>
+    <p class="body" style="font-size:12.5px; color:var(--slate-500);"><span class="yes">✓</span> capacità piena · <span class="partial">◐</span> delegata o parziale · <span class="no">—</span> nessun accesso. La segreteria è un ruolo che l'organizzatore delega: eredita un sottoinsieme operativo. Lo scribe inserisce, ma la responsabilità del punteggio è del giudice che firma.</p>
+
+    <div class="callout decision">
+      <span class="ic">◆</span>
+      <div><span class="lbl">Decisione · firma del giudice</span><br>In MVP il giudice firma digitalmente sul dispositivo dello scribe (la coppia giudice+scribe lavora su un solo tablet in arena). La firma è un'azione esplicita che blocca la carta. In contesti con giudice dotato di proprio dispositivo, la firma remota è Fase 2.</div>
+    </div>
+  </div>
+</section>
+
+<!-- IDENTITA -->
+<section id="identita">
+  <div class="wrap">
+    <div class="eyebrow">Modello identità</div>
+    <h2>Come entrano e si riconoscono i dati anagrafici</h2>
+    <p class="lead">Questo è il nodo che l'iscrizione massiva dà per scontato: una scuderia iscrive 7 binomi presupponendo che cavalli, cavalieri e tesseramenti <em>esistano già</em>. Chi li crea, e come si evita di duplicarli? La risposta plasma le anagrafiche.</p>
+
+    <h3>Chiavi di identità</h3>
+    <ul class="clean">
+      <li><b>Cavallo → microchip.</b> Il microchip è univoco per natura ed è verificato fisicamente all'ingresso in arena. È la chiave naturale di deduplicazione: due record con lo stesso microchip sono lo stesso cavallo.</li>
+      <li><b>Persona → email + tesseramenti.</b> Una persona si identifica con l'email dell'account; i numeri IRHA/FISE sono attributi verificabili ma non sempre presenti alla creazione.</li>
+      <li><b>Scuderia → ragione/nome + referente.</b> Entità leggera che raggruppa, non possiede: un cavallo "appartiene" a un proprietario (Person) ed è "stabled at" una scuderia.</li>
+    </ul>
+
+    <h3>Chi crea il record anagrafico</h3>
+    <p class="body">Modello "primo creatore, gli altri collegano". In MVP chiunque (scuderia o concorrente) può creare un cavallo o una persona inserendone i dati. Al momento dell'inserimento, il sistema controlla il microchip (per i cavalli) e l'email/tessera (per le persone):</p>
+    <ul class="clean">
+      <li>Se non esiste → crea il record.</li>
+      <li>Se esiste già (stesso microchip) → non duplica: propone di <b>collegarsi</b> al record esistente. Il cavallo resta uno, con più relazioni possibili (es. cambia scuderia tra una stagione e l'altra).</li>
+    </ul>
+
+    <div class="callout decision">
+      <span class="ic">◆</span>
+      <div><span class="lbl">Decisione · verifica tesseramenti in MVP</span><br>I numeri IRHA/FISE sono inseriti come stringhe e <b>verificati manualmente dall'organizzatore al check-in</b>, non validati in tempo reale. L'integrazione con i database di tesseramento federali è <span class="tag p2">Fase 2</span>: in MVP non esiste un'API affidabile da cui attingere, e il check-in è già un momento di controllo fisico (microchip), quindi vi si appoggia anche la verifica documentale. Questo tiene l'MVP costruibile senza dipendere da terzi.</div>
+    </div>
+
+    <h3>Account rivendicato (claim)</h3>
+    <p class="body">Una scuderia spesso crea i cavalieri prima che questi abbiano un account. Quando un concorrente si registra con un'email che corrisponde a un record già creato da una scuderia, può <b>rivendicare</b> il profilo: da quel momento gestisce i propri dati, mantenendo il collegamento alla scuderia. Evita doppioni e dà autonomia al concorrente senza bloccare il lavoro della scuderia.</p>
+
+    <div class="callout warn">
+      <span class="ic">!</span>
+      <div><span class="lbl">Edge · identità condivise</span><br>Un cavallo di proprietà di X può essere stabled presso Y e montato da Z. Tre relazioni, un solo record-cavallo (chiave microchip). Il modello deve permettere che proprietario, scuderia e cavaliere siano entità distinte e variabili nel tempo, senza clonare il cavallo. Stessa logica per un cavaliere indipendente che gareggia per scuderie diverse in eventi diversi.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ONBOARDING -->
+<section id="onboarding">
+  <div class="wrap">
+    <div class="eyebrow">Onboarding</div>
+    <h2>Come ogni utente entra nel sistema</h2>
+    <p class="lead">Quattro percorsi di primo accesso. Differiscono per attrito: l'organizzatore (che incassa) è verificato, la scuderia costruisce un roster, il concorrente è leggero, il giudice è assegnato a un evento.</p>
+
+    <!-- Organizzatore -->
+    <h3>Organizzatore</h3>
+    <div class="flow">
+      <div class="step"><span class="n">1</span><b>Richiesta accesso</b><br>Dati del club affiliato IRHA/FISE</div>
+      <div class="flowarrow">→</div>
+      <div class="step"><span class="n">2</span><b>Verifica PenRunner</b><br>Controllo affiliazione</div>
+      <div class="flowarrow">→</div>
+      <div class="step"><span class="n">3</span><b>Profilo organizzazione</b><br>Logo, contatti, IBAN</div>
+      <div class="flowarrow">→</div>
+      <div class="step"><span class="n">4</span><b>Wizard primo evento</b></div>
+    </div>
+    <div class="callout decision">
+      <span class="ic">◆</span>
+      <div><span class="lbl">Decisione · organizzatori vetted in MVP</span><br>L'accesso organizzatore <b>non è self-serve</b> in MVP: passa da una verifica manuale di PenRunner (è un club affiliato reale?). Motivo: l'organizzatore configura le fee e gestisce l'incasso, quindi il rapporto è fiduciario. Con pochi organizzatori iniziali (circuito Lombardia) il vetting manuale è sostenibile e si apre al self-serve quando il pagamento in piattaforma (Fase 2) rende il rischio gestibile.</div>
+    </div>
+    <ul class="clean">
+      <li><b>Edge:</b> più persone dello stesso club → l'organizzazione è l'entità, le persone sono membri con ruoli (titolare, segreteria).</li>
+      <li><b>Edge:</b> richiesta da club non affiliato → respinta con motivazione, non lasciata in sospeso.</li>
+    </ul>
+
+    <!-- Scuderia -->
+    <h3>Scuderia</h3>
+    <div class="flow">
+      <div class="step"><span class="n">1</span><b>Registrazione referente</b></div>
+      <div class="flowarrow">→</div>
+      <div class="step"><span class="n">2</span><b>Profilo scuderia</b></div>
+      <div class="flowarrow">→</div>
+      <div class="step"><span class="n">3</span><b>Costruzione roster</b><br>Cavalli + cavalieri + tesseramenti</div>
+      <div class="flowarrow">→</div>
+      <div class="step"><span class="n">4</span><b>Pronta a iscrivere</b></div>
+    </div>
+    <p class="body">Il roster è il lavoro vero dell'onboarding scuderia ed è riutilizzabile evento dopo evento. Si popola manualmente o (Fase 2) via import CSV — il bottone è già nel prototipo di iscrizione. Ogni cavallo passa dal controllo microchip del <a href="#identita" style="color:var(--info);">modello identità</a>.</p>
+    <ul class="clean">
+      <li><b>Edge:</b> cavallo già nel sistema (altra scuderia) → collega, non duplica. Il cambio scuderia è un aggiornamento di relazione.</li>
+      <li><b>Edge:</b> cavaliere indipendente o multi-scuderia → relazione molti-a-molti, non appartenenza esclusiva.</li>
+      <li><b>Edge:</b> dati di tesseramento incompleti → il roster si salva comunque (bozza), ma l'iscrizione segnala i campi mancanti richiesti dalla classe.</li>
+    </ul>
+
+    <!-- Concorrente -->
+    <h3>Concorrente (rider / owner)</h3>
+    <div class="flow">
+      <div class="step"><span class="n">1</span><b>Registrazione</b></div>
+      <div class="flowarrow">→</div>
+      <div class="step"><span class="n">2</span><b>Profilo</b><br>Ruoli, tessere, categoria</div>
+      <div class="flowarrow">→</div>
+      <div class="step"><span class="n">3</span><b>Propri cavalli</b></div>
+      <div class="flowarrow">→</div>
+      <div class="step"><span class="n">4</span><b>Iscrizione individuale</b></div>
+    </div>
+    <ul class="clean">
+      <li><b>Percorso claim:</b> se l'email combacia con un profilo creato da una scuderia, propone di rivendicarlo invece di crearne uno nuovo.</li>
+      <li><b>Edge:</b> persona sia rider sia owner → un solo profilo con entrambi i ruoli, non due account.</li>
+    </ul>
+
+    <!-- Giudice / scribe -->
+    <h3>Giudice e scribe</h3>
+    <div class="flow">
+      <div class="step"><span class="n">1</span><b>Assegnazione</b><br>L'organizzatore li assegna all'evento/classi</div>
+      <div class="flowarrow">→</div>
+      <div class="step"><span class="n">2</span><b>Invito event-scoped</b></div>
+      <div class="flowarrow">→</div>
+      <div class="step"><span class="n">3</span><b>App offline pronta</b><br>Scarica start list e pattern</div>
+    </div>
+    <p class="body">Onboarding leggero e limitato all'evento: il giudice non ha bisogno di un account persistente ricco, ha bisogno di entrare in arena e lavorare offline. Lo scribe è abbinato a un giudice; la app pre-carica start list e pattern <b>prima</b> di perdere la connessione.</p>
+    <ul class="clean">
+      <li><b>Edge:</b> un giudice su più classi → più assegnazioni, una sola identità.</li>
+      <li><b>Edge:</b> uno scribe per più giudici (eventi piccoli) → può cambiare giudice attivo nella sessione.</li>
+      <li><b>Edge:</b> sostituzione giudice last-minute → riassegnazione che non perde gli score già firmati dal giudice uscente.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- FLUSSI -->
+<section id="flussi">
+  <div class="wrap">
+    <div class="eyebrow">Flussi end-to-end</div>
+    <h2>Il ciclo gara completo</h2>
+    <p class="lead">Undici flussi, in ordine di vita di un evento. Per ognuno: percorso felice (sintesi), punti di diramazione, stati di errore. I percorsi felici di C, F, G sono già prototipati.</p>
+
+    <!-- B -->
+    <h3>B · Creazione evento <span class="tag mvp">MVP</span></h3>
+    <div class="flow">
+      <div class="step"><span class="n">1</span><b>Wizard</b><br>Nome, sede, date, tier, tema</div>
+      <div class="flowarrow">→</div>
+      <div class="step"><span class="n">2</span><b>Classi</b><br>Pattern, quota, montepremi, n° giudici</div>
+      <div class="flowarrow">→</div>
+      <div class="step"><span class="n">3</span><b>Fee &amp; impostazioni</b><br>€/cavallo (default 15) · scratch self-serve on/off</div>
+      <div class="flowarrow">→</div>
+      <div class="step"><span class="n">4</span><b>Bozza → Annuncio → Apertura</b></div>
+    </div>
+    <ul class="clean">
+      <li><b>Diramazione:</b> l'evento può essere <b>annunciato</b> (pubblico sul calendario, iscrizioni chiuse) prima di aprire le iscrizioni — utile per i main event a mesi di distanza.</li>
+      <li><b>Errore:</b> tentativo di aprire iscrizioni senza almeno una classe → bloccato.</li>
+      <li><b>Errore:</b> date incoerenti (fine prima dell'inizio) o sovrapposte a un altro evento dello stesso organizzatore → avviso.</li>
+    </ul>
+
+    <!-- C -->
+    <h3>C · Iscrizione <span class="tag mvp">MVP</span> · <span style="color:var(--accent-600); font-size:12px;">prototipato</span></h3>
+    <p class="body">Massiva (scuderia) o individuale (concorrente). Calcolo costo classi + fee per cavallo distinto, in tempo reale. Conferma bloccata se un binomio è senza classe.</p>
+    <ul class="clean">
+      <li><b>Diramazione:</b> stesso cavallo in più classi → ammesso, fee conteggiata <b>una volta sola</b>.</li>
+      <li><b>Errore:</b> stesso cavallo due volte nella <b>stessa</b> classe → bloccato.</li>
+      <li><b>Errore:</b> binomio non eleggibile per la categoria della classe (es. tessera mancante, categoria errata) → segnalato, iscrizione in bozza finché non risolto.</li>
+      <li><b>Errore:</b> classe al completo (se è previsto un cap) → lista d'attesa o blocco.</li>
+      <li><b>Errore:</b> iscrizione dopo la chiusura → bloccata; eventuali late entry sono una concessione manuale dell'organizzatore.</li>
+    </ul>
+
+    <!-- D -->
+    <h3>D · Check-in <span class="tag mvp">MVP</span></h3>
+    <div class="flow">
+      <div class="step"><span class="n">1</span><b>Arrivo binomio</b></div>
+      <div class="flowarrow">→</div>
+      <div class="step"><span class="n">2</span><b>Verifica microchip + tessera</b></div>
+      <div class="flowarrow">→</div>
+      <div class="step"><span class="n">3</span><b>Conferma presenza</b><br>o assenza / ritiro</div>
+    </div>
+    <ul class="clean">
+      <li><b>Errore:</b> microchip non corrispondente → il binomio non passa il check-in; decisione dell'organizzatore (correzione dati o esclusione).</li>
+      <li><b>Errore:</b> tesseramento scaduto/assente → idem, gestito al check-in (è qui che la verifica documentale avviene, vedi modello identità).</li>
+      <li><b>Diramazione:</b> se l'organizzatore ha attivato lo <b>scratch self-serve</b> nelle impostazioni dello show (BR-17), concorrente e scuderia possono ritirare in-app in qualsiasi momento fino al proprio turno (es. due ore prima, da casa); altrimenti lo scratch si comunica dal vivo e lo registra l'organizzazione. In entrambi i casi la cascata è automatica (ETA anticipata, buco nel draw, esclusione da classifica e payout) e la fee resta dovuta dal cavaliere.</li>
+      <li><b>Diramazione:</b> ritiro (scratch) al check-in → identico effetto, registrato dall'organizzatore/segreteria.</li>
+      <li><b>Diramazione:</b> assente → <code>assente</code>, esclusa dalla classifica.</li>
+    </ul>
+
+    <!-- E -->
+    <h3>E · Draw / ordine di partenza <span class="tag mvp">MVP</span></h3>
+    <ul class="clean">
+      <li><b>Felice:</b> generazione automatica dell'ordine per classe → pubblicazione → notifica.</li>
+      <li><b>Diramazione:</b> ri-generazione (re-draw) prima della pubblicazione; aggiustamento manuale di singole posizioni dopo, con tracciamento.</li>
+      <li><b>Edge:</b> late entry dopo il draw → inserimento in coda o posizione concordata, non rimescolamento dell'intero ordine.</li>
+      <li><b>Edge:</b> scratch dopo il draw → lascia un "buco" gestito, non ricompatta forzando tutti a scorrere.</li>
+      <li><b>Edge:</b> stesso cavaliere su più cavalli nella stessa classe → il draw deve evitare due partenze consecutive impossibili (tempo di cambio cavallo).</li>
+    </ul>
+
+    <!-- F -->
+    <h3>F · Svolgimento &amp; scoring offline <span class="tag mvp">MVP</span> · <span style="color:var(--accent-600); font-size:12px;">prototipato</span></h3>
+    <p class="body">Il binomio entra in campo, il giudice detta, lo scribe trascrive sull'app (offline). Voti qualità per manovra, penalità totali per manovra, penalità di run, score provvisorio live, firma. Vedi il prototipo <code>ScoringGiudice.jsx</code> e le regole di scoring nel Data Model.</p>
+    <ul class="clean">
+      <li><b>Diramazione:</b> esito speciale <code>score_0</code> (fuori pattern) o <code>no_score</code> (squalifica/abuso).</li>
+      <li><b>Diramazione:</b> più giudici → una ScoreCard per giudice, score finale = media (vedi BR).</li>
+      <li><b>Errore critico:</b> conflitto di sync offline → vedi <a href="#edge" style="color:var(--danger);">edge case critici</a>.</li>
+      <li><b>Errore:</b> correzione dopo la firma → consentita solo come evento tracciato (audit log), non sovrascrittura silenziosa.</li>
+    </ul>
+
+    <!-- G -->
+    <h3>G · Validazione &amp; pubblicazione <span class="tag mvp">MVP</span> · <span style="color:var(--accent-600); font-size:12px;">prototipato (lato pubblico)</span></h3>
+    <ul class="clean">
+      <li><b>Felice:</b> l'organizzatore valida le run firmate → la classifica si ricalcola → pubblicazione → propagazione live al pubblico in pochi secondi.</li>
+      <li><b>Pagina pattern pubblica:</b> ogni classe espone il proprio pattern in una pagina consultabile da chiunque, linkata dalla pagina evento (accanto al nome della classe), dalla start list e dall'app scribe. Mostra codice, regola d'ingresso (walk/trot/lope-in, con l'avviso score_0 se il trot-in è imposto) e la sequenza numerata delle manovre da <code>reference/patterns.json</code>.</li>
+      <li><b>Decisione:</b> tra firma e pubblicazione c'è uno stato <b>validata</b> in cui l'organizzatore può trattenere un risultato (es. in attesa di chiarimento) senza che diventi pubblico.</li>
+      <li><b>Errore:</b> pubblicazione con run ancora non firmate nella classe → avviso, la classifica è marcata "provvisoria".</li>
+      <li><b>Ufficialità (da rulebook):</b> i punteggi di giornata diventano ufficiali <b>30 minuti dopo l'ultimo percorso</b> della sezione (finestra di review delle penalità maggiori). La classifica live mostra lo stato "provvisoria" fino alla scadenza, poi "ufficiale".</li>
+    </ul>
+    <div class="callout decision">
+      <span class="ic">◆</span>
+      <div><span class="lbl">Decisione · Diagrammi ridisegnati in proprio</span><br>I <b>diagrammi</b> del patternbook sono NRHA (riprodotti da IRHA su permesso) e non si ridistribuiscono. Ma il pattern in sé è una regola di gara, non un'opera: PenRunner mostra sempre i <b>passi testuali</b> (da <code>patterns.json</code>). I diagrammi arriveranno per permesso IRHA/NRHA sulle tavole ufficiali oppure per ridisegno vettoriale manuale da designer (Figma, con verifica legale); la generazione programmatica è stata valutata e scartata.</div>
+    </div>
+
+    <!-- H -->
+    <h3>H · Correzioni &amp; reclami <span class="tag mvp">MVP</span></h3>
+    <p class="body">Il flusso più delicato dopo lo scoring, perché tocca risultati già visti dal pubblico.</p>
+    <div class="flow">
+      <div class="step"><span class="n">1</span><b>Reclamo / rilievo</b><br>entro finestra</div>
+      <div class="flowarrow">→</div>
+      <div class="step"><span class="n">2</span><b>Revisione</b><br>organizzatore + giudice</div>
+      <div class="flowarrow">→</div>
+      <div class="step"><span class="n">3</span><b>Correzione tracciata</b><br>audit log</div>
+      <div class="flowarrow">→</div>
+      <div class="step"><span class="n">4</span><b>Ricalcolo</b><br>classifica + payout</div>
+    </div>
+    <ul class="clean">
+      <li><b>Decisione:</b> nessun flusso formale di reclamo in MVP — nella pratica del reining i risultati non vengono contestati. Un errore si rimedia con la correzione dell'organizzatore (BR-40/41), che è già sufficiente. Un processo di reclamo strutturato (finestra, procedura) si aggiungerà solo se emergerà il bisogno. <span style="color:var(--slate-500); font-weight:600;">non in MVP</span></li>
+      <li><b>Regola:</b> una correzione post-pubblicazione <b>ricalcola</b> classifica e payout (sono viste derivate) e lascia traccia in audit; non si modifica un dato derivato a mano.</li>
+      <li><b>Errore:</b> correzione che cambia il vincitore dopo il pagamento del payout → fuori scope automatico in MVP, gestione manuale segnalata.</li>
+    </ul>
+
+    <!-- I -->
+    <h3>I · Payout <span class="tag mvp">MVP (calcolo)</span> <span class="tag p2">Fase 2 (pagamento)</span></h3>
+    <ul class="clean">
+      <li><b>MVP:</b> il payout è <b>calcolato e mostrato</b> (ripartizione dell'added money per posizione a punteggio valido), ma il pagamento ai concorrenti resta fuori piattaforma.</li>
+      <li><b>Edge:</b> parità in posizione a premio → ripartizione secondo schema da regolamento (punto aperto).</li>
+      <li><b>Edge:</b> classe con meno paganti del previsto → schema percentuale che si adatta al numero reale.</li>
+    </ul>
+
+    <!-- J -->
+    <h3>J · Chiusura evento &amp; rendicontazione fee <span class="tag mvp">MVP</span></h3>
+    <ul class="clean">
+      <li><b>Felice:</b> a evento concluso, PenRunner mostra all'organizzatore il maturato fee = cavalli distinti × €/cavallo; l'organizzatore rendiconta e versa.</li>
+      <li><b>Edge:</b> ritiri e assenze → la fee si conta sui cavalli <b>iscritti e confermati</b>, ritiri inclusi: è dovuta a prescindere dallo scratch (stessa logica di box e foto/video allo show). Non è legata alla presenza al check-in.</li>
+      <li><b>Fase 2:</b> incasso in piattaforma con split automatico della fee al momento dell'iscrizione.</li>
+    </ul>
+
+    <!-- K -->
+    <h3>K · Turno stimato (ETA) <span class="tag mvp">MVP</span></h3>
+    <p class="body">Per concorrenti, scuderie e pubblico: <b>tra quanto un binomio entra in campo</b>. Il valore per chi monta è decidere quando iniziare a scaldare il cavallo; per chi segue, quando collegarsi al live. La stima è una <b>vista derivata</b> (mai memorizzata) da start list, stato delle run e configurazione evento.</p>
+    <ul class="clean">
+      <li><b>Formula:</b> <code>ETA(binomio) = ora_àncora + Σ slot delle run rimanenti prima della sua (scratch/assenti esclusi) + drag previsti nell'intervallo + pause di programma</code>.</li>
+      <li><b>Slot:</b> default 4'30" per run (cadenza reale osservata negli show), configurabile per evento e affinabile per classe. Include pattern + ingresso + turnaround; l'andatura d'ingresso del pattern (walk/trot/lope-in) è un fattore noto del sistema.</li>
+      <li><b>Drag:</b> rinnovo fondo ogni 5 run, durata 7' (default). Verifica di coerenza incorporata: i default riproducono la regola operativa "≈10 cavalli/ora drag inclusi" (5×4'30" + 7' = 29'30" per blocco).</li>
+      <li><b>Ri-ancoraggio live:</b> a ogni ingresso in campo la stima riparte dal reale; la cadenza osservata (media mobile delle ultime run) sostituisce progressivamente i default e il ritardo si propaga a cascata alle classi successive della giornata.</li>
+      <li><b>Onestà:</b> mai un orario secco — sempre "~" e stato dichiarato: <b>"da programma"</b> prima dell'inizio (o se il live scoring non è in uso), <b>"live"</b> quando ancorata. Assoluto se lontano ("~15:40"), relativo se vicino ("tra ~25 min").</li>
+      <li><b>Dove:</b> start list e pagina evento pubblica (accanto a ogni binomio in attesa); vista concorrente/scuderia con i propri binomi in evidenza.</li>
+      <li><b>Fase 2:</b> notifica push a soglia configurabile, default <b>75 minuti</b> — apre la finestra reale di sellaggio (si sella ~75–60' prima del turno). Stare larghi è corretto anche perché gli scratch possono solo <b>anticipare</b> il turno, mai ritardarlo.</li>
+      <li><b>Edge:</b> scratch dopo il draw → escluso dal conteggio alla transizione di stato; cavaliere con più cavalli → già distanziato dal draw; classe in ritardo → cascata automatica sulle successive.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- EDGE CRITICI -->
+<section id="edge">
+  <div class="wrap">
+    <div class="eyebrow">Edge case critici</div>
+    <h2>I quattro che fanno male se ignorati</h2>
+    <p class="lead">Diluiti nei flussi ci sono decine di diramazioni. Questi quattro meritano una decisione esplicita perché toccano correttezza dei dati o soldi, e perché il dev li incontrerà presto.</p>
+
+    <h3>1 · Conflitto di sincronizzazione offline</h3>
+    <div class="edge err">
+      <div class="q">Due dispositivi modificano la stessa run, poi tornano online. Chi vince?</div>
+      <div class="a">Una ScoreCard appartiene a <b>un</b> giudice e si compila su <b>un</b> dispositivo: il conflitto sulla stessa carta non dovrebbe esistere per costruzione. Se accade (sostituzione dispositivo, ri-login), la regola è: una carta <b>firmata</b> non viene mai sovrascritta silenziosamente; un secondo invio diventa un evento di correzione in audit, che richiede conferma. Per le carte non ancora firmate, last-write-wins con timestamp. La sync è per-ScoreCard, non per-run, così due giudici sulla stessa run non si pestano.</div>
+    </div>
+
+    <h3>2 · Correzione di uno score già pubblicato</h3>
+    <div class="edge err">
+      <div class="q">Un punteggio pubblicato è sbagliato. Cosa si muove a valle?</div>
+      <div class="a">La correzione è un evento tracciato (chi, quando, da cosa a cosa). Poiché classifica e payout sono <b>derivati</b>, si ricalcolano automaticamente: nessun dato derivato si tocca a mano. Il pubblico vede la classifica aggiornata; l'audit log resta consultabile dall'organizzatore. Se la correzione cambia le posizioni a premio dopo che il payout è stato pagato, in MVP è una gestione manuale segnalata, non automatica.</div>
+    </div>
+
+    <h3>3 · Divergenza tra giudici</h3>
+    <div class="edge">
+      <div class="q">Due giudici danno punteggi molto diversi alla stessa run. E se uno dà no_score e l'altro no?</div>
+      <div class="a">Lo score finale è la media delle ScoreCard valide. La gestione degli scarti con più di due giudici e il caso "un giudice dà no_score, gli altri puntano" sono regole da Patternbook (punto aperto): il modello le supporta (ogni carta è indipendente), ma la formula esatta va confermata con un giudice prima di scriverla nel motore.</div>
+    </div>
+
+    <h3>4 · Timing dello scratch (e impatto sulla fee)</h3>
+    <div class="edge">
+      <div class="q">Un cavallo si ritira. Prima del check-in, dopo il draw, durante la gara: la fee è dovuta?</div>
+      <div class="a">Lo stato dell'iscrizione (confermata / check-in / in campo) al momento del ritiro determina l'impatto su classifica e fee. La classifica è chiara (ritirata = fuori). Sulla fee serve una decisione: lo scratch <b>prima del check-in</b> sconta la fee o no? Proposta: la fee matura alla <b>conferma</b> dell'iscrizione, quindi è dovuta salvo annullamento entro un termine. Da ratificare — vedi decisioni aperte.</div>
+    </div>
+  </div>
+</section>
+
+<!-- STATI -->
+<section id="stati">
+  <div class="wrap">
+    <div class="eyebrow">Macchine a stati</div>
+    <h2>Cicli di vita completi</h2>
+    <p class="lead">Gli stati determinano cosa è permesso in ogni momento. Evento, iscrizione e run sono già nel Data Model; qui sono completati con ScoreCard (sotto-ciclo dello scoring) e Payment (stub Fase 2).</p>
+
+    <h3>Evento</h3>
+    <div class="states">
+      <span class="state" style="border-color:#0F172A22; color:#334155;">bozza</span><span class="arrow">→</span>
+      <span class="state" style="border-color:#1D4ED840; color:#1D4ED8;">annunciato</span><span class="arrow">→</span>
+      <span class="state" style="border-color:#15803D40; color:#15803D;">iscrizioni aperte</span><span class="arrow">→</span>
+      <span class="state" style="border-color:#B4530940; color:#B45309;">iscrizioni chiuse</span><span class="arrow">→</span>
+      <span class="state" style="border-color:#DC262640; color:#DC2626;">in corso</span><span class="arrow">→</span>
+      <span class="state" style="border-color:#1D4ED840; color:#1D4ED8;">concluso</span>
+    </div>
+
+    <h3>Iscrizione (Entry)</h3>
+    <div class="states">
+      <span class="state" style="border-color:#0F172A22; color:#334155;">bozza</span><span class="arrow">→</span>
+      <span class="state" style="border-color:#15803D40; color:#15803D;">confermata</span><span class="arrow">→</span>
+      <span class="state" style="border-color:#1D4ED840; color:#1D4ED8;">check-in</span><span class="arrow">→</span>
+      <span class="state" style="border-color:#DC262640; color:#DC2626;">in campo</span><span class="arrow">→</span>
+      <span class="state" style="border-color:#64748B40; color:#64748B;">completata</span>
+    </div>
+    <p class="body" style="font-size:12.5px;">Terminali alternativi: <code>ritirata</code> (scratch), <code>assente</code>. La fee matura alla transizione <b>confermata</b> ed è dovuta anche in caso di scratch/assenza (BR-03).</p>
+
+    <h3>Run</h3>
+    <div class="states">
+      <span class="state" style="border-color:#0F172A22; color:#334155;">attesa</span><span class="arrow">→</span>
+      <span class="state" style="border-color:#DC262640; color:#DC2626;">in inserimento</span><span class="arrow">→</span>
+      <span class="state" style="border-color:#B4530940; color:#B45309;">in attesa firma</span><span class="arrow">→</span>
+      <span class="state" style="border-color:#15803D40; color:#15803D;">validata</span><span class="arrow">→</span>
+      <span class="state" style="border-color:#1D4ED840; color:#1D4ED8;">pubblicata</span>
+    </div>
+
+    <h3>ScoreCard (per giudice, sotto-ciclo della run)</h3>
+    <div class="states">
+      <span class="state" style="border-color:#0F172A22; color:#334155;">in compilazione</span><span class="arrow">→</span>
+      <span class="state" style="border-color:#B4530940; color:#B45309;">firmata (locale)</span><span class="arrow">→</span>
+      <span class="state" style="border-color:#1D4ED840; color:#1D4ED8;">sincronizzata</span><span class="arrow">→</span>
+      <span class="state" style="border-color:#15803D40; color:#15803D;">validata</span>
+    </div>
+    <p class="body" style="font-size:12.5px;">La firma avviene <b>offline</b> e blocca la carta localmente; la sincronizzazione la porta sul server; la validazione (run-level, dall'organizzatore) la rende computabile in classifica. Una correzione dopo la firma genera una nuova versione tracciata, non muta la carta firmata.</p>
+
+    <h3>Payment <span class="tag p2">Fase 2</span></h3>
+    <div class="states">
+      <span class="state" style="border-color:#0F172A22; color:#334155;">in attesa</span><span class="arrow">→</span>
+      <span class="state" style="border-color:#15803D40; color:#15803D;">pagato</span><span class="arrow">→</span>
+      <span class="state" style="border-color:#1D4ED840; color:#1D4ED8;">riconciliato (split fee)</span>
+    </div>
+    <p class="body" style="font-size:12.5px;">Stub: in MVP il pagamento è fuori piattaforma. L'entità è prevista per non dover rifare il modello quando il pagamento entrerà in-app.</p>
+  </div>
+</section>
+
+<!-- REGOLE -->
+<section id="regole">
+  <div class="wrap">
+    <div class="eyebrow">Regole di business</div>
+    <h2>Catalogo BR</h2>
+    <p class="lead">Le regole referenziabili dal codice e dai test, numerate per poterle citare nelle issue. Tutte le regole sono chiuse: i valori normativi provengono dai regolamenti ufficiali 2026 digitalizzati in reference/.</p>
+
+    <h4>Fee</h4>
+    <div class="rule"><span class="id">BR-01</span><span class="txt">La fee si applica <b>per cavallo distinto</b> iscritto, non per iscrizione a classe. <code>fee = COUNT(DISTINCT horse) × fee_per_horse</code>.</span></div>
+    <div class="rule"><span class="id">BR-02</span><span class="txt">Il <code>fee_per_horse</code> è un attributo dell'evento, default <b>15 €</b>, modificabile dall'organizzatore in fase di creazione.</span></div>
+    <div class="rule"><span class="id">BR-03</span><span class="txt">La fee <b>matura</b> alla conferma dell'iscrizione ed è dovuta a prescindere da scratch o assenza — come le fee per box e foto/video allo show: pagano l'impegno preso all'iscrizione, non la presenza in campo.</span></div>
+
+    <h4>Eleggibilità</h4>
+    <div class="rule"><span class="id">BR-10</span><span class="txt">Un binomio è iscrivibile a una classe solo se soddisfa i requisiti della <b>categoria ufficiale</b> (catalogo completo in <code>reference/categories.json</code>: 24 categorie su 4 campionati): patente FISE richiesta, tessere IRHA, vincolo di proprietà del cavallo, limiti d'età, tetti di vincite.</span></div>
+    <div class="rule"><span class="id">BR-13</span><span class="txt">I <b>tetti di vincite</b> (earnings cap) fanno riferimento a circuiti diversi a seconda della categoria: carriera <b>IRHA</b> in EUR per le categorie del Campionato Italiano (es. Rookie L1 &lt; 500 €), qualifica <b>NRHA</b> in USD per l'Assoluto (es. Limited Non Pro lifetime &lt; 10.000 $, Intermediate cap sull'anno precedente). In MVP il dato è dichiarato dall'atleta e verificato al check-in (coerente con la decisione sui tesseramenti); Fase 2: tracking vincite IRHA in piattaforma.</span></div>
+    <div class="rule"><span class="id">BR-14</span><span class="txt">Il <b>vincolo di proprietà</b> del cavallo varia per categoria e per qualifica del cavaliere (es. Open: professionisti anche non di proprietà, non-professionisti solo di proprietà; Master NP over 60: di proprietà). Vocabolario codificato in <code>categories.json</code>.</span></div>
+    <div class="rule"><span class="id">BR-15</span><span class="txt">Limiti d'<b>età cavaliere</b> con regola di permanenza: Short Stirrup ≤10 (chi compie 11 nell'anno resta), Youth/bis ≤18 (chi compie 19 resta solo 1 anno), Youth 13&amp;Under e 14-18 dell'Assoluto con soglia al 1° gennaio, Prime Time ≥50, Master ≥60. L'età si valuta all'iscrizione secondo la regola della categoria.</span></div>
+    <div class="rule"><span class="id">BR-16</span><span class="txt">Alcune categorie richiedono l'accompagnamento di un <b>Tecnico Federale</b> (tutte le Debuttanti, Youth dell'Assoluto; nelle altre non obbligatorio se maggiorenne). L'iscrizione di queste classi richiede l'indicazione del tecnico.</span></div>
+    <div class="rule"><span class="id">BR-11</span><span class="txt">Lo stesso cavallo può iscriversi a <b>più classi</b> dello stesso evento; non può iscriversi <b>due volte alla stessa classe</b>.</span></div>
+    <div class="rule"><span class="id">BR-12</span><span class="txt">L'eleggibilità è verificata all'iscrizione (avviso) e confermata al <b>check-in</b> (verifica documentale).</span></div>
+
+    <h4>Scratch</h4>
+    <div class="rule"><span class="id">BR-17</span><span class="txt">Lo <b>scratch self-serve è un'impostazione dello show</b> (<code>self_scratch_enabled</code>, on/off, scelta dell'organizzatore alla creazione evento). <b>ON</b>: il concorrente o la scuderia titolare può ritirare in-app in qualsiasi momento fino al proprio turno. <b>OFF</b>: lo scratch si comunica dal vivo e lo registra l'organizzazione. In entrambi i casi l'organizzatore/segreteria può sempre registrarlo, la transizione a <code>ritirata</code> propaga alle viste derivate (ETA anticipata, classifica, payout), il draw mantiene il buco, e <b>la fee resta comunque dovuta dal cavaliere</b> (BR-03). Lo scratch self-serve non è annullabile dopo l'inizio della classe: il rientro passa dall'organizzatore.</span></div>
+
+    <h4>Scoring</h4>
+    <div class="rule"><span class="id">BR-20</span><span class="txt">Lo score di una ScoreCard parte da <b>70</b>: <code>70 + Σ(quality) − Σ(penalty_manovre) − run_penalty</code>.</span></div>
+    <div class="rule"><span class="id">BR-21</span><span class="txt">Il voto qualità per manovra è in <b>[−1.5, +1.5]</b> a passi di 0.5.</span></div>
+    <div class="rule"><span class="id">BR-22</span><span class="txt">La penalità di manovra è inserita come <b>totale</b> dallo scribe (nessun catalogo per tipo). La penalità di run è separata.</span></div>
+    <div class="rule"><span class="id">BR-23</span><span class="txt"><code>score_0</code> → punteggio 0 ma in classifica. <code>no_score</code> → fuori classifica. Sostituiscono il punteggio calcolato.</span></div>
+    <div class="rule"><span class="id">BR-24</span><span class="txt">Con più giudici il punteggio mostrato è sempre la <b>somma</b> delle ScoreCard: con 2 giudici somma dei due; con <b>5 giudici</b> (obbligatori da 50.000 $ di added money) somma <b>esclusi il più alto e il più basso</b>; a parità negli scarti (due massimi o due minimi uguali) <b>se ne esclude uno solo</b>. Requisiti numero giudici per fascia in <code>reference/scoring-rules.md</code>.</span></div>
+    <div class="rule"><span class="id">BR-25</span><span class="txt">Le cause di <code>score_0</code> sono codificate dal rulebook (elenco completo in <code>reference/scoring-rules.md</code>): tra le soglie, oltre ¼ di spin in eccesso, trotto oltre ½ cerchio o ½ arena, manovre oltre ¼ di cerchio fuori ordine, back oltre 4 passi.</span></div>
+    <div class="rule"><span class="id">BR-26</span><span class="txt">Ogni pattern ha un <b>ingresso</b> definito (walk-in / trot-in / lope-in). Per i pattern walk-in lo show management può imporre l'ingresso al trotto: la richiesta va pubblicata nell'ordine di partenza e nello schedule. La <b>mancata osservanza dell'ingresso al trotto imposto → score_0</b>. I 20 pattern ufficiali 2026 sono in <code>reference/patterns.json</code>.</span></div>
+
+    <h4>Classifica &amp; payout</h4>
+    <div class="rule"><span class="id">BR-30</span><span class="txt">Classifica e payout sono <b>viste derivate</b>: si ricalcolano da run e iscrizioni, mai memorizzate o modificate a mano.</span></div>
+    <div class="rule"><span class="id">BR-31</span><span class="txt">Ordinamento per <code>final_score</code> decrescente; <code>no_score</code> escluse; <code>score_0</code> in fondo ma presenti.</span></div>
+    <div class="rule"><span class="id">BR-32</span><span class="txt">Pari merito (da rulebook, dettaglio in <code>reference/scoring-rules.md</code>): al <b>1° posto</b> run-off oppure co-champion concordato (denaro diviso, trofeo a monetina); <b>altre posizioni</b> condivise con premi sommati e divisi. <b>Finali dei Campionati</b>: niente ex aequo sul podio — ordine: Tie Judge dichiarato a inizio classe → manovre di riferimento → run-off.</span></div>
+    <div class="rule"><span class="id">BR-33</span><span class="txt">Montepremi = <b>iscrizioni + added money − trofei − 20% spese org.</b> (meno di 4 partecipanti: trofeo non detratto); distribuzione esclusivamente secondo la tabella ufficiale <b>Payback A</b>, digitalizzata e validata in <code>reference/payback-schedules.json</code> (la colonna per fascia di iscritti paga k posizioni, somma 100%). Regionali: iscrizione max 30 €, judge fee max 5 €, trofei max 75 €. Nota: la fascia della tabella conta i cavalli <b>iscritti confermati</b> ("horses entered"), scratch inclusi — coerente con BR-03; da confermare con la segreteria insieme alla conferma Payback A.</span></div>
+
+    <h4>Correzioni &amp; integrità</h4>
+    <div class="rule"><span class="id">BR-40</span><span class="txt">Una ScoreCard <b>firmata</b> non si sovrascrive: ogni modifica è un evento di correzione tracciato (audit log: chi, quando, valore precedente).</span></div>
+    <div class="rule"><span class="id">BR-41</span><span class="txt">Una correzione propaga automaticamente al ricalcolo di classifica e payout (BR-30).</span></div>
+    <div class="rule"><span class="id">BR-42</span><span class="txt">Il rulebook prevede una <b>review ufficiale</b>: richiesta di revisione delle penalità maggiori (0/−2/−5) entro <b>30 minuti dall'ultimo percorso</b> della classe, via Steward, con video ufficiale; i punteggi diventano <b>ufficiali a +30 minuti</b>. Prodotto: i risultati live sono marcati <b>provvisori</b> fino alla scadenza della finestra, poi ufficiali. Nessun flusso di reclamo in-app in MVP (la review corre fuori piattaforma; un eventuale esito si recepisce come correzione BR-40/41).</span></div>
+
+    <h4>Turno stimato (ETA)</h4>
+    <div class="rule"><span class="id">BR-50</span><span class="txt">L'ETA è una <b>vista derivata, mai memorizzata</b>: si ricalcola da start list, stato delle run e configurazione evento (come classifica e payout, BR-30).</span></div>
+    <div class="rule"><span class="id">BR-51</span><span class="txt">Default di calibrazione (configurabili per evento): slot <b>270 s</b> (4'30") per run; drag ogni <b>5</b> run da <b>420 s</b> (7'); pause di programma dallo schedule. Sanity check: i default riproducono "≈10 cavalli/ora drag inclusi".</span></div>
+    <div class="rule"><span class="id">BR-52</span><span class="txt">A ogni ingresso in campo la stima si <b>ri-ancora</b> al reale; la cadenza osservata (media mobile delle ultime run) sostituisce progressivamente i default; i ritardi si propagano a cascata alle classi successive della giornata.</span></div>
+    <div class="rule"><span class="id">BR-53</span><span class="txt">Le run di iscrizioni <code>ritirata</code>/<code>assente</code> sono <b>escluse</b> dal conteggio delle run rimanenti dal momento della transizione di stato.</span></div>
+    <div class="rule"><span class="id">BR-54</span><span class="txt">Display: sempre stima dichiarata (mai orario secco); stato <b>"da programma"</b> prima dell'inizio classe o senza live scoring, <b>"live"</b> quando ancorata; formato assoluto se lontano, relativo se vicino.</span></div>
+    <div class="rule"><span class="id">BR-55</span><span class="txt"><span class="tag p2">Fase 2</span> Notifica push al concorrente a soglia configurabile prima del turno stimato: default <b>75 minuti</b> (inizio della finestra di sellaggio, ~75–60'). Larghezza voluta: gli scratch anticipano i turni, mai il contrario.</span></div>
+  </div>
+</section>
+
+<!-- NOTIFICHE -->
+<section id="notifiche">
+  <div class="wrap">
+    <div class="eyebrow">Notifiche &amp; comunicazioni</div>
+    <h2>Cosa il sistema comunica, a chi</h2>
+    <p class="lead">Le comunicazioni minime per il ciclo gara. Canale email in MVP; push/in-app è Fase 2. Niente notifiche superflue: ogni riga ha uno scopo operativo.</p>
+    <table>
+      <tr><th style="width:26%">Trigger</th><th style="width:24%">Destinatario</th><th>Contenuto</th><th class="center" style="width:12%">Fase</th></tr>
+      <tr><td><strong>Iscrizione confermata</strong></td><td>Scuderia / concorrente</td><td>Riepilogo binomi, classi, costo + fee</td><td class="center"><span class="tag mvp">MVP</span></td></tr>
+      <tr><td><strong>Draw pubblicato</strong></td><td>Iscritti alla classe</td><td>Ordine di partenza, orario stimato</td><td class="center"><span class="tag mvp">MVP</span></td></tr>
+      <tr><td><strong>Promemoria evento</strong></td><td>Iscritti</td><td>Data, sede, check-in</td><td class="center"><span class="tag p2">Fase 2</span></td></tr>
+      <tr><td><strong>Risultati pubblicati</strong></td><td>Iscritti alla classe</td><td>Posizione, score, payout</td><td class="center"><span class="tag mvp">MVP</span></td></tr>
+      <tr><td><strong>Score corretto</strong></td><td>Binomi con posizione cambiata</td><td>Nuova posizione, motivazione</td><td class="center"><span class="tag mvp">MVP</span></td></tr>
+      <tr><td><strong>Evento annunciato</strong></td><td>Follower / pubblico iscritto</td><td>Save the date, link calendario</td><td class="center"><span class="tag p2">Fase 2</span></td></tr>
+      <tr><td><strong>Turno in avvicinamento</strong></td><td>Concorrente / scuderia</td><td>"~75 minuti al tuo turno stimato" — apre la finestra di sellaggio (soglia configurabile)</td><td class="center"><span class="tag p2">Fase 2</span></td></tr>
+      <tr><td><strong>Rendiconto fee</strong></td><td>Organizzatore</td><td>Maturato a evento concluso</td><td class="center"><span class="tag mvp">MVP</span></td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- DECISIONI -->
+<section id="decisioni">
+  <div class="wrap">
+    <div class="eyebrow">Decisioni aperte</div>
+    <h2>Da ratificare prima del dev</h2>
+    <p class="lead">Due liste. La prima sono decisioni di prodotto che ho preso per chiudere i buchi: confermale o cambiale. La seconda sono i valori di dominio da validare con un giudice sul Patternbook — il modello li regge, ma i numeri esatti non sono cosa da inventare.</p>
+
+    <h3>Decisioni di prodotto (ratifica)</h3>
+    <ul class="clean">
+      <li><b>Organizzatori vetted in MVP</b>, non self-serve. <span style="color:var(--accent-600); font-weight:600;">✓ ratificato</span></li>
+      <li><b>Tesseramenti verificati manualmente al check-in</b>, integrazione federale in Fase 2. <span style="color:var(--accent-600); font-weight:600;">✓ ratificato</span></li>
+      <li><b>Identità: primo creatore + collegamento</b> su microchip (cavallo) ed email/tessera (persona), con account rivendicabile. <span style="color:var(--accent-600); font-weight:600;">✓ ratificato</span></li>
+      <li><b>Firma giudice sul dispositivo dello scribe</b> in MVP. <span style="color:var(--accent-600); font-weight:600;">✓ ratificato</span></li>
+      <li><b>La fee matura alla conferma iscrizione</b> ed è dovuta anche in caso di scratch (come box e foto/video). <span style="color:var(--accent-600); font-weight:600;">✓ ratificato</span></li>
+      <li><b>Nessun flusso di reclamo formale in MVP</b>: gli errori si rimediano via correzione (BR-40/41). <span style="color:var(--accent-600); font-weight:600;">✓ ratificato</span></li>
+    </ul>
+
+    <h3>Da validare con un giudice (Patternbook IRHA)</h3>
+    <ul class="clean">
+      <li>I 20 pattern ufficiali 2026 sono <b>digitalizzati</b> in <code>reference/patterns.json</code> (refuso del Pattern 14 corretto: lo step finale è sliding stop + back). Resta da confermare col giudice il <b>raggruppamento dei passi nelle ~7–8 manovre-segnate</b> del cartellino (schema NRHA).</li>
+      <li>Regole di <b>tie-break</b> esatte per classe e circuito (BR-32).</li>
+      <li>Schema percentuale di <b>payout</b> per numero di paganti e livello (BR-33).</li>
+      <li>Regole di <b>media giudici</b> e scarti con più di due giudici (BR-24).</li>
+      <li>Soglie penalità → <code>score_0</code> (BR-25).</li>
+      <li style="text-decoration:line-through; opacity:0.6;">Definizione di "cavallo di proprietà" — <b>chiusa</b> da Handbook NRHA (famiglia stretta, società familiari, lease, 180 giorni: vedi <code>reference/scoring-rules.md</code>).</li>
+      <li>Verifica qualifiche <b>NRHA / Reiner Suite</b>: in MVP dichiarazione + check-in; valutare se un controllo puntuale su Reiner Suite sia praticabile.</li>
+    </ul>
+
+    <div class="callout decision">
+      <span class="ic">◆</span>
+      <div><span class="lbl">Nota di metodo</span><br>Le decisioni aperte non bloccano l'inizio dello sviluppo: le fondamenta dati, l'iscrizione e gli onboarding non dipendono dai valori di dominio. Il motore di scoring fine (tie-break, scarti, soglie) è l'unico pezzo che va atteso fino alla validazione con il giudice — ed è infatti più avanti nell'ordine di lavoro MVP.</div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    PenRunner — Specifica Funzionale &amp; Flussi v1.0 · TonettiMedia · Giugno 2026 — fonte di verità per lo sviluppo, da leggere insieme a Data Model e Style Guide
+  </div>
+</footer>
+
+</body>
+</html>

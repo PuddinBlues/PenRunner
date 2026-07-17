@@ -1,0 +1,222 @@
+{
+  "source": "IRHA-FISE 2026 — Schema categorie campionati (rulebook)",
+  "season": 2026,
+  "note": "Catalogo ufficiale delle categorie. Alla creazione evento l'organizzatore sceglie le Class da questo catalogo; l'eleggibilita' (BR-10) si valuta contro i requisiti qui codificati. I tetti di vincite fanno riferimento a circuiti diversi: earnings_cap_ref indica se il tetto guarda le vincite IRHA o NRHA.",
+  "championships": {
+    "debuttanti": "Campionato Italiano Debuttanti (Regionale FISE-IRHA + Italiano Debuttanti)",
+    "italiano": "Campionato Italiano (Regionale FISE-IRHA + Italiano)",
+    "assoluto": "Campionato Italiano Assoluto (Regionale FISE-IRHA + Italiano Assoluto + Finale NRHA quando indicato)",
+    "facoltative": "Categorie facoltative regionali — non concorrono alle finali del Campionato Italiano; ogni regione decide se inserirle"
+  },
+  "common_requirements": "Patente FISE del cavaliere e passaporto del cavallo; tessera IRHA di cavaliere e proprietario; licenza IRHA del cavallo.",
+  "categories": [
+    {
+      "code": "70", "name": "Green Level", "championship": "debuttanti",
+      "fise_license": "A da 3 mesi / BW 1GR/2GR rilasciata anno in corso",
+      "tecnico_federale_required": true,
+      "membership": "Tessera socio IRHA gratuita fino al conseguimento della Patente FISE 1GR/2GR",
+      "horse_ownership": "non_di_proprieta", "horse_notes": "max 2 entrate",
+      "notes": "Passaggio: anno successivo per i primi 3 binomi della classifica del Campionato Regionale"
+    },
+    {
+      "code": "113 NA", "name": "Short Stirrup", "championship": "debuttanti",
+      "fise_license": "A da 3 mesi / BW 1GR/2GR rilasciata anno in corso",
+      "tecnico_federale_required": true,
+      "membership": "Tessera socio IRHA gratuita fino al conseguimento della Patente FISE 1GR/2GR",
+      "horse_ownership": "non_di_proprieta", "horse_notes": "max 3 entrate · no stalloni",
+      "rider_age": {"max": 10, "rule": "Chi compie 11 anni nel corso dell'anno rimane Short Stirrup"}
+    },
+    {
+      "code": "112 NA", "name": "Entry Level Youth/bis", "championship": "debuttanti",
+      "fise_license": "A da 3 mesi / BW 1GR/2GR rilasciata anno in corso",
+      "tecnico_federale_required": true,
+      "membership": "Tessera socio IRHA gratuita fino al conseguimento della Patente FISE 1GR/2GR",
+      "horse_ownership": "non_di_proprieta", "horse_notes": "max 2 entrate · no stalloni",
+      "rider_age": {"max": 18, "rule": "Chi compie 19 anni nel corso dell'anno rimane Youth (solo per 1 anno)"}
+    },
+    {
+      "code": "112", "name": "Entry Level Youth (1 o 2 mani)", "championship": "italiano",
+      "fise_license": "1GR/2GR",
+      "tecnico_federale_required": true,
+      "membership": "Tessera socio IRHA",
+      "horse_ownership": "non_di_proprieta", "horse_notes": "no stalloni",
+      "notes": "Riservata ai cavalieri Youth; segue i parametri della categoria Rookie Level 1. Ogni cavaliere con qualifica Rookie Level 1/youth e Green Reiner/youth potra' partecipare."
+    },
+    {
+      "code": "111", "name": "Green Reiner 2 (1 o 2 mani)", "championship": "italiano",
+      "fise_license": "1GR/2GR", "tecnico_federale_required": false,
+      "tecnico_note": "non obbligatorio se maggiorenne",
+      "membership": "Tessera socio IRHA",
+      "horse_ownership": "non_di_proprieta",
+      "earnings_cap": {"amount": 350, "currency": "EUR", "scope": "carriera", "ref": "IRHA"}
+    },
+    {
+      "code": "101", "name": "Rookie Level 1 (1 mano)", "championship": "italiano",
+      "fise_license": "1GR/2GR", "tecnico_federale_required": false,
+      "tecnico_note": "non obbligatorio se maggiorenne",
+      "membership": "Tessera socio IRHA",
+      "horse_ownership": "non_di_proprieta",
+      "earnings_cap": {"amount": 500, "currency": "EUR", "scope": "carriera", "ref": "IRHA"}
+    },
+    {
+      "code": "104", "name": "Rookie Level 2 (1 mano)", "championship": "italiano",
+      "fise_license": "1GR/2GR", "tecnico_federale_required": false,
+      "tecnico_note": "non obbligatorio se maggiorenne",
+      "membership": "Tessera socio IRHA (atleta e proprietario)",
+      "horse_ownership": "non_di_proprieta",
+      "earnings_cap": {"amount": 1500, "currency": "EUR", "scope": "carriera", "ref": "IRHA"}
+    },
+    {
+      "code": "102", "name": "Ladies", "championship": "italiano",
+      "fise_license": "1GR/2GR", "tecnico_federale_required": false,
+      "tecnico_note": "non obbligatorio se maggiorenne",
+      "membership": "Tessera socio IRHA (atleta e proprietario)",
+      "horse_ownership": "non_di_proprieta_o_di_proprieta_per_np",
+      "restricted": "Riservata a sole donne"
+    },
+    {
+      "code": "108 / 107", "name": "Novice Horse Open / Non Pro", "championship": "italiano",
+      "fise_license": "1GR/2GR", "tecnico_federale_required": false,
+      "tecnico_note": "non obbligatorio se maggiorenne",
+      "membership": "Tessera socio IRHA",
+      "horse_ownership": "non_di_proprieta_o_di_proprieta_per_np",
+      "horse_earnings_cap": {"amount": 3000, "currency": "EUR", "scope": "carriera_cavallo", "excludes": "special events"},
+      "notes": "Cavalli anche extra-europei che non hanno vinto piu' di 3000 EUR esclusi special events"
+    },
+    {
+      "code": "702", "name": "Rookie Professional", "championship": "italiano",
+      "restricted": "Riservata ai soli professionisti",
+      "fise_license": "2GR", "tecnico_federale_required": false,
+      "tecnico_note": "non obbligatorio se maggiorenne",
+      "membership": "Tessera socio IRHA (atleta e proprietario)",
+      "horse_ownership": "non_di_proprieta",
+      "earnings_cap": {"amount": 5000, "currency": "EUR", "scope": "carriera", "ref": "IRHA", "note": "si tiene conto della qualifica piu' alta (rif. IRHA-NRHA)"}
+    },
+    {
+      "code": "701", "name": "Green Reiner Professional", "championship": "italiano",
+      "restricted": "Riservata ai soli professionisti — 1 o 2 mani, cambio di galoppo semplice",
+      "fise_license": "2GR", "tecnico_federale_required": false,
+      "tecnico_note": "non obbligatorio se maggiorenne",
+      "membership": "Tessera socio IRHA (atleta e proprietario)",
+      "horse_ownership": "non_di_proprieta",
+      "earnings_cap": {"amount": 2000, "currency": "EUR", "scope": "carriera", "ref": "IRHA"}
+    },
+    {
+      "code": "50 / 51", "name": "Prime Time Open / Non Pro over 50", "championship": "italiano",
+      "fise_license": "2GR", "tecnico_federale_required": false,
+      "membership": "Tessera socio IRHA (atleta e proprietario)",
+      "horse_ownership": "non_di_proprieta_o_di_proprieta_per_np",
+      "rider_age": {"min": 50}
+    },
+    {
+      "code": "61", "name": "Master Non Pro over 60", "championship": "italiano",
+      "fise_license": "1GR/2GR", "tecnico_federale_required": false,
+      "membership": "Tessera socio IRHA (atleta e proprietario)",
+      "horse_ownership": "di_proprieta",
+      "rider_age": {"min": 60}
+    },
+    {
+      "code": "103", "name": "Youth 14-18", "championship": "assoluto",
+      "fise_license": "2GR", "tecnico_federale_required": true,
+      "membership": "Tessera socio IRHA",
+      "horse_ownership": "libera", "horse_notes": "no stallone di proprieta'",
+      "rider_age": {"min": 14, "max": 18, "rule": "Chi compie 19 anni dopo il 1 gennaio puo' partecipare per la stagione in corso"},
+      "nrha_final": true
+    },
+    {
+      "code": "103bis", "name": "Youth 13&Under", "championship": "assoluto",
+      "fise_license": "2GR", "tecnico_federale_required": true,
+      "membership": "Tessera socio IRHA",
+      "horse_ownership": "libera", "horse_notes": "no stallone di proprieta'",
+      "rider_age": {"max": 13, "rule": "Chi compie 14 anni dopo il 1 gennaio puo' partecipare per la stagione in corso"},
+      "nrha_final": true
+    },
+    {
+      "code": "109", "name": "Non Pro", "championship": "assoluto",
+      "fise_license": "2GR", "tecnico_federale_required": false,
+      "tecnico_note": "non obbligatorio se maggiorenne",
+      "membership": "Tessera socio IRHA",
+      "horse_ownership": "di_proprieta",
+      "notes": "Aperta a tutti i cavalieri con qualifica Non Pro (riferimento NRHA — controllare la propria qualifica sulla Reiner Suite)",
+      "nrha_final": true
+    },
+    {
+      "code": "105", "name": "Intermediate Non Pro", "championship": "assoluto",
+      "fise_license": "2GR", "tecnico_federale_required": false,
+      "tecnico_note": "non obbligatorio se maggiorenne",
+      "membership": "Tessera socio IRHA",
+      "horse_ownership": "di_proprieta",
+      "earnings_cap": {"amount": 7500, "currency": "USD", "scope": "anno_precedente", "ref": "NRHA", "note": "controllare la qualifica sulla Reiner Suite"},
+      "nrha_final": true
+    },
+    {
+      "code": "115", "name": "Limited Non Pro", "championship": "assoluto",
+      "fise_license": "2GR", "tecnico_federale_required": false,
+      "tecnico_note": "non obbligatorio se maggiorenne",
+      "membership": "Tessera socio IRHA",
+      "horse_ownership": "di_proprieta",
+      "earnings_cap": {"amount": 10000, "currency": "USD", "scope": "lifetime", "ref": "NRHA", "note": "lifetime < 10.000 USD — controllare la qualifica sulla Reiner Suite"},
+      "nrha_final": true
+    },
+    {
+      "code": "110", "name": "Open", "championship": "assoluto",
+      "fise_license": "2GR", "tecnico_federale_required": false,
+      "membership": "Tessera socio IRHA",
+      "horse_ownership": "non_di_proprieta_per_pro_di_proprieta_per_np",
+      "notes": "Aperta a tutti i cavalieri (riferimento NRHA — Reiner Suite). *Per non professionisti: cavallo atleta di proprieta'",
+      "nrha_final": true
+    },
+    {
+      "code": "106", "name": "Intermediate Open", "championship": "assoluto",
+      "fise_license": "2GR", "tecnico_federale_required": false,
+      "membership": "Tessera socio IRHA",
+      "horse_ownership": "non_di_proprieta_per_pro_di_proprieta_per_np",
+      "earnings_cap": {"amount": 10000, "currency": "USD", "scope": "anno_precedente", "ref": "NRHA", "note": "controllare la qualifica sulla Reiner Suite"},
+      "nrha_final": true
+    },
+    {
+      "code": "116", "name": "Limited Open", "championship": "assoluto",
+      "fise_license": "2GR", "tecnico_federale_required": false,
+      "membership": "Tessera socio IRHA",
+      "horse_ownership": "non_di_proprieta_per_pro_di_proprieta_per_np",
+      "earnings_cap": {"amount": 7500, "currency": "USD", "scope": "anno_precedente", "ref": "NRHA", "note": "controllare la qualifica sulla Reiner Suite"},
+      "nrha_final": true
+    },
+    {
+      "code": "108NE / 107NE", "name": "Not Eligible Novice Horse Open / Non Pro", "championship": "facoltative",
+      "fise_license": "1GR/2GR (solo 2GR se open)", "tecnico_federale_required": false,
+      "tecnico_note": "non obbligatorio se maggiorenni",
+      "membership": "Tessera socio IRHA cavaliere e proprietario",
+      "horse_ownership": "non_di_proprieta_per_pro_di_proprieta_per_np",
+      "notes": "Per cavalli non eleggibili. Categorie addestrative."
+    },
+    {
+      "code": "777", "name": "Any Horse Any Riders", "championship": "facoltative",
+      "fise_license": "2GR", "tecnico_federale_required": false,
+      "tecnico_note": "non obbligatorio se maggiorenni",
+      "membership": "Tessera socio IRHA cavaliere e proprietario",
+      "horse_ownership": "non_di_proprieta_per_pro_di_proprieta_per_np",
+      "notes": "Categorie addestrative."
+    },
+    {
+      "code": "_111", "name": "Novice Riders 2 Mani", "championship": "facoltative",
+      "fise_license": "A da 3 mesi / BW 1GR/2GR rilasciata anno in corso", "tecnico_federale_required": false,
+      "tecnico_note": "non obbligatorio se maggiorenni",
+      "membership": "Tessera socio IRHA gratuita fino al conseguimento della Patente FISE 1GR/2GR",
+      "horse_ownership": "non_di_proprieta",
+      "notes": "Categoria ludica."
+    }
+  ],
+  "ownership_vocabulary": {
+    "di_proprieta": "il cavallo deve essere di proprieta' del cavaliere (o riconducibile per regolamento)",
+    "non_di_proprieta": "il cavallo puo' NON essere di proprieta' del cavaliere",
+    "non_di_proprieta_o_di_proprieta_per_np": "non di proprieta'; oppure di proprieta' per i Non Pro",
+    "non_di_proprieta_per_pro_di_proprieta_per_np": "per i professionisti anche non di proprieta'; per i non professionisti il cavallo atleta deve essere di proprieta'",
+    "libera": "nessun vincolo di proprieta' (salvo horse_notes)"
+  },
+  "open_points": [
+    "Definizione operativa esatta di 'di proprieta'' (intestazione, familiari, societa') — da rulebook/giudice",
+    "Come PenRunner verifica le qualifiche NRHA (Reiner Suite) in MVP: dichiarazione dell'atleta + verifica al check-in, coerente con la decisione sui tesseramenti",
+    "Mappatura tra queste categorie e le 'category' del profilo Person (open/non_pro/youth/rookie): il catalogo qui e' piu' ricco e va promosso a fonte di verita'"
+  ]
+}
