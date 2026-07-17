@@ -227,13 +227,18 @@ Voti qualità: +1.5 eccellente · +1 molto buono · +0.5 buono · 0 medio · −
 
 ## Fee
 
-Attributo dell'evento (`fee_per_horse`, default 15 €), applicato **per cavallo iscritto distinto**, indipendente dal numero di classi:
+Revenue split discrezionale (BR-02): due valori distinti, entrambi **per cavallo iscritto distinto**, indipendenti dal numero di classi.
+
+- `fee_per_horse` — prezzo al cavaliere, attributo dell'evento, deciso dall'organizzatore (default e consigliato 15 €).
+- `platform_fee_per_horse` — quota PenRunner: vive sull'**organizzazione** (default 15 € = nessuno split) con **override per evento**. Impostabile SOLO dal Platform Admin (mai dall'organizzatore: è il suo costo), ogni modifica in audit log (BR-71). Il margine (fee − quota) resta all'organizzatore come leva commerciale, mostrato nel wizard.
 
 ```
-fee_maturata = COUNT(DISTINCT horse_id tra le entry confermate) × fee_per_horse
+fee_al_cavaliere   = COUNT(DISTINCT horse_id tra le entry confermate) × fee_per_horse
+rendiconto_penrunner = COUNT(DISTINCT horse_id tra le entry confermate) × platform_fee_effettiva
+margine_organizzatore = fee_al_cavaliere − rendiconto_penrunner
 ```
 
-MVP: incasso all'organizzatore, che rendiconta e versa a PenRunner. La struttura è pronta per la Fase 2 (pagamento in piattaforma con split) aggiungendo un'entità `Payment` collegata all'iscrizione, senza modificare il calcolo.
+Entrambe **viste derivate, mai memorizzate**. MVP: incasso all'organizzatore, che rendiconta e versa a PenRunner. La struttura è pronta per la Fase 2 (pagamento in piattaforma con split automatico) aggiungendo un'entità `Payment` collegata all'iscrizione, senza modificare il calcolo.
 
 ## Punti aperti (validare con un giudice sul Patternbook IRHA)
 

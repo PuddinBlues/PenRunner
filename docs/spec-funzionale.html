@@ -330,7 +330,7 @@
       <div class="flowarrow">→</div>
       <div class="step"><span class="n">2</span><b>Classi</b><br>Pattern, quota, montepremi, n° giudici</div>
       <div class="flowarrow">→</div>
-      <div class="step"><span class="n">3</span><b>Fee &amp; impostazioni</b><br>€/cavallo (default 15) · scratch self-serve on/off</div>
+      <div class="step"><span class="n">3</span><b>Fee &amp; impostazioni</b><br>€/cavallo al cavaliere (default 15) · quota PenRunner da accordo, margine mostrato · scratch self-serve on/off</div>
       <div class="flowarrow">→</div>
       <div class="step"><span class="n">4</span><b>Bozza → Annuncio → Apertura</b></div>
     </div>
@@ -551,7 +551,7 @@
 
     <h4>Fee</h4>
     <div class="rule"><span class="id">BR-01</span><span class="txt">La fee si applica <b>per cavallo distinto</b> iscritto, non per iscrizione a classe. <code>fee = COUNT(DISTINCT horse) × fee_per_horse</code>.</span></div>
-    <div class="rule"><span class="id">BR-02</span><span class="txt">Il <code>fee_per_horse</code> è un attributo dell'evento, default <b>15 €</b>, modificabile dall'organizzatore in fase di creazione.</span></div>
+    <div class="rule"><span class="id">BR-02</span><span class="txt">Modello a <b>revenue split discrezionale</b>. Due valori distinti: <code>fee_per_horse</code> (prezzo al cavaliere, deciso dall'organizzatore, consigliato e default <b>15 €</b>) e <code>platform_fee_per_horse</code> (quota PenRunner, default <b>15 €</b> = nessuno split). Lo split è una <b>leva commerciale</b>: PenRunner può concedere una quota ridotta (es. 10 €) per accordo — per organizzazione, con override per evento — e il margine (fee − quota) resta all'organizzatore come incentivo. La quota è impostabile <b>solo dal Platform Admin</b> (mai dall'organizzatore), con scrittura auditata (BR-71); l'organizzatore vede il proprio margine calcolato nel wizard. Rendiconto MVP = cavalli distinti × quota concordata. Entrambe viste derivate, mai memorizzate; in Fase 2 lo split si automatizza con l'incasso in piattaforma.</span></div>
     <div class="rule"><span class="id">BR-03</span><span class="txt">La fee <b>matura</b> alla conferma dell'iscrizione ed è dovuta a prescindere da scratch o assenza — come le fee per box e foto/video allo show: pagano l'impegno preso all'iscrizione, non la presenza in campo.</span></div>
 
     <h4>Eleggibilità</h4>

@@ -8,7 +8,7 @@ Una piattaforma web per gestire le competizioni di reining dall'organizzazione d
 
 **Quattro utenti principali:** organizzatore (crea e gestisce l'evento), concorrente (rider/owner), scuderia/coach (iscrive molti binomi), pubblico (segue calendario e dirette). Ruoli operativi in gara: giudice e segreteria/scribe.
 
-**Modello di business:** la piattaforma è gratuita per tutti. Ricavo = una fee per cavallo iscritto (default 15 €), concordata con l'organizzatore che la include nella quota. In MVP l'incasso resta all'organizzatore che rendiconta a PenRunner; il pagamento in piattaforma con split arriva in Fase 2.
+**Modello di business (revenue split discrezionale, BR-02):** piattaforma gratuita per tutti. Prezzo al cavaliere: fee_per_horse (organizzatore, default 15 €). Quota PenRunner: platform_fee_per_horse (default 15 € = nessuno split); lo sconto con margine all'organizzatore (es. 10/5) è una LEVA COMMERCIALE concessa caso per caso — impostabile solo dal Platform Admin (per organizzazione, override per evento, scrittura auditata BR-71), mai dall'organizzatore, che vede il proprio margine nel wizard. Rendiconto MVP = cavalli distinti × quota concordata. Fee sempre derivate, mai memorizzate.
 
 ## Stack consigliato
 
