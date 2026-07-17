@@ -43,6 +43,11 @@ Queste derivano dal regolamento di reining e da decisioni di design prese con cu
 - Display onesto: sempre "~", stato "da programma" vs "live", mai un orario promesso. Notifica push a soglia = Fase 2, default 75 minuti (finestra di sellaggio ~75–60').
 - Scratch (BR-17): lo scratch self-serve è un'IMPOSTAZIONE dello show (`self_scratch_enabled`, default on, scelta dell'organizzatore). On = concorrente/scuderia ritirano in-app fino al proprio turno; off = si comunica dal vivo e registra l'organizzazione. In entrambi i casi la cascata (ETA anticipata, draw col buco, esclusione da classifica/payout) è automatica e la fee resta dovuta dal cavaliere.
 
+### Draw (BR-19, BR-43)
+- Distanziamento stesso cavaliere: obiettivo 7-8 cavalli in mezzo (warm-up del cavallo successivo), default generazione 8, degradazione a scala con warnings, mai fallimento.
+- Chirurgia del draw pubblicato = capacità concessa PER EVENTO (events.draw_surgery_enabled, default off; attiva solo il Platform Admin, per l'intero evento; visibile read-only all'organizzatore; auditata). Flag off → solo late entry in coda. Flag on → spostamenti auditati; spostamento in prima posizione dopo un drag annotato automaticamente.
+- Drag calcolati sulle run EFFETTIVE (scratch esclusi), marker di drag derivati visibili sulla start list pubblica in tempo reale — trasparenza: nessuno scopre al cancello che il confine si è spostato.
+
 ### Principio "the show must go on" (BR-18)
 - Sull'eleggibilità il sistema SEGNALA, mai blocca: nessun avviso (BR-10, 13..16) impedisce iscrizione, check-in o partenza. L'organizzatore vede e decide; gli avvisi restano registrati come traccia. Bloccanti solo i vincoli di integrità dei dati (BR-11, scale punteggio) — stati privi di senso, non giudizi sportivi.
 
