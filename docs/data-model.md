@@ -24,6 +24,7 @@ Principio: tema e colore sono dati dell'evento, ma **le regole di scoring sono d
 | membership_fise | string? | patente FISE |
 | category | enum | open · non_pro · youth · rookie |
 | stable_id | uuid? (FK) | scuderia |
+| locale | enum | it · en — lingua per email/notifiche (BR-62) |
 
 **Horse** — cavallo atleta.
 | Campo | Tipo | Note |

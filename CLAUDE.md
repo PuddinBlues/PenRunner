@@ -113,6 +113,6 @@ Vedi la sezione "Decisioni aperte" di `docs/spec-funzionale.html` e la sezione f
 
 ## Note di metodo
 
-- Lingua dell'interfaccia: **italiano**. Terminologia reining IRHA/FISE.
+- Lingue: **italiano + inglese** (BR-60..62), entrambe complete all'MVP. Locale iniziale dal dispositivo (it → italiano, altro → inglese), selettore manuale persistito, i18n-ready dal primo componente (stringhe esternalizzate). Il gergo di gara resta inglese in entrambe; email secondo la preferenza utente (campo locale su Person); pagine pubbliche con percorsi /it/ /en/. Le descrizioni inglesi dei pattern esistono nell'Handbook NRHA e si potranno aggiungere a patterns.json come campo "en".
 - Copy: verbi attivi, sentence case, niente gergo di sistema. "Conferma iscrizione", non "Submit".
 - Tutto il contesto di prodotto (PRD completo) è in `docs/prd.md`.

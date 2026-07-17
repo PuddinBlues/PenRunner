@@ -591,6 +591,11 @@
     <div class="rule"><span class="id">BR-53</span><span class="txt">Le run di iscrizioni <code>ritirata</code>/<code>assente</code> sono <b>escluse</b> dal conteggio delle run rimanenti dal momento della transizione di stato.</span></div>
     <div class="rule"><span class="id">BR-54</span><span class="txt">Display: sempre stima dichiarata (mai orario secco); stato <b>"da programma"</b> prima dell'inizio classe o senza live scoring, <b>"live"</b> quando ancorata; formato assoluto se lontano, relativo se vicino.</span></div>
     <div class="rule"><span class="id">BR-55</span><span class="txt"><span class="tag p2">Fase 2</span> Notifica push al concorrente a soglia configurabile prima del turno stimato: default <b>75 minuti</b> (inizio della finestra di sellaggio, ~75–60'). Larghezza voluta: gli scratch anticipano i turni, mai il contrario.</span></div>
+
+    <h4>Lingue (i18n)</h4>
+    <div class="rule"><span class="id">BR-60</span><span class="txt">L'interfaccia è <b>italiano + inglese</b>, entrambe complete all'MVP. La lingua iniziale segue il <b>dispositivo</b> (italiano → it; qualsiasi altra → en); <b>selettore manuale sempre disponibile</b> e scelta persistita. Requisito architetturale dal primo componente UI: stringhe esternalizzate, mai testo cablato.</span></div>
+    <div class="rule"><span class="id">BR-61</span><span class="txt">Il <b>gergo di gara resta in inglese in entrambe le lingue</b> (pattern, rollback, sliding stop, draw, scratch, added money…): è la lingua del reining anche in Italia. Si traducono interfaccia e testi di servizio, non il dominio.</span></div>
+    <div class="rule"><span class="id">BR-62</span><span class="txt">Le <b>email e notifiche</b> seguono la preferenza di lingua dell'utente (salvata sul profilo), non il dispositivo del momento. Le pagine pubbliche indicizzate usano percorsi per lingua (<code>/it/</code>, <code>/en/</code>) per la SEO.</span></div>
   </div>
 </section>
 
