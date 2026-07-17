@@ -148,6 +148,79 @@ export const adminRouter = router({
       return { suspended: false };
     }),
 
+  // BR-02: la quota PenRunner è una leva commerciale — solo lo staff la
+  // imposta (mai l'organizzatore), e ogni modifica lascia audit (BR-71).
+  setOrganizationPlatformFee: adminProcedure
+    .input(
+      z.object({
+        organizationId: z.string().uuid(),
+        platformFeePerHorse: z.number().min(0).max(1000),
+        note: z.string().max(2000).optional(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const actorUserId = ctx.actor.userId;
+      await ctx.db.transaction(async (tx) => {
+        const [before] = await tx
+          .select()
+          .from(schema.organizations)
+          .where(eq(schema.organizations.id, input.organizationId));
+        if (!before) throw new TRPCError({ code: "NOT_FOUND" });
+        await tx
+          .update(schema.organizations)
+          .set({ platformFeePerHorse: input.platformFeePerHorse.toFixed(2) })
+          .where(eq(schema.organizations.id, input.organizationId));
+        await recordAudit(tx, {
+          actorUserId,
+          action: "organization.platform_fee.set",
+          entityType: "organization",
+          entityId: input.organizationId,
+          before: { platformFeePerHorse: before.platformFeePerHorse },
+          after: { platformFeePerHorse: input.platformFeePerHorse.toFixed(2) },
+          ...(input.note ? { note: input.note } : {}),
+        });
+      });
+      return { platformFeePerHorse: input.platformFeePerHorse };
+    }),
+
+  setEventPlatformFee: adminProcedure
+    .input(
+      z.object({
+        eventId: z.string().uuid(),
+        // null = rimuove l'override, torna la quota dell'organizzazione
+        platformFeePerHorse: z.number().min(0).max(1000).nullable(),
+        note: z.string().max(2000).optional(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const actorUserId = ctx.actor.userId;
+      await ctx.db.transaction(async (tx) => {
+        const [before] = await tx
+          .select()
+          .from(schema.events)
+          .where(eq(schema.events.id, input.eventId));
+        if (!before) throw new TRPCError({ code: "NOT_FOUND" });
+        const next =
+          input.platformFeePerHorse === null
+            ? null
+            : input.platformFeePerHorse.toFixed(2);
+        await tx
+          .update(schema.events)
+          .set({ platformFeePerHorse: next })
+          .where(eq(schema.events.id, input.eventId));
+        await recordAudit(tx, {
+          actorUserId,
+          action: "event.platform_fee.set",
+          entityType: "event",
+          entityId: input.eventId,
+          before: { platformFeePerHorse: before.platformFeePerHorse },
+          after: { platformFeePerHorse: next },
+          ...(input.note ? { note: input.note } : {}),
+        });
+      });
+      return { platformFeePerHorse: input.platformFeePerHorse };
+    }),
+
   auditLog: adminProcedure
     .input(z.object({ limit: z.number().int().min(1).max(200).default(50) }))
     .query(async ({ ctx, input }) => {

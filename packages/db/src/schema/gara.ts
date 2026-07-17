@@ -2,8 +2,10 @@ import { sql } from "drizzle-orm";
 import {
   check,
   integer,
+  jsonb,
   numeric,
   pgTable,
+  text,
   timestamp,
   unique,
   uniqueIndex,
@@ -42,6 +44,12 @@ export const entries = pgTable(
       .references(() => persons.id, { onDelete: "restrict" }),
     drawNumber: integer("draw_number"),
     status: entryStatus("status").notNull().default("bozza"),
+    // BR-16: tecnico federale indicato all'iscrizione dove la categoria lo
+    // richiede; l'assenza produce un avviso, mai un blocco (BR-18).
+    tecnicoName: text("tecnico_name"),
+    // BR-18: snapshot degli avvisi di eleggibilità alla conferma — traccia
+    // che resta sull'iscrizione anche dopo check-in e partenza, non censura.
+    eligibilityWarnings: jsonb("eligibility_warnings"),
   },
   (t) => [
     // BR-11: lo stesso cavallo non si iscrive due volte alla stessa classe.

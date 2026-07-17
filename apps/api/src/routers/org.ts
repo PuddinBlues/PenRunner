@@ -97,6 +97,55 @@ export const eventsRouter = router({
         .returning();
       return { eventId: event!.id, status: event!.status };
     }),
+
+  /** Avanza lo stato dell'evento (solo in avanti, macchina a stati della spec). */
+  setStatus: verifiedProcedure
+    .input(
+      z.object({
+        eventId: z.string().uuid(),
+        status: z.enum([
+          "bozza",
+          "annunciato",
+          "iscrizioni_aperte",
+          "iscrizioni_chiuse",
+          "in_corso",
+          "concluso",
+        ]),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const [event] = await ctx.db
+        .select()
+        .from(schema.events)
+        .where(eq(schema.events.id, input.eventId));
+      if (!event) throw new TRPCError({ code: "NOT_FOUND" });
+      if (
+        !can(ctx.actor, "event.configure", {
+          organizationId: event.organizationId,
+        })
+      ) {
+        throw new TRPCError({ code: "FORBIDDEN" });
+      }
+      const order = [
+        "bozza",
+        "annunciato",
+        "iscrizioni_aperte",
+        "iscrizioni_chiuse",
+        "in_corso",
+        "concluso",
+      ];
+      if (order.indexOf(input.status) <= order.indexOf(event.status)) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: `Transizione non valida: ${event.status} → ${input.status}`,
+        });
+      }
+      await ctx.db
+        .update(schema.events)
+        .set({ status: input.status })
+        .where(eq(schema.events.id, input.eventId));
+      return { status: input.status };
+    }),
 });
 
 export async function loadEventOrganization(db: Db, eventId: string) {

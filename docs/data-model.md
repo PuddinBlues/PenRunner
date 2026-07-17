@@ -24,8 +24,10 @@ Principio: tema e colore sono dati dell'evento, ma **le regole di scoring sono d
 | membership_irha | string? | tessera IRHA |
 | membership_fise | string? | patente FISE |
 | category | enum | open · non_pro · youth · rookie |
-| stable_id | uuid? (FK) | scuderia |
+| birth_date | date? | per i limiti d'età (BR-15); se manca → avviso, mai blocco (BR-18) |
 | locale | enum | it · en — lingua per email/notifiche (BR-62) |
+
+**StableMember** — membership Person ↔ Stable (molti-a-molti, unica sulla coppia). Il roster cavalieri: un cavaliere indipendente o multi-scuderia sta in più roster con un solo profilo. Sostituisce la vecchia `Person.stable_id` (una sola fonte di verità); "stabled at" resta invece 1-N sul cavallo.
 
 **Horse** — cavallo atleta.
 | Campo | Tipo | Note |
@@ -55,7 +57,8 @@ Principio: tema e colore sono dati dell'evento, ma **le regole di scoring sono d
 | theme_primary | color | colore tema |
 | theme_secondary | color? | |
 | hero_image | url? | foto header |
-| fee_per_horse | money | default 15 € |
+| fee_per_horse | money | prezzo al cavaliere, default 15 € (BR-02) |
+| platform_fee_per_horse | money? | override evento della quota PenRunner; null = quota dell'organizzazione. Solo Platform Admin, auditato (BR-02/71) |
 | status | enum | vedi stati evento |
 | slot_duration_s | int | default 270 (4'30" per run, ETA) — override per Class |
 | drag_every_n_runs | int | default 5 (rinnovo fondo) |
@@ -72,6 +75,7 @@ Principio: tema e colore sono dati dell'evento, ma **le regole di scoring sono d
 | entry_fee | money | quota classe |
 | added_money | money | montepremi |
 | judges_count | int | 1 o più giudici |
+| max_entries | int? | cap opzionale: classe piena = iscrizione bloccata (capienza, non eleggibilità) |
 
 **Category** — categoria ufficiale IRHA-FISE (catalogo di dominio, 24 voci in `reference/categories.json`, versionato per stagione): codice, campionato (debuttanti/italiano/assoluto/facoltative), patente FISE richiesta, tessere, vincolo proprietà cavallo, limiti età, earnings cap (con riferimento IRHA-EUR o NRHA-USD), obbligo tecnico federale. L'eleggibilità (BR-10, BR-13..16) si valuta contro questo catalogo. Il campo `category` di Person (open/non_pro/youth/rookie) resta come qualifica sintetica del profilo; la fonte di verità per l'iscrizione è la Category della classe.
 
@@ -105,6 +109,8 @@ Vocabolario tipi (dal patternbook): `stop` = sliding stop; `rundown` = galoppo d
 | rider_id | uuid (FK) | Person |
 | draw_number | int? | ordine di partenza |
 | status | enum | vedi stati iscrizione |
+| tecnico_name | string? | tecnico federale indicato (BR-16); assenza → avviso, mai blocco (BR-18) |
+| eligibility_warnings | jsonb? | snapshot degli avvisi alla conferma — traccia permanente (BR-18) |
 
 **Run** — esecuzione del pattern da un binomio, giudicata. Una entry può avere più run (go + finale). Con più giudici, una run ha più ScoreCard.
 | Campo | Tipo | Note |
@@ -167,7 +173,7 @@ Principio: **account ≠ anagrafica**. `User` è l'identità con cui si entra; `
 ## Relazioni (ER)
 
 ```
-Stable  1──N Person          Stable 1──N Horse        Person 1──N Horse (owner)
+Stable  N──N Person (StableMember)   Stable 1──N Horse   Person 1──N Horse (owner)
 Event   1──N Class           Pattern 1──N Maneuver    Pattern 1──N Class
 Class   1──N Entry           Horse 1──N Entry         Person 1──N Entry (rider)
 Entry   1──N Run             Run 1──N ScoreCard       Person 1──N ScoreCard (judge)

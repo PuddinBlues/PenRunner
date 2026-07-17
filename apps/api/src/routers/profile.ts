@@ -35,13 +35,7 @@ export const profileRouter = router({
       .where(eq(schema.users.id, ctx.actor.userId));
     const person = await findClaimablePerson(ctx.db, user!.email);
     return person
-      ? {
-          claimable: {
-            personId: person.id,
-            fullName: person.fullName,
-            stableId: person.stableId,
-          },
-        }
+      ? { claimable: { personId: person.id, fullName: person.fullName } }
       : { claimable: null };
   }),
 

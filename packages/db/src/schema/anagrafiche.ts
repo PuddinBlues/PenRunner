@@ -1,7 +1,9 @@
 import { sql } from "drizzle-orm";
 import {
+  date,
   pgTable,
   text,
+  unique,
   uniqueIndex,
   uuid,
   type AnyPgColumn,
@@ -33,18 +35,32 @@ export const persons = pgTable(
     membershipFise: text("membership_fise"),
     category: personCategory("category"), // qualifica sintetica del profilo
     locale: locale("locale").notNull().default("it"), // BR-62
-    // Scuderia principale (1-N come da data model). La relazione molti-a-molti
-    // per cavalieri multi-scuderia (edge della spec) arriverà con l'iscrizione
-    // massiva, quando servirà davvero.
-    stableId: uuid("stable_id").references(() => stables.id, {
-      onDelete: "set null",
-    }),
+    // Serve alla valutazione dei limiti d'età (BR-15); se manca, l'iscrizione
+    // a una classe con limite produce un avviso, mai un blocco (BR-18).
+    birthDate: date("birth_date"),
   },
   (t) => [
     uniqueIndex("persons_email_unique")
       .on(sql`lower(${t.email})`)
       .where(sql`${t.email} is not null`),
   ],
+);
+
+// Roster cavalieri: membership molti-a-molti (un cavaliere indipendente può
+// stare nei roster di più scuderie). L'appartenenza esclusiva non esiste;
+// "stabled at" resta invece 1-N sul cavallo (sta in un posto alla volta).
+export const stableMembers = pgTable(
+  "stable_members",
+  {
+    ...baseColumns,
+    stableId: uuid("stable_id")
+      .notNull()
+      .references(() => stables.id, { onDelete: "cascade" }),
+    personId: uuid("person_id")
+      .notNull()
+      .references(() => persons.id, { onDelete: "cascade" }),
+  },
+  (t) => [unique("stable_members_stable_person").on(t.stableId, t.personId)],
 );
 
 export const horses = pgTable(

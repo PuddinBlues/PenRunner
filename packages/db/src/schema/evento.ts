@@ -37,9 +37,16 @@ export const events = pgTable(
     themePrimary: text("theme_primary"),
     themeSecondary: text("theme_secondary"),
     heroImage: text("hero_image"),
+    // BR-02: prezzo al cavaliere, deciso dall'organizzatore.
     feePerHorse: numeric("fee_per_horse", { precision: 8, scale: 2 })
       .notNull()
-      .default("15"), // BR-02
+      .default("15"),
+    // BR-02: override per evento della quota PenRunner; null = eredita
+    // dall'organizzazione. Scrivibile SOLO dal Platform Admin, con audit.
+    platformFeePerHorse: numeric("platform_fee_per_horse", {
+      precision: 8,
+      scale: 2,
+    }),
     status: eventStatus("status").notNull().default("bozza"),
     // Calibrazione ETA (BR-51): i default riproducono "≈10 cavalli/ora".
     slotDurationS: integer("slot_duration_s").notNull().default(270),
@@ -49,7 +56,10 @@ export const events = pgTable(
   },
   (t) => [
     check("events_dates_coherent", sql`${t.endDate} >= ${t.startDate}`),
-    check("events_fee_non_negative", sql`${t.feePerHorse} >= 0`),
+    check(
+      "events_fee_non_negative",
+      sql`${t.feePerHorse} >= 0 and (${t.platformFeePerHorse} is null or ${t.platformFeePerHorse} >= 0)`,
+    ),
     check(
       "events_eta_positive",
       sql`${t.slotDurationS} > 0 and ${t.dragEveryNRuns} > 0 and ${t.dragDurationS} >= 0`,
@@ -81,9 +91,16 @@ export const classes = pgTable(
     judgesCount: integer("judges_count").notNull().default(1),
     // BR-26: scelta dello show (va pubblicata), non del catalogo pattern.
     trotInImposed: boolean("trot_in_imposed").notNull().default(false),
+    // Cap opzionale del flusso C: classe piena = iscrizione bloccata
+    // (vincolo di capienza, non giudizio di eleggibilità: BR-18 non c'entra).
+    maxEntries: integer("max_entries"),
   },
   (t) => [
     check("classes_judges_min", sql`${t.judgesCount} >= 1`),
+    check(
+      "classes_max_entries_min",
+      sql`${t.maxEntries} is null or ${t.maxEntries} >= 1`,
+    ),
     check(
       "classes_money_non_negative",
       sql`${t.entryFee} >= 0 and ${t.addedMoney} >= 0`,

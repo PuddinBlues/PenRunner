@@ -10,10 +10,10 @@ Tutto il necessario per avviare lo sviluppo di PenRunner in Claude Code.
 
 ## Sviluppo
 
-Monorepo pnpm (Node ≥ 22). Stato: **step 2 dell'MVP — auth e ruoli**.
+Monorepo pnpm (Node ≥ 22). Stato: **step 3 dell'MVP — iscrizione e fee**.
 
 - `packages/db` — schema Postgres (Drizzle), migrazioni, seed del catalogo 2026.
-- `apps/api` — API Fastify + tRPC: registrazione con verifica email, claim dei profili, organizzazioni con vetting, inviti event-scoped giudice/scribe, back-office admin con audit log immutabile (BR-70/71), policy della matrice ruoli.
+- `apps/api` — API Fastify + tRPC: auth con verifica email e claim, organizzazioni con vetting, inviti event-scoped, back-office admin con audit immutabile (BR-70/71), policy della matrice ruoli; roster scuderia con dedup (microchip/email) e membership multi-scuderia, iscrizione singola e massiva con avvisi di eleggibilità mai bloccanti (BR-18), scratch (BR-17), fee derivate con revenue split discrezionale (BR-01/02/03).
 
 ```bash
 pnpm install

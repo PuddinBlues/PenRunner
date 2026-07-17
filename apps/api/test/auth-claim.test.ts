@@ -83,12 +83,11 @@ describe("claim del profilo (modello identità + integrazione A)", () => {
       .returning();
     const [person] = await api.db
       .insert(schema.persons)
-      .values({
-        fullName: "Laura Bianchi",
-        email: "laura@example.com",
-        stableId: stable!.id,
-      })
+      .values({ fullName: "Laura Bianchi", email: "laura@example.com" })
       .returning();
+    await api.db
+      .insert(schema.stableMembers)
+      .values({ stableId: stable!.id, personId: person!.id });
 
     const { sessionToken } = await registerVerifiedUser(
       api,
@@ -101,12 +100,12 @@ describe("claim del profilo (modello identità + integrazione A)", () => {
     const { personId } = await caller.profile.claimAccept();
     expect(personId).toBe(person!.id);
 
-    // Il collegamento mantiene la relazione con la scuderia.
-    const [linked] = await api.db
+    // Il collegamento mantiene la relazione con la scuderia (membership).
+    const [membership] = await api.db
       .select()
-      .from(schema.persons)
-      .where(eq(schema.persons.id, personId));
-    expect(linked!.stableId).toBe(stable!.id);
+      .from(schema.stableMembers)
+      .where(eq(schema.stableMembers.personId, personId));
+    expect(membership!.stableId).toBe(stable!.id);
   });
 
   it("SICUREZZA: senza email verificata il claim è negato", async () => {

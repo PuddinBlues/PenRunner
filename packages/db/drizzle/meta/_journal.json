@@ -22,6 +22,27 @@
       "when": 1784272317743,
       "tag": "0002_audit_log_immutable",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1784278168204,
+      "tag": "0003_right_ben_urich",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1784278179354,
+      "tag": "0004_black_rage",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1784292393429,
+      "tag": "0005_faulty_leopardon",
+      "breakpoints": true
     }
   ]
 }

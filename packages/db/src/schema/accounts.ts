@@ -2,6 +2,7 @@ import { sql } from "drizzle-orm";
 import {
   boolean,
   check,
+  numeric,
   pgEnum,
   pgTable,
   text,
@@ -98,6 +99,14 @@ export const organizations = pgTable(
     contactPhone: text("contact_phone"),
     logoUrl: text("logo_url"),
     iban: text("iban"),
+    // BR-02: quota PenRunner per cavallo (default 15 = nessuno split).
+    // Scrivibile SOLO dal Platform Admin, ogni modifica in audit (BR-71).
+    platformFeePerHorse: numeric("platform_fee_per_horse", {
+      precision: 8,
+      scale: 2,
+    })
+      .notNull()
+      .default("15"),
     vettingStatus: vettingStatus("vetting_status")
       .notNull()
       .default("in_verifica"),
