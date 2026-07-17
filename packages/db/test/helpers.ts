@@ -44,6 +44,6 @@ export async function truncateOperationalTables(
   db: Awaited<ReturnType<typeof setupTestDb>>["db"],
 ) {
   await db.execute(
-    sql`truncate events, stables, persons, horses restart identity cascade`,
+    sql`truncate events, stables, persons, horses, organizations, users, audit_log restart identity cascade`,
   );
 }

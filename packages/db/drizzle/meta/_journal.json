@@ -8,6 +8,20 @@
       "when": 1784248874059,
       "tag": "0000_needy_stark_industries",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1784272308279,
+      "tag": "0001_late_the_watchers",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1784272317743,
+      "tag": "0002_audit_log_immutable",
+      "breakpoints": true
     }
   ]
 }

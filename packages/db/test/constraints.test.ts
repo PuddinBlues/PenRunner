@@ -7,6 +7,7 @@ import {
   events,
   horses,
   maneuverScores,
+  organizations,
   patternManeuvers,
   patterns,
   persons,
@@ -48,9 +49,15 @@ beforeAll(async () => {
     .from(categories)
     .where(eq(categories.code, "101"));
 
+  const [org] = await db
+    .insert(organizations)
+    .values({ name: "Club di test" })
+    .returning();
+
   const [event] = await db
     .insert(events)
     .values({
+      organizationId: org!.id,
       name: "Evento di test",
       venue: "Arena di test",
       startDate: "2026-05-01",
@@ -248,8 +255,13 @@ describe("vincoli di dominio nel database", () => {
   });
 
   it("date evento incoerenti rifiutate", async () => {
+    const [org] = await ctx.db
+      .select()
+      .from(organizations)
+      .limit(1);
     await expectConstraintViolation(
       ctx.db.insert(events).values({
+        organizationId: org!.id,
         name: "Evento rotto",
         venue: "Ovunque",
         startDate: "2026-06-10",

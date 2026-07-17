@@ -9,6 +9,7 @@ Convenzione: ogni entità ha `id` (UUID) + `created_at`/`updated_at`, omessi sot
 - **Anagrafiche** — chi e cosa partecipa: persone, cavalli, scuderie.
 - **Evento e competizione** — l'evento e le sue articolazioni: classi, pattern, manovre.
 - **Iscrizione e scoring** — iscrizioni, run, punteggi, penalità.
+- **Identità e accesso** — account, organizzazioni, ruoli event-scoped, sessioni, audit (vedi sotto).
 
 Principio: tema e colore sono dati dell'evento, ma **le regole di scoring sono dati di dominio della disciplina**. Il catalogo dei pattern (cosa prevede il regolamento) è separato dai dati di una singola run (cosa ha fatto questo cavallo).
 
@@ -131,6 +132,38 @@ Vocabolario tipi (dal patternbook): `stop` = sliding stop; `rundown` = galoppo d
 | quality | decimal | −1.5 … +1.5 (passo 0.5) |
 | penalty | decimal | **totale** penalità manovra (≥0) |
 
+### Identità e accesso
+
+Principio: **account ≠ anagrafica**. `User` è l'identità con cui si entra; `Person` resta l'anagrafica, che può esistere senza account (profilo creato da una scuderia, rivendicabile via claim — che si conclude solo a email verificata). Rider/owner/referente non sono ruoli memorizzati: sono fatti dei dati (`entries.rider_id`, `horses.owner_id`, `stables.referent_id`).
+
+**User** — identità di accesso (email + password argon2id).
+| Campo | Tipo | Note |
+|-------|------|------|
+| email | string | unica (case-insensitive) |
+| password_hash | string | argon2id |
+| person_id | uuid? (FK, unico) | null finché il profilo non è creato o rivendicato |
+| email_verified_at | datetime? | prerequisito del claim |
+| is_platform_admin | bool | default false — staff PenRunner (BR-70); azioni sempre auditate (BR-71) |
+| suspended_at / suspended_reason | datetime? / string? | sospensione admin, taglia le sessioni |
+
+**Organization** — il club organizzatore. Il vetting vive qui: è il club a essere verificato, le persone ne ereditano le capacità.
+| Campo | Tipo | Note |
+|-------|------|------|
+| name, affiliation_code, contatti, logo, iban | | profilo organizzazione |
+| vetting_status | enum | in_verifica · verificata · respinta |
+| vetting_note | string? | obbligatoria se respinta (rifiuto motivato) |
+| verified_at / verified_by | datetime? / uuid? (FK User) | chi ha verificato |
+
+**OrganizationMember** — membership con ruolo `titolare` | `segreteria` (Person ↔ Organization, unica). Creare eventi richiede membership in un'organizzazione `verificata`; `Event.organization_id` (FK, not null) lega l'evento al club.
+
+**EventRoleAssignment** — ruolo operativo event-scoped: `giudice` | `scribe` | `segreteria`, con `class_id` opzionale (null = tutto l'evento). Si **disattiva** (`deactivated_at`), mai si cancella: la sostituzione di un giudice non tocca le ScoreCard già firmate (che referenziano Person).
+
+**EventInvite** — invito magic-link legato a un'assegnazione: `token_hash` monouso, `expires_at`, `accepted_at`, `revoked_at`. L'accettazione NON crea uno User: apre una sessione scoped (giudice/scribe entrano in arena senza account pieno).
+
+**Session** — sessioni server-side revocabili (cookie httpOnly): appartengono a uno User **oppure** a un EventInvite, mai a entrambi (CHECK). **AuthToken** — token monouso per verifica email e reset password (hash, scadenza, consumo).
+
+**AuditLog** — BR-71: append-only, l'immutabilità è imposta da un trigger (no UPDATE/DELETE). Colonne: attore (User), azione, entità, `before`/`after` (jsonb), nota, timestamp. Registra le azioni admin (vetting, sospensioni) ed è la stessa struttura che traccerà le correzioni score BR-40/41.
+
 ## Relazioni (ER)
 
 ```
@@ -139,6 +172,11 @@ Event   1──N Class           Pattern 1──N Maneuver    Pattern 1──N C
 Class   1──N Entry           Horse 1──N Entry         Person 1──N Entry (rider)
 Entry   1──N Run             Run 1──N ScoreCard       Person 1──N ScoreCard (judge)
 ScoreCard 1──N ManeuverScore Maneuver 1──N ManeuverScore
+
+User 1──1 Person (claim)     Organization 1──N OrganizationMember (Person, ruolo)
+Organization 1──N Event      Event 1──N EventRoleAssignment (Person, ruolo, classe?)
+EventRoleAssignment 1──N EventInvite   Session N──1 (User | EventInvite)
+User 1──N AuthToken          AuditLog N──1 User (attore)
 ```
 
 ## Stati (macchine a stati)

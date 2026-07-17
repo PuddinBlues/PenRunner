@@ -1,0 +1,28 @@
+{
+  "name": "@penrunner/api",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "start": "tsx src/server.ts",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@fastify/cookie": "^11.0.2",
+    "@node-rs/argon2": "^2.0.2",
+    "@penrunner/db": "workspace:*",
+    "@trpc/server": "^11.4.0",
+    "drizzle-orm": "^0.44.7",
+    "fastify": "^5.4.0",
+    "pg": "^8.22.0",
+    "zod": "^3.25.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.8.0",
+    "vitest": "^3.2.0"
+  }
+}

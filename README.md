@@ -10,13 +10,17 @@ Tutto il necessario per avviare lo sviluppo di PenRunner in Claude Code.
 
 ## Sviluppo
 
-Monorepo pnpm (Node ≥ 22). Stato: **step 1 dell'MVP — fondamenta dati** (`packages/db`: schema Postgres con Drizzle, migrazioni, seed del catalogo 2026).
+Monorepo pnpm (Node ≥ 22). Stato: **step 2 dell'MVP — auth e ruoli**.
+
+- `packages/db` — schema Postgres (Drizzle), migrazioni, seed del catalogo 2026.
+- `apps/api` — API Fastify + tRPC: registrazione con verifica email, claim dei profili, organizzazioni con vetting, inviti event-scoped giudice/scribe, back-office admin con audit log immutabile (BR-70/71), policy della matrice ruoli.
 
 ```bash
 pnpm install
 docker compose up -d      # Postgres 16 di sviluppo
 pnpm db:migrate && pnpm db:seed
-pnpm test
+pnpm test                 # test di tutti i workspace
+pnpm --filter @penrunner/api dev   # API su :3001
 ```
 
 Dettagli in `packages/db/README.md`.

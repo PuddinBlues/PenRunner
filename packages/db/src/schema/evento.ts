@@ -9,6 +9,7 @@ import {
   text,
   uuid,
 } from "drizzle-orm/pg-core";
+import { organizations } from "./accounts.js";
 import { baseColumns } from "./base.js";
 import { categories, patterns } from "./catalog.js";
 import { eventStatus, eventTier } from "./enums.js";
@@ -23,6 +24,11 @@ export const events = pgTable(
   "events",
   {
     ...baseColumns,
+    // L'evento appartiene al club organizzatore; crearlo richiede
+    // un'organizzazione con vetting superato (policy, non CHECK).
+    organizationId: uuid("organization_id")
+      .notNull()
+      .references(() => organizations.id, { onDelete: "restrict" }),
     name: text("name").notNull(),
     venue: text("venue").notNull(),
     startDate: date("start_date").notNull(),
