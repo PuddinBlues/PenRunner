@@ -8,6 +8,19 @@ Tutto il necessario per avviare lo sviluppo di PenRunner in Claude Code.
 2. **`docs/spec-funzionale.html`** — la fonte di verità sul comportamento: ruoli e permessi, onboarding, tutti i flussi end-to-end con edge case e stati di errore, macchine a stati, catalogo regole di business (BR). È il documento più denso: leggilo presto.
 3. **`docs/handoff-tecnico.md`** — architettura, come tradurre i prototipi, ordine di lavoro per l'MVP.
 
+## Sviluppo
+
+Monorepo pnpm (Node ≥ 22). Stato: **step 1 dell'MVP — fondamenta dati** (`packages/db`: schema Postgres con Drizzle, migrazioni, seed del catalogo 2026).
+
+```bash
+pnpm install
+docker compose up -d      # Postgres 16 di sviluppo
+pnpm db:migrate && pnpm db:seed
+pnpm test
+```
+
+Dettagli in `packages/db/README.md`.
+
 ## Struttura
 
 ```
