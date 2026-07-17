@@ -43,6 +43,9 @@ Queste derivano dal regolamento di reining e da decisioni di design prese con cu
 - Display onesto: sempre "~", stato "da programma" vs "live", mai un orario promesso. Notifica push a soglia = Fase 2, default 75 minuti (finestra di sellaggio ~75–60').
 - Scratch (BR-17): lo scratch self-serve è un'IMPOSTAZIONE dello show (`self_scratch_enabled`, default on, scelta dell'organizzatore). On = concorrente/scuderia ritirano in-app fino al proprio turno; off = si comunica dal vivo e registra l'organizzazione. In entrambi i casi la cascata (ETA anticipata, draw col buco, esclusione da classifica/payout) è automatica e la fee resta dovuta dal cavaliere.
 
+### Principio "the show must go on" (BR-18)
+- Sull'eleggibilità il sistema SEGNALA, mai blocca: nessun avviso (BR-10, 13..16) impedisce iscrizione, check-in o partenza. L'organizzatore vede e decide; gli avvisi restano registrati come traccia. Bloccanti solo i vincoli di integrità dei dati (BR-11, scale punteggio) — stati privi di senso, non giudizi sportivi.
+
 ### Platform Admin (BR-70..73)
 - Ruolo staff PenRunner fuori dalla matrice pubblica, back-office /admin. MVP: visura cross-tenant, coda vetting organizzatori, sospensione account, merge duplicati persona/cavallo con anteprima.
 - Ogni azione admin → audit log immutabile; correzioni su dati di gara SOLO via flussi BR-40/41 con admin come attore. GDPR: export/cancellazione dati dal back-office.
