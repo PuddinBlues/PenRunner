@@ -64,6 +64,7 @@ Principio: tema e colore sono dati dell'evento, ma **le regole di scoring sono d
 | drag_every_n_runs | int | default 5 (rinnovo fondo) |
 | drag_duration_s | int | default 420 (7') |
 | self_scratch_enabled | bool | default true — scratch in-app da concorrente/scuderia (BR-17); off = solo organizzazione |
+| draw_surgery_enabled | bool | default false — chirurgia del draw pubblicato, concessa solo dal Platform Admin, auditata (BR-43) |
 
 **Class** — classe di gara di un evento. Lega evento↔pattern e punta a una **Category ufficiale** del catalogo.
 | Campo | Tipo | Note |
@@ -76,6 +77,7 @@ Principio: tema e colore sono dati dell'evento, ma **le regole di scoring sono d
 | added_money | money | montepremi |
 | judges_count | int | 1 o più giudici |
 | max_entries | int? | cap opzionale: classe piena = iscrizione bloccata (capienza, non eleggibilità) |
+| draw_status | enum | nessuno · generato (re-draw libero) · pubblicato (solo chirurgia BR-43) |
 
 **Category** — categoria ufficiale IRHA-FISE (catalogo di dominio, 24 voci in `reference/categories.json`, versionato per stagione): codice, campionato (debuttanti/italiano/assoluto/facoltative), patente FISE richiesta, tessere, vincolo proprietà cavallo, limiti età, earnings cap (con riferimento IRHA-EUR o NRHA-USD), obbligo tecnico federale. L'eleggibilità (BR-10, BR-13..16) si valuta contro questo catalogo. Il campo `category` di Person (open/non_pro/youth/rookie) resta come qualifica sintetica del profilo; la fonte di verità per l'iscrizione è la Category della classe.
 
@@ -107,7 +109,7 @@ Vocabolario tipi (dal patternbook): `stop` = sliding stop; `rundown` = galoppo d
 | class_id | uuid (FK) | |
 | horse_id | uuid (FK) | |
 | rider_id | uuid (FK) | Person |
-| draw_number | int? | ordine di partenza |
+| draw_number | int? | ordine di partenza — unico posto dove l'ordine vive (le Run non portano posizione); lo scratch NON lo tocca: buco mantenuto, mai ricompattato (BR-17). Distanziamento in generazione: BR-19 |
 | status | enum | vedi stati iscrizione |
 | tecnico_name | string? | tecnico federale indicato (BR-16); assenza → avviso, mai blocco (BR-18) |
 | eligibility_warnings | jsonb? | snapshot degli avvisi alla conferma — traccia permanente (BR-18) |
@@ -192,6 +194,8 @@ User 1──N AuthToken          AuditLog N──1 User (attore)
 
 **Iscrizione (Entry):** bozza → confermata → check-in → in campo → completata
 - Stati terminali alternativi: `ritirata` (scratch), `assente`.
+
+**Draw (per classe):** nessuno → generato (re-draw libero) → pubblicato (congela: crea le Run, poi solo chirurgia BR-43 auditata). I marker di drag della start list sono derivati dalle run effettive, scratch esclusi (BR-51).
 
 **Run:** attesa → in inserimento → in attesa firma → validata → pubblicata
 - `in inserimento` supporta l'offline: la ScoreCard si compila localmente e passa a `validata` solo dopo firma + sync. Modifiche dopo la firma → evento di correzione tracciato (audit log).

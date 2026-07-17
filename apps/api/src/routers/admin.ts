@@ -221,6 +221,41 @@ export const adminRouter = router({
       return { platformFeePerHorse: input.platformFeePerHorse };
     }),
 
+  // BR-43: la chirurgia del draw è una capacità concessa per evento — solo
+  // lo staff la attiva/revoca, sempre in audit (come la platform fee).
+  setDrawSurgery: adminProcedure
+    .input(
+      z.object({
+        eventId: z.string().uuid(),
+        enabled: z.boolean(),
+        note: z.string().max(2000).optional(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const actorUserId = ctx.actor.userId;
+      await ctx.db.transaction(async (tx) => {
+        const [before] = await tx
+          .select()
+          .from(schema.events)
+          .where(eq(schema.events.id, input.eventId));
+        if (!before) throw new TRPCError({ code: "NOT_FOUND" });
+        await tx
+          .update(schema.events)
+          .set({ drawSurgeryEnabled: input.enabled })
+          .where(eq(schema.events.id, input.eventId));
+        await recordAudit(tx, {
+          actorUserId,
+          action: "event.draw_surgery.set",
+          entityType: "event",
+          entityId: input.eventId,
+          before: { drawSurgeryEnabled: before.drawSurgeryEnabled },
+          after: { drawSurgeryEnabled: input.enabled },
+          ...(input.note ? { note: input.note } : {}),
+        });
+      });
+      return { drawSurgeryEnabled: input.enabled };
+    }),
+
   auditLog: adminProcedure
     .input(z.object({ limit: z.number().int().min(1).max(200).default(50) }))
     .query(async ({ ctx, input }) => {

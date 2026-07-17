@@ -382,14 +382,6 @@ export const entriesRouter = router({
         if (!(await canManageEntry(ctx.db, ctx.actor, entry))) {
           throw new TRPCError({ code: "FORBIDDEN" });
         }
-        // Placeholder MVP: il limite reale è "fino al proprio turno" e arriva
-        // con il draw (step 4); qui blocchiamo solo a evento concluso.
-        if (event.status === "concluso") {
-          throw new TRPCError({
-            code: "BAD_REQUEST",
-            message: "L'evento è concluso",
-          });
-        }
       }
       if (!["bozza", "confermata", "check_in"].includes(entry.status)) {
         throw new TRPCError({
@@ -397,10 +389,32 @@ export const entriesRouter = router({
           message: "Questa iscrizione non è più ritirabile in-app",
         });
       }
-      await ctx.db
-        .update(schema.entries)
-        .set({ status: "ritirata" })
-        .where(eq(schema.entries.id, input.entryId));
+      // Cutoff BR-17 "fino al proprio turno": se una run del binomio è oltre
+      // 'attesa' il binomio sta entrando (o è entrato) in campo — non è più
+      // uno scratch, è materia di gara (assente / no_score).
+      const entryRuns = await ctx.db
+        .select()
+        .from(schema.runs)
+        .where(eq(schema.runs.entryId, entry.id));
+      if (entryRuns.some((r) => r.status !== "attesa")) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Il turno del binomio è già iniziato: non è più uno scratch",
+        });
+      }
+      await ctx.db.transaction(async (tx) => {
+        // La run in attesa sparisce (nulla di giudicato da preservare);
+        // il draw_number resta: il buco NON si ricompatta (BR-17).
+        await tx
+          .delete(schema.runs)
+          .where(
+            and(eq(schema.runs.entryId, entry.id), eq(schema.runs.status, "attesa")),
+          );
+        await tx
+          .update(schema.entries)
+          .set({ status: "ritirata" })
+          .where(eq(schema.entries.id, input.entryId));
+      });
       return { status: "ritirata" as const };
     }),
 

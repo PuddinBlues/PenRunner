@@ -12,7 +12,7 @@ import {
 import { organizations } from "./accounts.js";
 import { baseColumns } from "./base.js";
 import { categories, patterns } from "./catalog.js";
-import { eventStatus, eventTier } from "./enums.js";
+import { drawStatus, eventStatus, eventTier } from "./enums.js";
 
 // ---------------------------------------------------------------------------
 // Evento e sue articolazioni. Classifica, payout, fee maturata ed ETA sono
@@ -53,6 +53,9 @@ export const events = pgTable(
     dragEveryNRuns: integer("drag_every_n_runs").notNull().default(5),
     dragDurationS: integer("drag_duration_s").notNull().default(420),
     selfScratchEnabled: boolean("self_scratch_enabled").notNull().default(true), // BR-17
+    // BR-43: chirurgia del draw pubblicato — capacità concessa per evento dal
+    // Platform Admin (mai dall'organizzatore), auditata come la platform fee.
+    drawSurgeryEnabled: boolean("draw_surgery_enabled").notNull().default(false),
   },
   (t) => [
     check("events_dates_coherent", sql`${t.endDate} >= ${t.startDate}`),
@@ -94,6 +97,7 @@ export const classes = pgTable(
     // Cap opzionale del flusso C: classe piena = iscrizione bloccata
     // (vincolo di capienza, non giudizio di eleggibilità: BR-18 non c'entra).
     maxEntries: integer("max_entries"),
+    drawStatus: drawStatus("draw_status").notNull().default("nessuno"),
   },
   (t) => [
     check("classes_judges_min", sql`${t.judgesCount} >= 1`),

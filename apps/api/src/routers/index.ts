@@ -1,6 +1,7 @@
 import { router } from "../trpc.js";
 import { adminRouter } from "./admin.js";
 import { authRouter } from "./auth.js";
+import { drawRouter } from "./draw.js";
 import { entriesRouter } from "./entries.js";
 import { feesRouter } from "./fees.js";
 import { inviteRouter } from "./invite.js";
@@ -15,6 +16,7 @@ export const appRouter = router({
   events: eventsRouter,
   roster: rosterRouter,
   entries: entriesRouter,
+  draw: drawRouter,
   fees: feesRouter,
   invite: inviteRouter,
   admin: adminRouter,

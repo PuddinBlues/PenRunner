@@ -43,6 +43,13 @@
       "when": 1784292393429,
       "tag": "0005_faulty_leopardon",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1784317619707,
+      "tag": "0006_perpetual_bucky",
+      "breakpoints": true
     }
   ]
 }

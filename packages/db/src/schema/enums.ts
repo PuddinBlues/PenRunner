@@ -62,6 +62,13 @@ export const scoreCardSpecial = pgEnum("score_card_special", [
   "no_score",
 ]);
 
+// Ciclo di vita del draw di una classe (flusso E).
+export const drawStatus = pgEnum("draw_status", [
+  "nessuno",
+  "generato", // bozza: re-draw libero
+  "pubblicato", // congelato: solo chirurgia tracciata (BR-43)
+]);
+
 export const entryGait = pgEnum("entry_gait", [
   "walk_in",
   "trot_in",
