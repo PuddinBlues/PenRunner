@@ -43,6 +43,10 @@ Queste derivano dal regolamento di reining e da decisioni di design prese con cu
 - Display onesto: sempre "~", stato "da programma" vs "live", mai un orario promesso. Notifica push a soglia = Fase 2, default 75 minuti (finestra di sellaggio ~75–60').
 - Scratch (BR-17): lo scratch self-serve è un'IMPOSTAZIONE dello show (`self_scratch_enabled`, default on, scelta dell'organizzatore). On = concorrente/scuderia ritirano in-app fino al proprio turno; off = si comunica dal vivo e registra l'organizzazione. In entrambi i casi la cascata (ETA anticipata, draw col buco, esclusione da classifica/payout) è automatica e la fee resta dovuta dal cavaliere.
 
+### Modalità degradata (BR-28)
+- Se il digitale si ferma: carta + radio come oggi, poi BACKFILL delle carte cartacee da organizzatore/segreteria — ScoreCard con source=manual_backfill, auditata, firma digitale mai simulata (fa fede la carta cartacea agli atti). PenRunner non è mai un single point of failure dello show.
+- Fine go: al completamento dell'ultima run, la pagina evento mostra automaticamente classifica del go (provvisoria) + start list di chi entra — tutto derivato, zero azioni manuali.
+
 ### Draw (BR-19, BR-43)
 - Distanziamento stesso cavaliere: obiettivo 7-8 cavalli in mezzo (warm-up del cavallo successivo), default generazione 8, degradazione a scala con warnings, mai fallimento.
 - Chirurgia del draw pubblicato = capacità concessa PER EVENTO (events.draw_surgery_enabled, default off; attiva solo il Platform Admin, per l'intero evento; visibile read-only all'organizzatore; auditata). Flag off → solo late entry in coda. Flag on → spostamenti auditati; spostamento in prima posizione dopo un drag annotato automaticamente.
@@ -102,7 +106,8 @@ In `prototypes/` ci sono 4 prototipi React funzionanti, già validati. Usali com
 2. `PaginaEvento.jsx` — pagina evento pubblica, registro scuro. Live results, classifica che si riordina all'arrivo di uno score, binomio "in campo".
 3. `IscrizioneMassiva.jsx` — iscrizione scuderia, desktop. Griglia binomi, assegnazione classi multiple, calcolo costi+fee live, checkout.
 4. `ScoringGiudice.jsx` — scoring scribe, mobile. Voti per manovra, widget penalità (inserimento numerico), score live con viraggio colore, firma offline.
-5. `PaginaPattern.jsx` — pagina pattern pubblica (per classe). Regola d'ingresso, sequenza numerata delle manovre da `reference/patterns.json`. Linkata da pagina evento, start list e app scribe. Diagrammi: mai le tavole NRHA (copyright) — si generano SVG originali dai dati di patterns.json, in stile PenRunner; in MVP bastano i passi testuali.
+5. `Scoreboard.jsx` — vista arena fullscreen per maxischermi (MVP, step 6): IN CAMPO, PRECEDENTE con score enorme, A SEGUIRE con ETA e marker drag, leader del go. Kiosk, registro scuro, auto-aggiornante, si apre su qualsiasi TV con browser. Rosso #DC2626 solo per lo stato live.
+6. `PaginaPattern.jsx` — pagina pattern pubblica (per classe). Regola d'ingresso, sequenza numerata delle manovre da `reference/patterns.json`. Linkata da pagina evento, start list e app scribe. Diagrammi: mai le tavole NRHA (copyright) — si generano SVG originali dai dati di patterns.json, in stile PenRunner; in MVP bastano i passi testuali.
 Diagrammi dei pattern: NON esistono ancora asset validi. In MVP la PaginaPattern mostra i passi testuali (da `reference/patterns.json`, che è completo e valido). I diagrammi arriveranno per una di queste vie: (a) permesso IRHA/NRHA di usare le tavole ufficiali, oppure (b) ridisegno vettoriale manuale da parte di un designer (es. in Figma, ricalcando le tavole e ri-stilizzando). Non tentare di generarli programmaticamente: la geometria continua del tracciato è l'informazione, e le approssimazioni per primitivi risultano sbagliate a chi conosce i pattern.
 
 ## Priorità suggerita per l'MVP
