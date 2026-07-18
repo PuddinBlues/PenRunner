@@ -12,6 +12,7 @@
   "dependencies": {
     "@fastify/cookie": "^11.0.2",
     "@node-rs/argon2": "^2.0.2",
+    "@penrunner/core": "workspace:*",
     "@penrunner/db": "workspace:*",
     "@trpc/server": "^11.4.0",
     "drizzle-orm": "^0.44.7",

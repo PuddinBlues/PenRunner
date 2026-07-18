@@ -129,8 +129,17 @@ Vocabolario tipi (dal patternbook): `stop` = sliding stop; `rundown` = galoppo d
 | judge_id | uuid (FK) | Person (ruolo giudice) |
 | run_penalty | decimal | penalità di run (≥0) |
 | special | enum? | null · score_0 · no_score |
-| score | decimal? | totale carta, **calcolato** |
-| signed_at | datetime? | firma del giudice |
+| score | — | **mai memorizzato**: si ricalcola sempre dal motore versionato (si mostra a chiusura e firma) |
+| status | enum | in_compilazione · chiusa · firmata · validata (BR-27: la chiusura annuncia, la firma ufficializza) |
+| client_card_id | uuid? (unico) | idempotenza di sync: generato dal device alla creazione |
+| source | enum | digital · manual_backfill (BR-28) |
+| paper_ref | string? | riferimento alla carta cartacea agli atti — obbligatorio per backfill, vietato per digital (CHECK) |
+| engine_version | string? | versione del motore che ha mostrato il totale alla chiusura |
+| engine_mismatch | bool | totale mostrato ≠ ricalcolo server: auditato, blocca l'auto-validazione (mai silenzioso) |
+| closed_at | datetime? | chiusura (annuncio, provvisorio) |
+| signed_at | datetime? | firma del giudice — per backfill sempre nullo: la firma digitale non si simula (CHECK) |
+| signature_stroke | text? | firma grafometrica (tratto), solo digital |
+| server_received_at | datetime? | ricezione server (l'orologio del device non decide mai un conflitto) |
 
 **ManeuverScore** — voto qualità e penalità di una manovra dentro una ScoreCard. Una riga per ogni manovra del pattern.
 | Campo | Tipo | Note |
@@ -198,7 +207,9 @@ User 1──N AuthToken          AuditLog N──1 User (attore)
 **Draw (per classe):** nessuno → generato (re-draw libero) → pubblicato (congela: crea le Run, poi solo chirurgia BR-43 auditata). I marker di drag della start list sono derivati dalle run effettive, scratch esclusi (BR-51).
 
 **Run:** attesa → in inserimento → in attesa firma → validata → pubblicata
-- `in inserimento` supporta l'offline: la ScoreCard si compila localmente e passa a `validata` solo dopo firma + sync. Modifiche dopo la firma → evento di correzione tracciato (audit log).
+- `in inserimento` supporta l'offline: la ScoreCard si compila localmente. `started_at` (manda in campo) è l'àncora reale dell'ETA (BR-52); `review_held_at`/`review_note` portano lo stato "Score in review" (BR-29, alzato da evento di run; la run resta in review finché tutte le carte sono chiuse e firmate).
+
+**ScoreCard (sotto-ciclo, BR-27):** in compilazione → **chiusa** (annuncio: completezza validata, totale mostrato, sync come provvisorio) → **firmata** (batch a fine classe, con tratto; riapertura tracciata solo pre-firma) → validata. Le bozze non lasciano mai il device; dalla firma la carta è immutabile: ogni modifica è una correzione BR-40 (snapshot prima/dopo in audit = versionamento, storia interrogabile per carta).
 
 ## Modello di scoring
 

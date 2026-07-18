@@ -1,5 +1,6 @@
 import { sql } from "drizzle-orm";
 import {
+  boolean,
   check,
   integer,
   jsonb,
@@ -18,6 +19,7 @@ import { classes } from "./evento.js";
 import {
   entryStatus,
   runStatus,
+  scoreCardSource,
   scoreCardSpecial,
   scoreCardStatus,
 } from "./enums.js";
@@ -74,6 +76,12 @@ export const runs = pgTable(
       .references(() => entries.id, { onDelete: "cascade" }),
     goRound: integer("go_round").notNull().default(1), // 1, 2, finale…
     status: runStatus("status").notNull().default("attesa"),
+    // "Manda in campo" dello scribe: àncora reale per l'ETA (BR-52).
+    startedAt: timestamp("started_at", { withTimezone: true }),
+    // BR-29: score in review. Alzato da un evento di run; la run resta "in
+    // review" (vista derivata) finché tutte le carte sono chiuse e firmate.
+    reviewHeldAt: timestamp("review_held_at", { withTimezone: true }),
+    reviewNote: text("review_note"),
   },
   (t) => [
     unique("runs_entry_go_round").on(t.entryId, t.goRound),
@@ -97,15 +105,38 @@ export const scoreCards = pgTable(
       .default("0"),
     special: scoreCardSpecial("special"), // BR-23
     status: scoreCardStatus("status").notNull().default("in_compilazione"),
+    // Idempotenza di sync: generato dal device alla creazione della carta.
+    clientCardId: uuid("client_card_id"),
+    source: scoreCardSource("source").notNull().default("digital"),
+    // BR-28: riferimento alla carta cartacea firmata agli atti (solo backfill).
+    paperRef: text("paper_ref"),
+    // Versione del motore che ha mostrato il totale alla chiusura.
+    engineVersion: text("engine_version"),
+    // Mismatch client/server mai silenzioso: flag che blocca l'auto-validazione.
+    engineMismatch: boolean("engine_mismatch").notNull().default(false),
+    closedAt: timestamp("closed_at", { withTimezone: true }),
     signedAt: timestamp("signed_at", { withTimezone: true }),
+    // Firma grafometrica (tratto SVG/blob), catturata dal frontend.
+    signatureStroke: text("signature_stroke"),
+    serverReceivedAt: timestamp("server_received_at", { withTimezone: true }),
   },
   (t) => [
     unique("score_cards_run_judge").on(t.runId, t.judgeId),
+    uniqueIndex("score_cards_client_card_id_unique")
+      .on(t.clientCardId)
+      .where(sql`${t.clientCardId} is not null`),
     check("score_cards_run_penalty_non_negative", sql`${t.runPenalty} >= 0`),
-    // Dalla firma in poi la carta ha sempre un timestamp di firma (BR-40).
+    // La firma digitale non si simula MAI (BR-28): una carta backfill ha
+    // paper_ref e nessuna firma digitale; una digitale firmata ha signed_at.
     check(
-      "score_cards_signed_has_timestamp",
-      sql`${t.status} = 'in_compilazione' or ${t.signedAt} is not null`,
+      "score_cards_signature_source",
+      sql`(${t.source} = 'digital' and ${t.paperRef} is null and (${t.status} in ('in_compilazione', 'chiusa') or ${t.signedAt} is not null))
+       or (${t.source} = 'manual_backfill' and ${t.paperRef} is not null and ${t.signedAt} is null and ${t.signatureStroke} is null)`,
+    ),
+    // Una carta oltre la compilazione è stata chiusa (l'annuncio, BR-27).
+    check(
+      "score_cards_closed_has_timestamp",
+      sql`${t.status} = 'in_compilazione' or ${t.closedAt} is not null`,
     ),
   ],
 );

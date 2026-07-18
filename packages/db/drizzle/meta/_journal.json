@@ -50,6 +50,13 @@
       "when": 1784317619707,
       "tag": "0006_perpetual_bucky",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1784405942332,
+      "tag": "0007_thin_daredevil",
+      "breakpoints": true
     }
   ]
 }

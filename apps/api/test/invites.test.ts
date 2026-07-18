@@ -213,6 +213,7 @@ describe("inviti event-scoped (giudice/scribe senza account pieno)", () => {
         runId: run!.id,
         judgeId: judgePersonId,
         status: "firmata",
+        closedAt: new Date(),
         signedAt: new Date(),
       })
       .returning();

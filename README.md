@@ -10,7 +10,7 @@ Tutto il necessario per avviare lo sviluppo di PenRunner in Claude Code.
 
 ## Sviluppo
 
-Monorepo pnpm (Node ≥ 22). Stato: **step 4 dell'MVP — draw order** (generazione con distanziamento BR-19, pubblicazione con run, chirurgia concessa BR-43, marker di drag BR-51).
+Monorepo pnpm (Node ≥ 22). Stato: **step 5 dell'MVP — scoring offline-first** (`packages/core`: motore versionato condiviso client/server con vettori d'oro + nucleo offline write-ahead; sync idempotente con conflitti e mismatch mai silenziosi; chiusura ≠ firma BR-27, held for review BR-29, backfill BR-28, correzioni BR-40).
 
 - `packages/db` — schema Postgres (Drizzle), migrazioni, seed del catalogo 2026.
 - `apps/api` — API Fastify + tRPC: auth con verifica email e claim, organizzazioni con vetting, inviti event-scoped, back-office admin con audit immutabile (BR-70/71), policy della matrice ruoli; roster scuderia con dedup (microchip/email) e membership multi-scuderia, iscrizione singola e massiva con avvisi di eleggibilità mai bloccanti (BR-18), scratch (BR-17), fee derivate con revenue split discrezionale (BR-01/02/03).

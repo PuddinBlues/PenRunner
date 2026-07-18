@@ -1,0 +1,23 @@
+{
+  "description": "Run corretta senza voti né penalità: resta 70 (BR-20)",
+  "source": "sintetico",
+  "card": {
+    "maneuvers": [
+      { "position": 1, "quality": 0, "penalty": 0 },
+      { "position": 2, "quality": 0, "penalty": 0 },
+      { "position": 3, "quality": 0, "penalty": 0 },
+      { "position": 4, "quality": 0, "penalty": 0 },
+      { "position": 5, "quality": 0, "penalty": 0 },
+      { "position": 6, "quality": 0, "penalty": 0 },
+      { "position": 7, "quality": 0, "penalty": 0 }
+    ],
+    "runPenalty": 0,
+    "special": null
+  },
+  "expected": {
+    "total": 70,
+    "qualitySum": 0,
+    "maneuverPenaltySum": 0,
+    "outcome": "scored"
+  }
+}

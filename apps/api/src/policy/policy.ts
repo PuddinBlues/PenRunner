@@ -18,6 +18,7 @@ export const CAPABILITIES = [
   "event.draw.manage", // genera/modifica il draw (segreteria: delegata ◐)
   "score.insert", // inserisce i punteggi (scribe ✓, giudice ◐ in proprio)
   "scorecard.sign", // firma la ScoreCard (solo giudice)
+  "score.backfill", // BR-28: inserisce a posteriori la carta cartacea
   "results.validate", // valida e pubblica i risultati
   "score.correct", // corregge uno score pubblicato (con audit)
   "entries.bulk", // iscrizione massiva (scuderia)
@@ -86,6 +87,7 @@ const ORGANIZER_CAPABILITIES: ReadonlySet<Capability> = new Set([
   "event.draw.manage",
   "results.validate",
   "score.correct",
+  "score.backfill",
   "payout.manage",
   "results.own.view",
 ]);
@@ -95,6 +97,7 @@ const SEGRETERIA_CAPABILITIES: ReadonlySet<Capability> = new Set([
   "event.registry.manage",
   "event.checkin",
   "event.draw.manage",
+  "score.backfill", // BR-28: il backfill è di organizzatore e segreteria
 ]);
 
 function orgMembership(

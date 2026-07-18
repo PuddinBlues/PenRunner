@@ -49,11 +49,21 @@ export const runStatus = pgEnum("run_status", [
   "pubblicata",
 ]);
 
+// BR-27: chiusura ≠ firma. La chiusura è l'annuncio (provvisorio, sincronizza);
+// la firma ufficializza, tipicamente in batch a fine classe. La sincronizzazione
+// è trasporto, non stato: la registra server_received_at.
 export const scoreCardStatus = pgEnum("score_card_status", [
   "in_compilazione",
+  "chiusa",
   "firmata",
-  "sincronizzata",
   "validata",
+]);
+
+// BR-28: una carta può nascere dal flusso digitale o dal backfill della
+// carta cartacea (modalità degradata).
+export const scoreCardSource = pgEnum("score_card_source", [
+  "digital",
+  "manual_backfill",
 ]);
 
 // Esiti speciali: sostituiscono il punteggio calcolato (BR-23).

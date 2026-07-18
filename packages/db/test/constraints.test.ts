@@ -181,18 +181,18 @@ describe("vincoli di dominio nel database", () => {
     );
   });
 
-  it("BR-40: una carta non può dirsi firmata senza timestamp di firma", async () => {
+  it("BR-40: una carta digitale non può dirsi firmata senza timestamp di firma", async () => {
     await expectConstraintViolation(
       ctx.db
         .update(scoreCards)
-        .set({ status: "firmata" })
+        .set({ status: "firmata", closedAt: new Date() })
         .where(eq(scoreCards.id, scoreCardId)),
-      "score_cards_signed_has_timestamp",
+      "score_cards_signature_source",
     );
 
     await ctx.db
       .update(scoreCards)
-      .set({ status: "firmata", signedAt: new Date() })
+      .set({ status: "firmata", signedAt: new Date(), closedAt: new Date() })
       .where(eq(scoreCards.id, scoreCardId));
     const [card] = await ctx.db
       .select()
