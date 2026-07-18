@@ -6,7 +6,7 @@
     "default": "walk_in",
     "trot_in_mandatable": true,
     "descr": "Per tutti i pattern a ingresso al passo (walk-in) lo show management puo' richiedere l'ingresso obbligatorio al trotto. La richiesta va pubblicata nell'ordine di partenza e in tutte le comunicazioni di schedule. La mancata osservanza comporta SCORE 0.",
-    "rule_ref": "BR-27"
+    "rule_ref": "BR-26"
   },
   "maneuver_types": [
     "rundown",

@@ -43,6 +43,12 @@ Queste derivano dal regolamento di reining e da decisioni di design prese con cu
 - Display onesto: sempre "~", stato "da programma" vs "live", mai un orario promesso. Notifica push a soglia = Fase 2, default 75 minuti (finestra di sellaggio ~75–60').
 - Scratch (BR-17): lo scratch self-serve è un'IMPOSTAZIONE dello show (`self_scratch_enabled`, default on, scelta dell'organizzatore). On = concorrente/scuderia ritirano in-app fino al proprio turno; off = si comunica dal vivo e registra l'organizzazione. In entrambi i casi la cascata (ETA anticipata, draw col buco, esclusione da classifica/payout) è automatica e la fee resta dovuta dal cavaliere.
 
+### Chiusura ≠ firma (BR-27)
+- La CHIUSURA (scribe, fine run) mostra il totale, sincronizza e alimenta il live come provvisorio — è l'annuncio. La FIRMA del giudice è in batch a fine classe (elenco carte con totali visibili, tratto per carta); prima della firma la carta è riapribile con evento tracciato, dalla firma è immutabile. Il gate non rallenta mai per firmare.
+
+### Score in review (BR-29)
+- Penalità dubbia → il giudice trattiene lo score: carta NON firmata con nota del dubbio, stato annunciato come evento di run ("Score in review" al posto del numero, in inglese in entrambe le lingue). Risoluzione al drag successivo: si fissa UN valore e si firma. Nessun doppio valore memorizzato; la firma resta l'unica ufficializzazione.
+
 ### Modalità degradata (BR-28)
 - Se il digitale si ferma: carta + radio come oggi, poi BACKFILL delle carte cartacee da organizzatore/segreteria — ScoreCard con source=manual_backfill, auditata, firma digitale mai simulata (fa fede la carta cartacea agli atti). PenRunner non è mai un single point of failure dello show.
 - Fine go: al completamento dell'ultima run, la pagina evento mostra automaticamente classifica del go (provvisoria) + start list di chi entra — tutto derivato, zero azioni manuali.
