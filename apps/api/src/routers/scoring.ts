@@ -394,6 +394,11 @@ export const scoringRouter = router({
             });
             const serverTotal = breakdown.total;
             const mismatch = c.displayedTotal !== serverTotal;
+            // Osservabilità: motore diverso ma totale uguale → nessun blocco,
+            // solo annotazione (si vuole sapere di un device vecchio PRIMA
+            // che produca un mismatch vero).
+            const versionSkew =
+              !mismatch && c.engineVersion !== SCORING_ENGINE_VERSION;
 
             const [existing] = await tx
               .select()
@@ -434,6 +439,7 @@ export const scoringRouter = router({
                 })
                 .where(eq(schema.scoreCards.id, existing.id));
               if (mismatch) await auditMismatch(tx, existing.id, c, serverTotal);
+              if (versionSkew) await auditVersionSkew(tx, existing.id, c);
               await maybeAwaitSignature(tx, runCtx);
               return {
                 clientCardId: c.clientCardId,
@@ -498,6 +504,7 @@ export const scoringRouter = router({
               c.maneuvers,
             );
             if (mismatch) await auditMismatch(tx, created!.id, c, serverTotal);
+            if (versionSkew) await auditVersionSkew(tx, created!.id, c);
             if (skewed) {
               await recordAudit(tx, {
                 actorUserId: null,
@@ -892,6 +899,22 @@ export const scoringRouter = router({
       return { validated: true };
     }),
 });
+
+async function auditVersionSkew(
+  tx: DbOrTx,
+  scoreCardId: string,
+  payload: { engineVersion: string },
+) {
+  await recordAudit(tx, {
+    actorUserId: null,
+    action: "scorecard.engine_version_skew",
+    entityType: "score_card",
+    entityId: scoreCardId,
+    before: { clientEngine: payload.engineVersion },
+    after: { serverEngine: SCORING_ENGINE_VERSION },
+    note: "Motore client diverso dal server ma totale coincidente: nessun blocco, sola osservabilità",
+  });
+}
 
 async function auditMismatch(
   tx: DbOrTx,

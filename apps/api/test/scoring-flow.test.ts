@@ -473,6 +473,34 @@ describe("conflitto two-device, mismatch e clock skew — run 3", () => {
     expect((await auditRows("scorecard.mismatch_acknowledged")).length).toBe(1);
   });
 
+  it("versione motore diversa ma totale uguale: annotato in audit, nessun blocco", async () => {
+    // il giudice 2 su run 4 non esiste ancora: usiamo una carta valida con
+    // motore dichiarato vecchio ma totale corretto → applied + annotazione
+    const skewCards = await auditRows("scorecard.engine_version_skew");
+    // la carta del mismatch (0.9.0-divergente) NON deve averla generata:
+    // lì parla già l'audit di mismatch
+    expect(skewCards).toHaveLength(0);
+
+    const res = await syncAs(judgeSessionToken, {
+      engineVersion: "0.9.9-vecchio",
+      cards: [
+        {
+          ...rawCard("00000000-0000-4000-8000-cccccccc0009", run2Id, judge2Id, {
+            displayedTotal: 70, // corretto: il server ricalcola 70
+          }),
+          engineVersion: "0.9.9-vecchio",
+        },
+      ],
+      events: [],
+    });
+    expect(res.cards[0]).toMatchObject({ result: "applied", serverTotal: 70 });
+    const card = await dbCard("00000000-0000-4000-8000-cccccccc0009");
+    expect(card!.engineMismatch).toBe(false); // nessun blocco
+    const after = await auditRows("scorecard.engine_version_skew");
+    expect(after).toHaveLength(1);
+    expect(after[0]!.before).toEqual({ clientEngine: "0.9.9-vecchio" });
+  });
+
   it("two-device: la seconda carta per lo stesso slot è un conflitto agli atti", async () => {
     const res = await syncAs(judgeSessionToken, {
       engineVersion: "1.0.0",
