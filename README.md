@@ -10,11 +10,13 @@ Tutto il necessario per avviare lo sviluppo di PenRunner in Claude Code.
 
 ## Sviluppo
 
-Monorepo pnpm (Node ≥ 22). Stato: **step 6 dell'MVP — classifica live, ETA, portale pubblico**.
+Monorepo pnpm (Node ≥ 22). Stato: **MVP backend completo (step 1-7)** — anagrafiche, eventi, iscrizioni/fee, draw, scoring offline-first, classifica/ETA live, payout e documenti PDF.
 
-- `packages/core` — motore scoring versionato + `computeRanking`/`computeEta`/ufficialità (puri, testati).
-- `apps/api` — Fastify + tRPC: auth, iscrizioni/fee, draw, scoring offline-first, viste derivate live (`live.eventLive`/`classRanking`/`classEta`), publishClass, propagazione BR-41, SSE `/live/:eventId`.
-- `apps/web` — **portale pubblico Next.js** (App Router, SSR): calendario, pagina evento live, start list con ETA e marker drag, pagina pattern (passi testuali), scoreboard kiosk. i18n it/en dal primo componente, percorsi `/it/` `/en/` (BR-60..62).
+- `packages/core` — logica di dominio pura e testata: motore scoring versionato, `computeRanking`/`computeEta`/ufficialità, `computePurse`/`computePayout` (Payback A, quadratura al centesimo).
+- `apps/api` — Fastify + tRPC: auth, roster/iscrizioni/fee, draw, scoring (sync offline, backfill, correzioni), viste derivate live + SSE, `payout.classPayout`, route PDF (`/documents/...`).
+- `apps/web` — portale pubblico Next.js (App Router, SSR): calendario, pagina evento live, start list con ETA e marker drag, pagina pattern, scoreboard kiosk. i18n it/en dal primo componente, percorsi `/it/` `/en/` (BR-60..62).
+
+Documenti PDF: start list e classifica (pubblici), payout e score card (organizzatore/segreteria) — via `GET /documents/class/:id/{start-list,results,payout}.pdf` e `/documents/run/:runId/scorecard/:judgeId.pdf`.
 
 - `packages/db` — schema Postgres (Drizzle), migrazioni, seed del catalogo 2026.
 - `apps/api` — API Fastify + tRPC: auth con verifica email e claim, organizzazioni con vetting, inviti event-scoped, back-office admin con audit immutabile (BR-70/71), policy della matrice ruoli; roster scuderia con dedup (microchip/email) e membership multi-scuderia, iscrizione singola e massiva con avvisi di eleggibilità mai bloccanti (BR-18), scratch (BR-17), fee derivate con revenue split discrezionale (BR-01/02/03).

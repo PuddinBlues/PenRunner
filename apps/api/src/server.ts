@@ -35,6 +35,9 @@ export async function buildServer() {
 
   server.get("/health", async () => ({ ok: true }));
 
+  const { registerDocumentRoutes } = await import("./documents/routes.js");
+  registerDocumentRoutes(server);
+
   // SSE: tick di invalidazione per evento — i client rifanno la fetch delle
   // viste derivate (eventLive/classRanking). Funziona su qualsiasi browser,
   // TV kiosk comprese; EventSource si riconnette da solo. Fallback: polling.

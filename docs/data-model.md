@@ -74,8 +74,9 @@ Principio: tema e colore sono dati dell'evento, ma **le regole di scoring sono d
 | category_code | string (FK→catalogo) | es. "101", "109", "110" — vedi `reference/categories.json` |
 | name | string | default dal catalogo, personalizzabile (es. "Open L4 · Derby") |
 | pattern_id | uuid (FK) | pattern assegnato |
-| entry_fee | money | quota classe |
-| added_money | money | montepremi |
+| entry_fee | money | quota classe (componente iscrizioni del montepremi) |
+| added_money | money | montepremi aggiunto |
+| trophy_cost | money | costo trofei da detrarre dal purse (BR-33); con < 4 partecipanti non si detrae |
 | judges_count | int | 1 o più giudici |
 | max_entries | int? | cap opzionale: classe piena = iscrizione bloccata (capienza, non eleggibilità) |
 | draw_status | enum | nessuno · generato (re-draw libero) · pubblicato (solo chirurgia BR-43) |
@@ -245,7 +246,7 @@ Voti qualità: +1.5 eccellente · +1 molto buono · +0.5 buono · 0 medio · −
 
 - **Classifica** = vista derivata (`computeRanking` in `packages/core`). Somma multi-giudice (`combineCards`, BR-24, con scarti a 5 giudici e parità). `no_score` fuori classifica; `score_0` in fondo ma presente e **mai eligibile ai piazzamenti a premio** (BR-31 precisata — vincola il payout); run in review → riga con "Score in review" al posto del numero (BR-29, inglese in entrambe le lingue). Pari merito = posizioni condivise (1-2-2-4); la parità al **1° posto** è flaggata (`firstPlaceTie`) perché la risoluzione è umana (run-off entro 10' o co-champion). Tie Judge/manovre di riferimento delle finali: fuori MVP.
 - **Provvisorio → ufficiale** (BR-42): i risultati sono provvisori fino a +30' dall'ultima run chiusa della **sezione**. **Semplificazione MVP dichiarata: sezione ≈ classe** — se la sezione regolamentare è il blocco di giornata, la finestra per classe potrebbe chiudersi prima del dovuto; rivisitabile con l'entità schedule (domanda in lista per giudice/steward). Derivato, zero scritture: alla scadenza cambia solo il derivato.
-- **Payout** = vista derivata (step 7). Distribuisce `added_money` tra le posizioni a premio **eligibili** (mai score_0/no_score).
+- **Payout** = vista derivata (`computePurse`/`selectPaybackBand`/`computePayout` in `packages/core`). **Montepremi** = iscrizioni (confermati × entry_fee, scratch inclusi) + added_money − trofei − 20% spese org. (formula assunta e parametrica — **da confermare con la segreteria IRHA**, esposta sempre scomposta nel report). **Fascia** dalla tabella ufficiale **Payback A** (`reference/payback-schedules.json`) per numero di cavalli iscritti. A premio **solo i piazzati eligibili** (BR-31: mai score_0/no_score); pari merito = premi delle posizioni coinvolte sommati e divisi; posizioni pagate senza eligibile → **non distribuite, restano allo show management**. Aritmetica in **centesimi interi** con quadratura garantita: `distribuito + non_distribuito = purse`, al centesimo. Multi-go (BR-33) è Fase 2: qui go singolo. Special events con Schedule B fuori MVP.
 - Tutti **calcolati, non memorizzati** — si ricalcolano da run e iscrizioni. Una correzione (BR-40) propaga automaticamente (BR-41): ricalcolo gratis + notifica ai binomi con posizione cambiata, nella **lingua del destinatario** (persons.locale, BR-62).
 - **Turno stimato (ETA)** = vista derivata (`computeEta`): àncora = ultimo `started_at` osservato ("manda in campo"); senza àncora → modalità "da programma" (nessun orario promesso, solo conteggio run mancanti). Cadenza osservata (media mobile) sostituisce lo slot di default (BR-52); drag sulle run effettive (BR-51). Cascata sulle classi successive via `classes.scheduled_order`. Pause di programma: Fase 2. Regole BR-50..55.
 - **Live**: la vista evento (`live.eventLive`) è la **fonte comune** di pagina evento e scoreboard (flusso G: a fine go passa automaticamente a classifica del go + start list di chi entra — tutto derivato). Aggiornamento via **SSE** con tick di invalidazione (bus in-process; assunzione singola istanza API in MVP, multi-istanza → pg NOTIFY).

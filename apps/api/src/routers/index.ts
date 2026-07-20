@@ -9,6 +9,7 @@ import { eventsRouter, orgRouter } from "./org.js";
 import { profileRouter } from "./profile.js";
 import { rosterRouter } from "./roster.js";
 import { liveRouter } from "./live.js";
+import { payoutRouter } from "./payout.js";
 import { scoringRouter } from "./scoring.js";
 
 export const appRouter = router({
@@ -21,6 +22,7 @@ export const appRouter = router({
   draw: drawRouter,
   scoring: scoringRouter,
   live: liveRouter,
+  payout: payoutRouter,
   fees: feesRouter,
   invite: inviteRouter,
   admin: adminRouter,

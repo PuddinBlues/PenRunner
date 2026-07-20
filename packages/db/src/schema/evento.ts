@@ -95,6 +95,11 @@ export const classes = pgTable(
     addedMoney: numeric("added_money", { precision: 10, scale: 2 })
       .notNull()
       .default("0"),
+    // Costo trofei da detrarre dal montepremi (BR-33); regola Handbook:
+    // con meno di 4 partecipanti non si detrae. Unico input reale del payout.
+    trophyCost: numeric("trophy_cost", { precision: 10, scale: 2 })
+      .notNull()
+      .default("0"),
     judgesCount: integer("judges_count").notNull().default(1),
     // BR-26: scelta dello show (va pubblicata), non del catalogo pattern.
     trotInImposed: boolean("trot_in_imposed").notNull().default(false),
