@@ -1,0 +1,210 @@
+[
+  {
+    "description": "Multi-giudice 5 giudici DRAW 24 EXH 277 — regola BR-24 (esclude alto/basso, parità sul minimo esclude UNO solo)",
+    "source": "Score card reale 5 giudici (Maiocchi/Fady/Trusgnich/Latorre/Bartmann)",
+    "pattern": null,
+    "judges": 5,
+    "cards": [
+      {
+        "maneuvers": [
+          {
+            "quality": -0.5,
+            "penalty": 0
+          },
+          {
+            "quality": -0.5,
+            "penalty": 0
+          },
+          {
+            "quality": 0,
+            "penalty": 0
+          },
+          {
+            "quality": -0.5,
+            "penalty": 0
+          },
+          {
+            "quality": -0.5,
+            "penalty": 0
+          },
+          {
+            "quality": -0.5,
+            "penalty": 0
+          },
+          {
+            "quality": 0,
+            "penalty": 0
+          }
+        ],
+        "runPenalty": 0
+      },
+      {
+        "maneuvers": [
+          {
+            "quality": -0.5,
+            "penalty": 0
+          },
+          {
+            "quality": -1,
+            "penalty": 0
+          },
+          {
+            "quality": 0,
+            "penalty": 0
+          },
+          {
+            "quality": 0,
+            "penalty": 0
+          },
+          {
+            "quality": -0.5,
+            "penalty": 0
+          },
+          {
+            "quality": -1,
+            "penalty": 0
+          },
+          {
+            "quality": -0.5,
+            "penalty": 0
+          }
+        ],
+        "runPenalty": 0
+      },
+      {
+        "maneuvers": [
+          {
+            "quality": -0.5,
+            "penalty": 0
+          },
+          {
+            "quality": -0.5,
+            "penalty": 0
+          },
+          {
+            "quality": 0,
+            "penalty": 0
+          },
+          {
+            "quality": -0.5,
+            "penalty": 0
+          },
+          {
+            "quality": -0.5,
+            "penalty": 0
+          },
+          {
+            "quality": -0.5,
+            "penalty": 0
+          },
+          {
+            "quality": -0.5,
+            "penalty": 0
+          }
+        ],
+        "runPenalty": 0
+      },
+      {
+        "maneuvers": [
+          {
+            "quality": -0.5,
+            "penalty": 0
+          },
+          {
+            "quality": -0.5,
+            "penalty": 0
+          },
+          {
+            "quality": 0,
+            "penalty": 0
+          },
+          {
+            "quality": 0,
+            "penalty": 0
+          },
+          {
+            "quality": -0.5,
+            "penalty": 0
+          },
+          {
+            "quality": -0.5,
+            "penalty": 0
+          },
+          {
+            "quality": 0,
+            "penalty": 0
+          }
+        ],
+        "runPenalty": 0
+      },
+      {
+        "maneuvers": [
+          {
+            "quality": -0.5,
+            "penalty": 0
+          },
+          {
+            "quality": -0.5,
+            "penalty": 0
+          },
+          {
+            "quality": -0.5,
+            "penalty": 0
+          },
+          {
+            "quality": -0.5,
+            "penalty": 0
+          },
+          {
+            "quality": -0.5,
+            "penalty": 0
+          },
+          {
+            "quality": -0.5,
+            "penalty": 0
+          },
+          {
+            "quality": -0.5,
+            "penalty": 0
+          }
+        ],
+        "runPenalty": 0
+      }
+    ],
+    "expected": {
+      "perCard": [
+        67.5,
+        66.5,
+        67,
+        68,
+        66.5
+      ],
+      "kept": [
+        66.5,
+        67,
+        67.5
+      ],
+      "runTotalBR24": 201.0
+    }
+  },
+  {
+    "description": "Futurity ShowManager DRAW 1 EXH 321 — BR-24 su totali ufficiali a 5 giudici",
+    "source": "NRHA EuroFuturity 2026 (ShowManager) — parità competitiva",
+    "judges": 5,
+    "totals": [
+      69,
+      67.5,
+      69,
+      69,
+      68.5
+    ],
+    "expected": {
+      "kept": [
+        68.5,
+        69,
+        69
+      ],
+      "runTotalBR24": 206.5
+    }
+  }
+]

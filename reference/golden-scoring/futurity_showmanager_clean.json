@@ -1,0 +1,553 @@
+[
+  {
+    "description": "Futurity ShowManager DRAW 1 EXH 321 Judge 5 — base score, no penalties",
+    "source": "NRHA EuroFuturity 2026 (ShowManager official output) — competitive parity vector",
+    "pattern": 10,
+    "maneuvers": [
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": -0.5,
+        "penalty": 0
+      },
+      {
+        "quality": -0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.5,
+        "penalty": 0
+      },
+      {
+        "quality": -0.5,
+        "penalty": 0
+      },
+      {
+        "quality": -0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      }
+    ],
+    "runPenalty": 0,
+    "special": null,
+    "expected": {
+      "total": 68.5,
+      "outcome": "scored"
+    }
+  },
+  {
+    "description": "Futurity ShowManager DRAW 4 EXH 217 Judge 4 — base score, no penalties",
+    "source": "NRHA EuroFuturity 2026 (ShowManager official output) — competitive parity vector",
+    "pattern": 10,
+    "maneuvers": [
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 1.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      }
+    ],
+    "runPenalty": 0,
+    "special": null,
+    "expected": {
+      "total": 72.0,
+      "outcome": "scored"
+    }
+  },
+  {
+    "description": "Futurity ShowManager DRAW 5 EXH 196 Judge 1 — base score, no penalties",
+    "source": "NRHA EuroFuturity 2026 (ShowManager official output) — competitive parity vector",
+    "pattern": 10,
+    "maneuvers": [
+      {
+        "quality": -0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.5,
+        "penalty": 0
+      },
+      {
+        "quality": -0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.5,
+        "penalty": 0
+      },
+      {
+        "quality": -0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.5,
+        "penalty": 0
+      }
+    ],
+    "runPenalty": 0,
+    "special": null,
+    "expected": {
+      "total": 70.5,
+      "outcome": "scored"
+    }
+  },
+  {
+    "description": "Futurity ShowManager DRAW 5 EXH 196 Judge 2 — base score, no penalties",
+    "source": "NRHA EuroFuturity 2026 (ShowManager official output) — competitive parity vector",
+    "pattern": 10,
+    "maneuvers": [
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": -0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": -0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      }
+    ],
+    "runPenalty": 0,
+    "special": null,
+    "expected": {
+      "total": 69.5,
+      "outcome": "scored"
+    }
+  },
+  {
+    "description": "Futurity ShowManager DRAW 5 EXH 196 Judge 3 — base score, no penalties",
+    "source": "NRHA EuroFuturity 2026 (ShowManager official output) — competitive parity vector",
+    "pattern": 10,
+    "maneuvers": [
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": -0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      }
+    ],
+    "runPenalty": 0,
+    "special": null,
+    "expected": {
+      "total": 70.0,
+      "outcome": "scored"
+    }
+  },
+  {
+    "description": "Futurity ShowManager DRAW 5 EXH 196 Judge 4 — base score, no penalties",
+    "source": "NRHA EuroFuturity 2026 (ShowManager official output) — competitive parity vector",
+    "pattern": 10,
+    "maneuvers": [
+      {
+        "quality": 0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      }
+    ],
+    "runPenalty": 0,
+    "special": null,
+    "expected": {
+      "total": 72.0,
+      "outcome": "scored"
+    }
+  },
+  {
+    "description": "Futurity ShowManager DRAW 7 EXH 272 Judge 1 — base score, no penalties",
+    "source": "NRHA EuroFuturity 2026 (ShowManager official output) — competitive parity vector",
+    "pattern": 10,
+    "maneuvers": [
+      {
+        "quality": 1.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 1.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.5,
+        "penalty": 0
+      }
+    ],
+    "runPenalty": 0,
+    "special": null,
+    "expected": {
+      "total": 73.5,
+      "outcome": "scored"
+    }
+  },
+  {
+    "description": "Futurity ShowManager DRAW 7 EXH 272 Judge 2 — base score, no penalties",
+    "source": "NRHA EuroFuturity 2026 (ShowManager official output) — competitive parity vector",
+    "pattern": 10,
+    "maneuvers": [
+      {
+        "quality": 0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 1.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.5,
+        "penalty": 0
+      }
+    ],
+    "runPenalty": 0,
+    "special": null,
+    "expected": {
+      "total": 73.5,
+      "outcome": "scored"
+    }
+  },
+  {
+    "description": "Futurity ShowManager DRAW 7 EXH 272 Judge 3 — base score, no penalties",
+    "source": "NRHA EuroFuturity 2026 (ShowManager official output) — competitive parity vector",
+    "pattern": 10,
+    "maneuvers": [
+      {
+        "quality": 0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.5,
+        "penalty": 0
+      }
+    ],
+    "runPenalty": 0,
+    "special": null,
+    "expected": {
+      "total": 72.5,
+      "outcome": "scored"
+    }
+  },
+  {
+    "description": "Futurity ShowManager DRAW 7 EXH 272 Judge 4 — base score, no penalties",
+    "source": "NRHA EuroFuturity 2026 (ShowManager official output) — competitive parity vector",
+    "pattern": 10,
+    "maneuvers": [
+      {
+        "quality": 0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.5,
+        "penalty": 0
+      }
+    ],
+    "runPenalty": 0,
+    "special": null,
+    "expected": {
+      "total": 73.0,
+      "outcome": "scored"
+    }
+  },
+  {
+    "description": "Futurity ShowManager DRAW 7 EXH 272 Judge 5 — base score, no penalties",
+    "source": "NRHA EuroFuturity 2026 (ShowManager official output) — competitive parity vector",
+    "pattern": 10,
+    "maneuvers": [
+      {
+        "quality": 1.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 1.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.5,
+        "penalty": 0
+      }
+    ],
+    "runPenalty": 0,
+    "special": null,
+    "expected": {
+      "total": 73.5,
+      "outcome": "scored"
+    }
+  },
+  {
+    "description": "Futurity ShowManager DRAW 9 EXH 189 Judge 2 — base score, no penalties",
+    "source": "NRHA EuroFuturity 2026 (ShowManager official output) — competitive parity vector",
+    "pattern": 10,
+    "maneuvers": [
+      {
+        "quality": 1.0,
+        "penalty": 0
+      },
+      {
+        "quality": -0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 1.0,
+        "penalty": 0
+      },
+      {
+        "quality": 1.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      }
+    ],
+    "runPenalty": 0,
+    "special": null,
+    "expected": {
+      "total": 74.0,
+      "outcome": "scored"
+    }
+  },
+  {
+    "description": "Futurity ShowManager DRAW 2 EXH 213 — SCRATCH (ritiro, tutti i giudici)",
+    "source": "NRHA EuroFuturity 2026 (ShowManager official output)",
+    "pattern": 10,
+    "maneuvers": [],
+    "runPenalty": 0,
+    "special": "scratch",
+    "expected": {
+      "outcome": "no_score"
+    }
+  }
+]
