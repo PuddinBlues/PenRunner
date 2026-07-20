@@ -61,6 +61,10 @@ Queste derivano dal regolamento di reining e da decisioni di design prese con cu
 - Chirurgia del draw pubblicato = capacità concessa PER EVENTO (events.draw_surgery_enabled, default off; attiva solo il Platform Admin, per l'intero evento; visibile read-only all'organizzatore; auditata). Flag off → solo late entry in coda. Flag on → spostamenti auditati; spostamento in prima posizione dopo un drag annotato automaticamente.
 - Drag calcolati sulle run EFFETTIVE (scratch esclusi), marker di drag derivati visibili sulla start list pubblica in tempo reale — trasparenza: nessuno scopre al cancello che il confine si è spostato.
 
+### Autonomia d'uso — self-serve (BR-80, BR-81)
+- Ogni organizzazione impara a usare PenRunner DA SOLA, senza formazione né supporto: è condizione del modello self-serve. Requisito trasversale a ogni UI (scribe, organizzatore, scuderia): wizard guidati, stati vuoti che indicano il passo dopo, aiuto contestuale nello schermo (non manuali esterni), nessun flusso critico che richieda sapere cose non presenti a video.
+- App = PWA: funzionano da solo browser (offline incluso per lo scribe), nessuno store, nessuna installazione obbligatoria. "Aggiungi a Home" è comodità opzionale (schermo intero in arena), mai imposta. iOS (Safari) + Android (Chrome). Aggiornamenti immediati come un sito.
+
 ### Principio "the show must go on" (BR-18)
 - Sull'eleggibilità il sistema SEGNALA, mai blocca: nessun avviso (BR-10, 13..16) impedisce iscrizione, check-in o partenza. L'organizzatore vede e decide; gli avvisi restano registrati come traccia. Bloccanti solo i vincoli di integrità dei dati (BR-11, scale punteggio) — stati privi di senso, non giudizi sportivi.
 
