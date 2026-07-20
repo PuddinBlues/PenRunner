@@ -78,6 +78,21 @@ describe("score card cartacee firmate (Lombardia 2025)", () => {
   }
 });
 
+describe("percorso penalità di manovra su card reali (EuroFuturity 2026)", () => {
+  const vectors = readVec("futurity_penalita_manovra.json") as CardVector[];
+  it("37 vettori con penalità di manovra (fino a 4 su una carta)", () => {
+    expect(vectors.length).toBe(37);
+    // esercitano davvero il ramo penalità: almeno una card con 4 penalità
+    const maxPen = Math.max(
+      ...vectors.map((v) => v.maneuvers.filter((m) => m.penalty > 0).length),
+    );
+    expect(maxPen).toBe(4);
+  });
+  for (const v of vectors) {
+    it(v.description, () => checkCardVector(v));
+  }
+});
+
 // --- BR-24 (multi-giudice, esclude alto/basso) -----------------------------
 
 interface Br24Cards {

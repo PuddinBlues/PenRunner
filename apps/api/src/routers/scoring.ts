@@ -261,13 +261,56 @@ export const scoringRouter = router({
               ),
             )
         : [];
+      // Giudici assegnati (id + nome): la card ha bisogno di judge_id — lo
+      // scribe sceglie il giudice attivo (BR "uno scribe per più giudici").
+      const judges = await ctx.db
+        .select({
+          personId: schema.eventRoleAssignments.personId,
+          fullName: schema.persons.fullName,
+          classId: schema.eventRoleAssignments.classId,
+        })
+        .from(schema.eventRoleAssignments)
+        .innerJoin(
+          schema.persons,
+          eq(schema.persons.id, schema.eventRoleAssignments.personId),
+        )
+        .where(
+          and(
+            eq(schema.eventRoleAssignments.eventId, input.eventId),
+            eq(schema.eventRoleAssignments.role, "giudice"),
+            isNull(schema.eventRoleAssignments.deactivatedAt),
+          ),
+        );
+      // Nomi binomio: l'app scribe è offline, i nomi devono stare nel bundle.
+      const horseIds = [...new Set(entries.map((e) => e.horseId))];
+      const riderIds = [...new Set(entries.map((e) => e.riderId))];
+      const horseRows = horseIds.length
+        ? await ctx.db
+            .select({ id: schema.horses.id, name: schema.horses.name })
+            .from(schema.horses)
+            .where(inArray(schema.horses.id, horseIds))
+        : [];
+      const riderRows = riderIds.length
+        ? await ctx.db
+            .select({ id: schema.persons.id, name: schema.persons.fullName })
+            .from(schema.persons)
+            .where(inArray(schema.persons.id, riderIds))
+        : [];
       return {
         engineVersion: SCORING_ENGINE_VERSION,
+        // se la sessione è un giudice, è il giudice attivo predefinito
+        selfJudgePersonId:
+          ctx.actor.kind === "invite" && ctx.actor.role === "giudice"
+            ? ctx.actor.personId
+            : null,
         classes,
         patterns,
         maneuvers,
         entries,
         runs,
+        judges,
+        horses: Object.fromEntries(horseRows.map((h) => [h.id, h.name])),
+        riders: Object.fromEntries(riderRows.map((r) => [r.id, r.name])),
       };
     }),
 
