@@ -4,6 +4,7 @@ import { z } from "zod";
 import { schema, type Db } from "@penrunner/db";
 import { evaluateEligibility, type EligibilityWarning } from "../eligibility.js";
 import { can, type Actor } from "../policy/policy.js";
+import { liveBus } from "../services/livebus.js";
 import { router, verifiedProcedure } from "../trpc.js";
 
 // ---------------------------------------------------------------------------
@@ -415,6 +416,7 @@ export const entriesRouter = router({
           .set({ status: "ritirata" })
           .where(eq(schema.entries.id, input.entryId));
       });
+      liveBus.tick(event.id, "entry.scratched"); // ETA e marker drag si muovono
       return { status: "ritirata" as const };
     }),
 

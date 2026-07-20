@@ -34,6 +34,35 @@ export async function buildServer() {
   });
 
   server.get("/health", async () => ({ ok: true }));
+
+  // SSE: tick di invalidazione per evento — i client rifanno la fetch delle
+  // viste derivate (eventLive/classRanking). Funziona su qualsiasi browser,
+  // TV kiosk comprese; EventSource si riconnette da solo. Fallback: polling.
+  server.get<{ Params: { eventId: string } }>(
+    "/live/:eventId",
+    async (req, reply) => {
+      const { eventId } = req.params;
+      reply.raw.writeHead(200, {
+        "content-type": "text/event-stream",
+        "cache-control": "no-cache",
+        connection: "keep-alive",
+        "access-control-allow-origin": "*",
+      });
+      reply.raw.write(`event: hello\ndata: {}\n\n`);
+      const onTick = (payload: { reason: string; at: number }) => {
+        reply.raw.write(`event: tick\ndata: ${JSON.stringify(payload)}\n\n`);
+      };
+      const { liveBus } = await import("./services/livebus.js");
+      liveBus.on(`tick:${eventId}`, onTick);
+      const keepalive = setInterval(() => {
+        reply.raw.write(`: keepalive\n\n`);
+      }, 25_000);
+      req.raw.on("close", () => {
+        clearInterval(keepalive);
+        liveBus.off(`tick:${eventId}`, onTick);
+      });
+    },
+  );
   return server;
 }
 

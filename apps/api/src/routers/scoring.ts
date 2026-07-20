@@ -10,7 +10,9 @@ import {
 } from "@penrunner/core";
 import { can } from "../policy/policy.js";
 import { recordAudit } from "../services/audit.js";
+import { liveBus } from "../services/livebus.js";
 import { publicProcedure, router, verifiedProcedure } from "../trpc.js";
+import { buildClassRanking } from "./live.js";
 
 // ---------------------------------------------------------------------------
 // Lato server dello scoring offline-first (BR-20..29, 40).
@@ -530,6 +532,12 @@ export const scoringRouter = router({
           });
         }
       }
+      if (
+        cardResults.some((r) => r.result === "applied") ||
+        eventResults.some((r) => r.result === "applied")
+      ) {
+        liveBus.tick(actorEventId, "scoring.sync");
+      }
       return { cards: cardResults, events: eventResults };
     }),
 
@@ -655,6 +663,8 @@ export const scoringRouter = router({
         });
       }
       const actorUserId = ctx.actor.userId;
+      // BR-41: classifica prima/dopo per notificare chi cambia posizione
+      const rankingBefore = await buildClassRanking(ctx.db, runCtx.cls.id);
       await ctx.db.transaction(async (tx) => {
         const beforeScores = await tx
           .select({
@@ -726,7 +736,37 @@ export const scoringRouter = router({
           .set({ runPenalty: String(nextRunPenalty), special: nextSpecial })
           .where(eq(schema.scoreCards.id, card.id));
       });
-      return { corrected: true };
+
+      // Propagazione BR-41: il ricalcolo è gratis (derivato); si notificano
+      // i binomi con posizione cambiata, nella LINGUA DEL DESTINATARIO (BR-62).
+      const rankingAfter = await buildClassRanking(ctx.db, runCtx.cls.id);
+      const beforePos = new Map(
+        rankingBefore.ranking.map((r) => [r.entryId, r.position]),
+      );
+      const changed = rankingAfter.ranking.filter(
+        (r) => r.state === "scored" && beforePos.get(r.entryId) !== r.position,
+      );
+      const MESSAGES = {
+        it: (pos: number | null, className: string) => ({
+          subject: "Score corretto — nuova posizione",
+          body: `Uno score della classe ${className} è stato corretto: la tua nuova posizione è ${pos ?? "—"}.`,
+        }),
+        en: (pos: number | null, className: string) => ({
+          subject: "Score corrected — new placing",
+          body: `A score in class ${className} was corrected: your new placing is ${pos ?? "—"}.`,
+        }),
+      } as const;
+      for (const r of changed) {
+        const [rider] = await ctx.db
+          .select()
+          .from(schema.persons)
+          .where(eq(schema.persons.id, r.riderId));
+        if (!rider?.email) continue;
+        const message = MESSAGES[rider.locale](r.position, runCtx.cls.name);
+        await ctx.mailer.send({ to: rider.email, ...message });
+      }
+      liveBus.tick(runCtx.event.id, "scorecard.corrected");
+      return { corrected: true, positionsChanged: changed.length };
     }),
 
   /** Storia delle correzioni interrogabile PER CARTA (BR-40). */
@@ -896,7 +936,104 @@ export const scoringRouter = router({
           .where(eq(schema.runs.id, input.runId));
         await advanceRun(tx, fresh!, "validata");
       });
+      liveBus.tick(runCtx.event.id, "run.validated");
       return { validated: true };
+    }),
+
+  /**
+   * Pubblicazione di classe (flusso G): valida ciò che passa i gate e porta
+   * le run a `pubblicata`. Le run non pronte NON bloccano: avviso e la
+   * classifica resta marcata provvisoria per quelle righe.
+   */
+  publishClass: verifiedProcedure
+    .input(z.object({ classId: z.string().uuid() }))
+    .mutation(async ({ ctx, input }) => {
+      const [cls] = await ctx.db
+        .select()
+        .from(schema.classes)
+        .where(eq(schema.classes.id, input.classId));
+      if (!cls) throw new TRPCError({ code: "NOT_FOUND" });
+      const [event] = await ctx.db
+        .select()
+        .from(schema.events)
+        .where(eq(schema.events.id, cls.eventId));
+      if (
+        !can(ctx.actor, "results.validate", {
+          organizationId: event!.organizationId,
+          eventId: event!.id,
+        })
+      ) {
+        throw new TRPCError({ code: "FORBIDDEN" });
+      }
+      const entries = await ctx.db
+        .select()
+        .from(schema.entries)
+        .where(eq(schema.entries.classId, input.classId));
+      const runs = entries.length
+        ? await ctx.db
+            .select()
+            .from(schema.runs)
+            .where(
+              inArray(
+                schema.runs.entryId,
+                entries.map((e) => e.id),
+              ),
+            )
+        : [];
+      let published = 0;
+      const warnings: string[] = [];
+      for (const run of runs) {
+        if (run.status === "pubblicata") continue;
+        if (["attesa", "in_inserimento"].includes(run.status)) {
+          warnings.push(`Run ${run.id}: non ancora completata`);
+          continue;
+        }
+        await ctx.db.transaction(async (tx) => {
+          const cards = await tx
+            .select()
+            .from(schema.scoreCards)
+            .where(eq(schema.scoreCards.runId, run.id));
+          const runCtx = await loadRunContext(tx, run.id);
+          const judges = await relevantJudges(tx, runCtx!);
+          const signed = new Set(
+            cards
+              .filter((c) => c.status === "firmata" || c.status === "validata")
+              .map((c) => c.judgeId),
+          );
+          if (
+            judges.length === 0 ||
+            !judges.every((j) => signed.has(j.personId))
+          ) {
+            warnings.push(`Run ${run.id}: carte non tutte firmate`);
+            return;
+          }
+          if (isRunInReview(runCtx!.run, judges, cards)) {
+            warnings.push(`Run ${run.id}: score in review`);
+            return;
+          }
+          if (cards.some((c) => c.engineMismatch)) {
+            warnings.push(`Run ${run.id}: mismatch motore da riconoscere`);
+            return;
+          }
+          await tx
+            .update(schema.scoreCards)
+            .set({ status: "validata" })
+            .where(
+              inArray(
+                schema.scoreCards.id,
+                cards.map((c) => c.id),
+              ),
+            );
+          const [fresh] = await tx
+            .select()
+            .from(schema.runs)
+            .where(eq(schema.runs.id, run.id));
+          await advanceRun(tx, fresh!, "pubblicata");
+          published += 1;
+        });
+      }
+      liveBus.tick(event!.id, "class.published");
+      return { published, warnings };
     }),
 });
 

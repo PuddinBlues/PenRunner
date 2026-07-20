@@ -10,7 +10,11 @@ Tutto il necessario per avviare lo sviluppo di PenRunner in Claude Code.
 
 ## Sviluppo
 
-Monorepo pnpm (Node ≥ 22). Stato: **step 5 dell'MVP — scoring offline-first** (`packages/core`: motore versionato condiviso client/server con vettori d'oro + nucleo offline write-ahead; sync idempotente con conflitti e mismatch mai silenziosi; chiusura ≠ firma BR-27, held for review BR-29, backfill BR-28, correzioni BR-40).
+Monorepo pnpm (Node ≥ 22). Stato: **step 6 dell'MVP — classifica live, ETA, portale pubblico**.
+
+- `packages/core` — motore scoring versionato + `computeRanking`/`computeEta`/ufficialità (puri, testati).
+- `apps/api` — Fastify + tRPC: auth, iscrizioni/fee, draw, scoring offline-first, viste derivate live (`live.eventLive`/`classRanking`/`classEta`), publishClass, propagazione BR-41, SSE `/live/:eventId`.
+- `apps/web` — **portale pubblico Next.js** (App Router, SSR): calendario, pagina evento live, start list con ETA e marker drag, pagina pattern (passi testuali), scoreboard kiosk. i18n it/en dal primo componente, percorsi `/it/` `/en/` (BR-60..62).
 
 - `packages/db` — schema Postgres (Drizzle), migrazioni, seed del catalogo 2026.
 - `apps/api` — API Fastify + tRPC: auth con verifica email e claim, organizzazioni con vetting, inviti event-scoped, back-office admin con audit immutabile (BR-70/71), policy della matrice ruoli; roster scuderia con dedup (microchip/email) e membership multi-scuderia, iscrizione singola e massiva con avvisi di eleggibilità mai bloccanti (BR-18), scratch (BR-17), fee derivate con revenue split discrezionale (BR-01/02/03).
@@ -21,6 +25,7 @@ docker compose up -d      # Postgres 16 di sviluppo
 pnpm db:migrate && pnpm db:seed
 pnpm test                 # test di tutti i workspace
 pnpm --filter @penrunner/api dev   # API su :3001
+pnpm --filter @penrunner/web dev   # portale su :3000
 ```
 
 Dettagli in `packages/db/README.md`.

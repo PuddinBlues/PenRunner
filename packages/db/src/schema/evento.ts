@@ -56,6 +56,10 @@ export const events = pgTable(
     // BR-43: chirurgia del draw pubblicato — capacità concessa per evento dal
     // Platform Admin (mai dall'organizzatore), auditata come la platform fee.
     drawSurgeryEnabled: boolean("draw_surgery_enabled").notNull().default(false),
+    // Fascia sponsor della scoreboard (statica in MVP; upload con la UI
+    // organizzatore, il posto è pronto).
+    sponsorName: text("sponsor_name"),
+    sponsorImageUrl: text("sponsor_image_url"),
   },
   (t) => [
     check("events_dates_coherent", sql`${t.endDate} >= ${t.startDate}`),
@@ -98,6 +102,9 @@ export const classes = pgTable(
     // (vincolo di capienza, non giudizio di eleggibilità: BR-18 non c'entra).
     maxEntries: integer("max_entries"),
     drawStatus: drawStatus("draw_status").notNull().default("nessuno"),
+    // Ordine di giornata (per la cascata ETA sulle classi successive, BR-52).
+    // L'entità schedule con orari e pause è Fase 2.
+    scheduledOrder: integer("scheduled_order"),
   },
   (t) => [
     check("classes_judges_min", sql`${t.judgesCount} >= 1`),

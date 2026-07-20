@@ -8,6 +8,7 @@ import { inviteRouter } from "./invite.js";
 import { eventsRouter, orgRouter } from "./org.js";
 import { profileRouter } from "./profile.js";
 import { rosterRouter } from "./roster.js";
+import { liveRouter } from "./live.js";
 import { scoringRouter } from "./scoring.js";
 
 export const appRouter = router({
@@ -19,6 +20,7 @@ export const appRouter = router({
   entries: entriesRouter,
   draw: drawRouter,
   scoring: scoringRouter,
+  live: liveRouter,
   fees: feesRouter,
   invite: inviteRouter,
   admin: adminRouter,

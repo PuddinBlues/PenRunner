@@ -65,6 +65,7 @@ Principio: tema e colore sono dati dell'evento, ma **le regole di scoring sono d
 | drag_duration_s | int | default 420 (7') |
 | self_scratch_enabled | bool | default true — scratch in-app da concorrente/scuderia (BR-17); off = solo organizzazione |
 | draw_surgery_enabled | bool | default false — chirurgia del draw pubblicato, concessa solo dal Platform Admin, auditata (BR-43) |
+| sponsor_name / sponsor_image_url | string? | fascia sponsor della scoreboard (statica in MVP; upload con la UI organizzatore) |
 
 **Class** — classe di gara di un evento. Lega evento↔pattern e punta a una **Category ufficiale** del catalogo.
 | Campo | Tipo | Note |
@@ -78,6 +79,7 @@ Principio: tema e colore sono dati dell'evento, ma **le regole di scoring sono d
 | judges_count | int | 1 o più giudici |
 | max_entries | int? | cap opzionale: classe piena = iscrizione bloccata (capienza, non eleggibilità) |
 | draw_status | enum | nessuno · generato (re-draw libero) · pubblicato (solo chirurgia BR-43) |
+| scheduled_order | int? | ordine di giornata (cascata ETA sulle classi successive, BR-52); l'entità schedule con orari e pause è Fase 2 |
 
 **Category** — categoria ufficiale IRHA-FISE (catalogo di dominio, 24 voci in `reference/categories.json`, versionato per stagione): codice, campionato (debuttanti/italiano/assoluto/facoltative), patente FISE richiesta, tessere, vincolo proprietà cavallo, limiti età, earnings cap (con riferimento IRHA-EUR o NRHA-USD), obbligo tecnico federale. L'eleggibilità (BR-10, BR-13..16) si valuta contro questo catalogo. Il campo `category` di Person (open/non_pro/youth/rookie) resta come qualifica sintetica del profilo; la fonte di verità per l'iscrizione è la Category della classe.
 
@@ -241,10 +243,12 @@ Voti qualità: +1.5 eccellente · +1 molto buono · +0.5 buono · 0 medio · −
 
 ## Classifica e payout
 
-- **Classifica** = vista derivata. Ordina le run validate per `final_score` desc. `no_score` fuori classifica; `score_0` in fondo ma presenti. Tie-break da regolamento IRHA/NRHA.
-- **Payout** = vista derivata. Distribuisce `added_money` della classe tra le posizioni a punteggio valido, secondo schema percentuale e numero di paganti.
-- Entrambi **calcolati, non memorizzati** — si ricalcolano da run e iscrizioni. Evita disallineamenti quando uno score viene corretto.
-- **Turno stimato (ETA)** = terza vista derivata: da start list, stato run e configurazione evento (slot, drag, pause), con ri-ancoraggio live e media mobile della cadenza osservata. Regole BR-50..55.
+- **Classifica** = vista derivata (`computeRanking` in `packages/core`). Somma multi-giudice (`combineCards`, BR-24, con scarti a 5 giudici e parità). `no_score` fuori classifica; `score_0` in fondo ma presente e **mai eligibile ai piazzamenti a premio** (BR-31 precisata — vincola il payout); run in review → riga con "Score in review" al posto del numero (BR-29, inglese in entrambe le lingue). Pari merito = posizioni condivise (1-2-2-4); la parità al **1° posto** è flaggata (`firstPlaceTie`) perché la risoluzione è umana (run-off entro 10' o co-champion). Tie Judge/manovre di riferimento delle finali: fuori MVP.
+- **Provvisorio → ufficiale** (BR-42): i risultati sono provvisori fino a +30' dall'ultima run chiusa della **sezione**. **Semplificazione MVP dichiarata: sezione ≈ classe** — se la sezione regolamentare è il blocco di giornata, la finestra per classe potrebbe chiudersi prima del dovuto; rivisitabile con l'entità schedule (domanda in lista per giudice/steward). Derivato, zero scritture: alla scadenza cambia solo il derivato.
+- **Payout** = vista derivata (step 7). Distribuisce `added_money` tra le posizioni a premio **eligibili** (mai score_0/no_score).
+- Tutti **calcolati, non memorizzati** — si ricalcolano da run e iscrizioni. Una correzione (BR-40) propaga automaticamente (BR-41): ricalcolo gratis + notifica ai binomi con posizione cambiata, nella **lingua del destinatario** (persons.locale, BR-62).
+- **Turno stimato (ETA)** = vista derivata (`computeEta`): àncora = ultimo `started_at` osservato ("manda in campo"); senza àncora → modalità "da programma" (nessun orario promesso, solo conteggio run mancanti). Cadenza osservata (media mobile) sostituisce lo slot di default (BR-52); drag sulle run effettive (BR-51). Cascata sulle classi successive via `classes.scheduled_order`. Pause di programma: Fase 2. Regole BR-50..55.
+- **Live**: la vista evento (`live.eventLive`) è la **fonte comune** di pagina evento e scoreboard (flusso G: a fine go passa automaticamente a classifica del go + start list di chi entra — tutto derivato). Aggiornamento via **SSE** con tick di invalidazione (bus in-process; assunzione singola istanza API in MVP, multi-istanza → pg NOTIFY).
 
 ## Fee
 
