@@ -13,5 +13,8 @@
     "db:migrate": "pnpm --filter @penrunner/db migrate",
     "db:seed": "pnpm --filter @penrunner/db seed",
     "test": "pnpm -r test"
+  },
+  "devDependencies": {
+    "playwright-core": "^1.61.1"
   }
 }

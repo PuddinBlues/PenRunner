@@ -2,7 +2,6 @@
 // Copione del PILOTA end-to-end contro l'API viva: replica passo-passo la
 // ricetta dal browser (organizzatore → scuderia → draw → scribe → risultati
 // → payout → PDF). Verifica di collaudo, non parte del prodotto.
-import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { createTRPCClient, httpBatchLink } from "@trpc/client";
 import { ScribeStore, type StorageAdapter } from "@penrunner/core";
@@ -108,13 +107,68 @@ await organizer.events.setStatus.mutate({ eventId, status: "annunciato" });
 await organizer.events.setStatus.mutate({ eventId, status: "iscrizioni_aperte" });
 console.log("iscrizioni aperte");
 
-// 5. Scuderia (ponte: lo script demo, in attesa della UI scuderia).
-step("5. Scuderia: roster + iscrizione massiva (demo:scuderia)");
-console.log(
-  execFileSync("npx", ["tsx", "scripts/demo-scuderia.ts", orgEmail, orgPassword], {
-    encoding: "utf8",
-  }),
+// 5. Scuderia: il PERCORSO UMANO dell'app stable — account distinto,
+// registrazione self-serve, roster, griglia, conferma (stesse chiamate
+// della UI; niente più ponti).
+step("5. Scuderia: percorso umano (account distinto, come dall'app)");
+const scuderiaToken = await registerVerified(
+  "scuderia@pilot.example",
+  orgPassword,
 );
+const scuderia = client(scuderiaToken);
+await scuderia.profile.create.mutate({ fullName: "Referente Scuderia" });
+const { stableId } = await scuderia.roster.createStable.mutate({
+  name: "Quarter Team Pilota",
+});
+const r1 = await scuderia.roster.addRider.mutate({
+  stableId,
+  fullName: "Martina Rossi",
+  email: "martina.rossi@pilot.example",
+  birthDate: "1994-05-12",
+});
+const r2 = await scuderia.roster.addRider.mutate({
+  stableId,
+  fullName: "Luca Bianchi",
+  email: "luca.bianchi@pilot.example",
+  birthDate: "1988-11-03",
+});
+console.log(`  roster: cavalieri collegati/creati (linked: ${r1.linked}, ${r2.linked})`);
+const pilotHorses: string[] = [];
+for (const [i, name] of [
+  "Gun Smoke Whiz",
+  "Spook Chic Dream",
+  "Shiny Little Step",
+].entries()) {
+  const h = await scuderia.roster.addHorse.mutate({
+    stableId,
+    name,
+    microchip: `38027100000091${i}`,
+    ownerPersonId: (i % 2 === 0 ? r1 : r2).personId,
+  });
+  pilotHorses.push(h.horseId);
+}
+// La griglia: quello che la UI mostra prima di confermare (fee live BR-01),
+// poi bulk + confirm con la quote del SERVER che fa fede.
+const openInfo = await scuderia.entries.enrollmentInfo.query({ eventId });
+console.log(
+  `  evento aperto: ${openInfo.event.name}, ${openInfo.classes.length} classi, fee ${Number(openInfo.event.feePerHorse)} €/cavallo`,
+);
+const { entries: createdEntries, quote } = await scuderia.entries.bulkCreate.mutate({
+  stableId,
+  items: [
+    { classId, horseId: pilotHorses[0]!, riderId: r1.personId },
+    { classId, horseId: pilotHorses[1]!, riderId: r2.personId },
+    { classId, horseId: pilotHorses[2]!, riderId: r1.personId },
+  ],
+});
+await scuderia.entries.confirm.mutate({
+  entryIds: createdEntries.map((e) => e.entryId),
+});
+console.log(
+  `  iscritti ${createdEntries.length} binomi — quote server: ${JSON.stringify(quote)}`,
+);
+const mine = await scuderia.entries.byStable.query({ stableId });
+console.log(`  "le mie iscrizioni": ${mine.length} binomi, stato ${mine[0]!.status}`);
 
 // 6. Check-in con avvisi mai bloccanti (BR-18).
 step("6. Check-in");

@@ -17,6 +17,8 @@ Monorepo pnpm (Node ≥ 22). Stato: **MVP backend completo (step 1-7)** — anag
 - `apps/web` — portale pubblico Next.js (App Router, SSR): calendario, pagina evento live, start list con ETA e marker drag, pagina pattern, scoreboard kiosk. i18n it/en dal primo componente, percorsi `/it/` `/en/` (BR-60..62).
 - `apps/scribe` — **app scribe/giudice**: scoring in arena offline-first, PWA usabile da solo browser (BR-81). Vestizione UI del `ScribeStore` di `@penrunner/core`; chiusura≠firma (BR-27), score in review (BR-29), firma grafometrica, sync idempotente. Dettagli in `apps/scribe/README.md`.
 - `apps/organizer` — **back-office organizzatore**: wizard evento/classi dal catalogo ufficiale, check-in con avvisi mai bloccanti (BR-18), draw (BR-19/43) con late entry, validazione→pubblicazione risultati (BR-27), payout, PDF, inviti giudice/scribe con link, registro modifiche event-scoped. Un'organizzazione in verifica prepara l'evento in bozza; pubblica dopo l'approvazione (BR-80). Dettagli in `apps/organizer/README.md`.
+- `apps/stable` — **app scuderia, mobile-first**: roster con dedup che collega (mai duplica), iscrizione massiva in tre passi con fee live per cavallo distinto (BR-01) e totale server-authoritative, avvisi BR-18 visibili mai bloccanti, "le mie iscrizioni" con draw e risultati, scratch self-serve (BR-17). Dettagli in `apps/stable/README.md`.
+- `packages/ui` — tokens CSS del registro chiaro, primitivi condivisi e fabbrica i18n delle SPA.
 
 Documenti PDF: start list e classifica (pubblici), payout e score card (organizzatore/segreteria) — via `GET /documents/class/:id/{start-list,results,payout}.pdf` e `/documents/run/:runId/scorecard/:judgeId.pdf`.
 
@@ -32,9 +34,10 @@ pnpm --filter @penrunner/api dev        # API su :3001
 pnpm --filter @penrunner/web dev        # portale pubblico su :3000
 pnpm --filter @penrunner/scribe dev     # app scribe/giudice su :5173
 pnpm --filter @penrunner/organizer dev  # back-office organizzatore su :5174
+pnpm --filter @penrunner/stable dev     # app scuderia (mobile-first) su :5175
 ```
 
-Collaudo del ciclo completo contro l'API viva: `pnpm --filter @penrunner/api pilot:e2e` (vedi `apps/api/scripts/pilot-e2e.ts`); il passo scuderia da solo: `demo:scuderia` (ponte in attesa della UI scuderia).
+Collaudo del ciclo completo contro l'API viva: `pnpm --filter @penrunner/api pilot:e2e` (vedi `apps/api/scripts/pilot-e2e.ts` — il passo scuderia è il percorso umano dell'app, account distinto). `demo:scuderia` resta come seed per CI/demo. CORS: origini in `CORS_ORIGINS` (una sola fonte, `apps/api/src/config/cors.ts`).
 
 Dettagli in `packages/db/README.md`.
 

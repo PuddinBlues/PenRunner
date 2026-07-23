@@ -306,7 +306,7 @@ function Invites({
               // Link all'app scribe con il token: si consegna a mano.
               const scribeUrl =
                 (import.meta.env.VITE_SCRIBE_URL as string | undefined) ??
-                API_URL.replace(":3001", ":5173");
+                "http://localhost:5173";
               setLink(`${scribeUrl}/?token=${res.token}`);
               setFullName("");
               setEmail("");
