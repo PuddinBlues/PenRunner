@@ -28,9 +28,13 @@ pnpm install
 docker compose up -d      # Postgres 16 di sviluppo
 pnpm db:migrate && pnpm db:seed
 pnpm test                 # test di tutti i workspace
-pnpm --filter @penrunner/api dev   # API su :3001
-pnpm --filter @penrunner/web dev   # portale su :3000
+pnpm --filter @penrunner/api dev        # API su :3001
+pnpm --filter @penrunner/web dev        # portale pubblico su :3000
+pnpm --filter @penrunner/scribe dev     # app scribe/giudice su :5173
+pnpm --filter @penrunner/organizer dev  # back-office organizzatore su :5174
 ```
+
+Collaudo del ciclo completo contro l'API viva: `pnpm --filter @penrunner/api pilot:e2e` (vedi `apps/api/scripts/pilot-e2e.ts`); il passo scuderia da solo: `demo:scuderia` (ponte in attesa della UI scuderia).
 
 Dettagli in `packages/db/README.md`.
 

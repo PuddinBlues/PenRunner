@@ -7,7 +7,9 @@
     "dev": "tsx watch src/server.ts",
     "start": "tsx src/server.ts",
     "test": "vitest run",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "demo:scuderia": "tsx scripts/demo-scuderia.ts",
+    "pilot:e2e": "tsx scripts/pilot-e2e.ts"
   },
   "dependencies": {
     "@fastify/cookie": "^11.0.2",
@@ -22,6 +24,7 @@
     "zod": "^3.25.0"
   },
   "devDependencies": {
+    "@trpc/client": "^11.18.0",
     "@types/node": "^22.15.0",
     "@types/pdfkit": "^0.13.9",
     "tsx": "^4.19.0",

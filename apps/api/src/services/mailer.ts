@@ -15,7 +15,9 @@ export class DevMailer implements Mailer {
 
   async send(message: MailMessage): Promise<void> {
     this.sent.push(message);
-    console.log(`[mail] a ${message.to}: ${message.subject}`);
+    // In sviluppo il corpo VA a video: contiene il token (verifica email,
+    // inviti) e senza non si completa il flusso self-serve dal browser.
+    console.log(`[mail] a ${message.to}: ${message.subject}\n${message.body}`);
   }
 
   lastTo(to: string): MailMessage | undefined {
