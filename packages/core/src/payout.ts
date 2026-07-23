@@ -1,5 +1,5 @@
 // ---------------------------------------------------------------------------
-// Payout (BR-31, BR-33 go-singolo, flusso I): vista DERIVATA, mai memorizzata.
+// Payout (BR-31, BR-34 go-singolo, flusso I): vista DERIVATA, mai memorizzata.
 // Aritmetica interamente in CENTESIMI interi — niente float sui soldi.
 // Invariante non negoziabile: distribuito + non_distribuito = purse, sempre,
 // al centesimo. Nessun centesimo creato o perso.

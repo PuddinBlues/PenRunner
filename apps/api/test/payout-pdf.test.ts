@@ -151,7 +151,7 @@ afterAll(async () => {
   await api.close();
 });
 
-describe("payout derivato (BR-31/BR-33 go singolo)", () => {
+describe("payout derivato (BR-31/BR-34 go singolo)", () => {
   it("purse scomposto e quadratura: 300+500−75−60 = 665 €, fascia 6-9 (45/35/20)", async () => {
     const caller = await api.as(organizerToken);
     const p = await caller.payout.classPayout({ classId });
