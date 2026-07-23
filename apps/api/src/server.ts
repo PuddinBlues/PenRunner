@@ -1,10 +1,12 @@
 import cookie from "@fastify/cookie";
+import cors from "@fastify/cors";
 import {
   fastifyTRPCPlugin,
   type FastifyTRPCPluginOptions,
 } from "@trpc/server/adapters/fastify";
 import Fastify from "fastify";
 import { createDb } from "@penrunner/db";
+import { corsOrigins, resolveCorsOrigin } from "./config/cors.js";
 import { resolveActor, type AppContext } from "./context.js";
 import { appRouter, type AppRouter } from "./routers/index.js";
 import { DevMailer } from "./services/mailer.js";
@@ -17,6 +19,13 @@ export async function buildServer() {
 
   const server = Fastify({ logger: true });
   await server.register(cookie);
+  // CORS su TUTTE le route (tRPC, documenti, health) da un'unica lista di
+  // origini; la SSE, che scrive gli header a mano, riusa la stessa fonte.
+  await server.register(cors, {
+    origin: corsOrigins(),
+    methods: ["GET", "POST", "OPTIONS"],
+    allowedHeaders: ["authorization", "content-type"],
+  });
   await server.register(fastifyTRPCPlugin, {
     prefix: "/trpc",
     trpcOptions: {
@@ -45,11 +54,14 @@ export async function buildServer() {
     "/live/:eventId",
     async (req, reply) => {
       const { eventId } = req.params;
+      const allowedOrigin = resolveCorsOrigin(req.headers.origin);
       reply.raw.writeHead(200, {
         "content-type": "text/event-stream",
         "cache-control": "no-cache",
         connection: "keep-alive",
-        "access-control-allow-origin": "*",
+        ...(allowedOrigin
+          ? { "access-control-allow-origin": allowedOrigin }
+          : {}),
       });
       reply.raw.write(`event: hello\ndata: {}\n\n`);
       const onTick = (payload: { reason: string; at: number }) => {

@@ -420,6 +420,135 @@ export const entriesRouter = router({
       return { status: "ritirata" as const };
     }),
 
+  /** Gli eventi a iscrizioni aperte, con la quota al cavaliere (per la scuderia). */
+  openEvents: verifiedProcedure.query(async ({ ctx }) => {
+    return ctx.db
+      .select({
+        id: schema.events.id,
+        name: schema.events.name,
+        venue: schema.events.venue,
+        startDate: schema.events.startDate,
+        endDate: schema.events.endDate,
+        tier: schema.events.tier,
+        feePerHorse: schema.events.feePerHorse,
+        selfScratchEnabled: schema.events.selfScratchEnabled,
+      })
+      .from(schema.events)
+      .where(eq(schema.events.status, "iscrizioni_aperte"))
+      .orderBy(schema.events.startDate);
+  }),
+
+  /**
+   * Le informazioni per iscriversi a un evento: quota al cavaliere e classi
+   * con quote e posti rimasti. Fuori dal perimetro organizzatore: serve alla
+   * griglia di iscrizione della scuderia (utente loggato basta).
+   */
+  enrollmentInfo: verifiedProcedure
+    .input(z.object({ eventId: z.string().uuid() }))
+    .query(async ({ ctx, input }) => {
+      const [event] = await ctx.db
+        .select()
+        .from(schema.events)
+        .where(eq(schema.events.id, input.eventId));
+      if (!event) throw new TRPCError({ code: "NOT_FOUND" });
+      const classes = await ctx.db
+        .select({
+          id: schema.classes.id,
+          name: schema.classes.name,
+          entryFee: schema.classes.entryFee,
+          maxEntries: schema.classes.maxEntries,
+          categoryCode: schema.categories.code,
+          categoryName: schema.categories.name,
+          patternCode: schema.patterns.code,
+          activeEntries: sql<number>`(select count(*) from ${schema.entries} e where e.class_id = ${schema.classes}.id and e.status not in ('ritirata','assente'))::int`,
+        })
+        .from(schema.classes)
+        .innerJoin(
+          schema.categories,
+          eq(schema.categories.id, schema.classes.categoryId),
+        )
+        .innerJoin(
+          schema.patterns,
+          eq(schema.patterns.id, schema.classes.patternId),
+        )
+        .where(eq(schema.classes.eventId, input.eventId))
+        .orderBy(
+          sql`${schema.classes.scheduledOrder} nulls last`,
+          schema.classes.createdAt,
+        );
+      return {
+        event: {
+          id: event.id,
+          name: event.name,
+          venue: event.venue,
+          startDate: event.startDate,
+          endDate: event.endDate,
+          status: event.status,
+          feePerHorse: event.feePerHorse,
+          selfScratchEnabled: event.selfScratchEnabled,
+        },
+        classes: classes.map((c) => ({
+          ...c,
+          // Capienza (vincolo, non eleggibilità): null = nessun limite.
+          remaining:
+            c.maxEntries === null
+              ? null
+              : Math.max(0, c.maxEntries - c.activeEntries),
+        })),
+      };
+    }),
+
+  /**
+   * Le iscrizioni della scuderia: i binomi con cavallo del roster o cavaliere
+   * membro, in ogni evento. Stato, draw number (quando pubblicato), avvisi in
+   * traccia — la vista "le mie iscrizioni" del referente.
+   */
+  byStable: verifiedProcedure
+    .input(z.object({ stableId: z.string().uuid() }))
+    .query(async ({ ctx, input }) => {
+      if (!can(ctx.actor, "entries.bulk", { stableId: input.stableId })) {
+        throw new TRPCError({ code: "FORBIDDEN" });
+      }
+      const memberIds = ctx.db
+        .select({ id: schema.stableMembers.personId })
+        .from(schema.stableMembers)
+        .where(eq(schema.stableMembers.stableId, input.stableId));
+      const stableHorseIds = ctx.db
+        .select({ id: schema.horses.id })
+        .from(schema.horses)
+        .where(eq(schema.horses.stableId, input.stableId));
+      return ctx.db
+        .select({
+          entryId: schema.entries.id,
+          status: schema.entries.status,
+          drawNumber: schema.entries.drawNumber,
+          eligibilityWarnings: schema.entries.eligibilityWarnings,
+          horseName: schema.horses.name,
+          riderName: schema.persons.fullName,
+          classId: schema.classes.id,
+          className: schema.classes.name,
+          drawStatus: schema.classes.drawStatus,
+          eventId: schema.events.id,
+          eventName: schema.events.name,
+          eventStatus: schema.events.status,
+          eventStartDate: schema.events.startDate,
+          selfScratchEnabled: schema.events.selfScratchEnabled,
+        })
+        .from(schema.entries)
+        .innerJoin(schema.horses, eq(schema.horses.id, schema.entries.horseId))
+        .innerJoin(schema.persons, eq(schema.persons.id, schema.entries.riderId))
+        .innerJoin(schema.classes, eq(schema.classes.id, schema.entries.classId))
+        .innerJoin(schema.events, eq(schema.events.id, schema.classes.eventId))
+        .where(
+          sql`${schema.entries.horseId} in ${stableHorseIds} or ${schema.entries.riderId} in ${memberIds}`,
+        )
+        .orderBy(
+          sql`${schema.events.startDate} desc`,
+          schema.classes.name,
+          sql`${schema.entries.drawNumber} nulls last`,
+        );
+    }),
+
   /**
    * Registro binomi dell'evento (cavalli e cavalieri già iscritti in una sua
    * classe): alimenta il picker della late entry — al cancello il binomio è

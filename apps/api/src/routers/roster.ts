@@ -98,7 +98,7 @@ export const rosterRouter = router({
     )
     .mutation(async ({ ctx, input }) => {
       requireRosterAccess(ctx.actor, input.stableId);
-      const personId = await ctx.db.transaction(async (tx) => {
+      const result = await ctx.db.transaction(async (tx) => {
         let personId: string | undefined;
         if (input.email) {
           const normalized = input.email.toLowerCase();
@@ -110,6 +110,7 @@ export const rosterRouter = router({
           // dati di una person esistente, si collega la membership.
           personId = existing?.id;
         }
+        const linked = personId !== undefined;
         if (!personId) {
           const [created] = await tx
             .insert(schema.persons)
@@ -127,10 +128,22 @@ export const rosterRouter = router({
           .insert(schema.stableMembers)
           .values({ stableId: input.stableId, personId })
           .onConflictDoNothing();
-        return personId;
+        return { personId, linked };
       });
-      return { personId };
+      // linked = email già registrata: profilo COLLEGATO, mai duplicato — la
+      // UI lo dice esplicitamente al referente (come addHorse col microchip).
+      return result;
     }),
+
+  /** Le scuderie di cui l'utente è referente (gate d'ingresso dell'app). */
+  myStables: verifiedProcedure.query(async ({ ctx }) => {
+    if (!ctx.actor.personId) return [];
+    return ctx.db
+      .select({ stableId: schema.stables.id, name: schema.stables.name })
+      .from(schema.stables)
+      .where(eq(schema.stables.referentId, ctx.actor.personId))
+      .orderBy(schema.stables.createdAt);
+  }),
 
   list: verifiedProcedure
     .input(z.object({ stableId: z.string().uuid() }))

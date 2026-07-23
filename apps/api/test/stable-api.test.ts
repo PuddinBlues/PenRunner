@@ -1,0 +1,168 @@
+import { eq } from "drizzle-orm";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { schema } from "@penrunner/db";
+import {
+  registerUserWithProfile,
+  setupApi,
+  type TestApi,
+} from "./helpers.js";
+
+// ---------------------------------------------------------------------------
+// Superficie API per la UI scuderia: eventi aperti con quote, info di
+// iscrizione con posti rimasti (capienza = vincolo, non eleggibilità),
+// dedup esplicito del roster (linked), vista "le mie iscrizioni".
+// ---------------------------------------------------------------------------
+
+let api: TestApi;
+let stableToken: string;
+let stableId: string;
+let eventId: string;
+let classId: string;
+let riderId: string;
+let horseId: string;
+
+beforeAll(async () => {
+  api = await setupApi();
+
+  // Organizzatore vetted con evento a iscrizioni aperte.
+  const organizer = await registerUserWithProfile(
+    api,
+    "club@stable-test.example",
+    "Referente Club",
+  );
+  let orgCaller = await api.as(organizer.sessionToken);
+  const { organizationId } = await orgCaller.org.create({ name: "Club Test" });
+  const admin = await registerUserWithProfile(
+    api,
+    "staff@stable-test.example",
+    "Staff",
+  );
+  await api.db
+    .update(schema.users)
+    .set({ platformAdmin: true })
+    .where(eq(schema.users.id, admin.userId));
+  const adminCaller = await api.as(admin.sessionToken);
+  await adminCaller.admin.approveOrganization({ organizationId });
+  orgCaller = await api.as(organizer.sessionToken);
+  ({ eventId } = await orgCaller.events.create({
+    organizationId,
+    name: "Evento Scuderie",
+    venue: "Arena",
+    startDate: "2026-10-01",
+    endDate: "2026-10-02",
+    feePerHorse: "15",
+  }));
+  const anon = await api.as();
+  const categories = await anon.catalog.categories();
+  const patterns = await anon.catalog.patterns();
+  ({ classId } = await orgCaller.classes.create({
+    eventId,
+    categoryId: categories[0]!.id,
+    patternId: patterns[0]!.id,
+    name: "Open Scuderie",
+    entryFee: "100",
+    maxEntries: 10,
+  }));
+  await orgCaller.events.setStatus({ eventId, status: "annunciato" });
+  await orgCaller.events.setStatus({ eventId, status: "iscrizioni_aperte" });
+
+  // Scuderia self-serve.
+  const stableUser = await registerUserWithProfile(
+    api,
+    "scuderia@stable-test.example",
+    "Referente Scuderia",
+  );
+  stableToken = stableUser.sessionToken;
+  const caller = await api.as(stableToken);
+  ({ stableId } = await caller.roster.createStable({ name: "Quarter Team" }));
+});
+
+afterAll(async () => {
+  await api.close();
+});
+
+describe("scoperta eventi e quote (griglia iscrizione)", () => {
+  it("openEvents elenca solo iscrizioni aperte, con la quota al cavaliere", async () => {
+    const caller = await api.as(stableToken);
+    const open = await caller.entries.openEvents();
+    const ev = open.find((e) => e.id === eventId);
+    expect(ev).toBeDefined();
+    expect(Number(ev!.feePerHorse)).toBe(15);
+  });
+
+  it("enrollmentInfo espone classi, quote e posti rimasti", async () => {
+    const caller = await api.as(stableToken);
+    const info = await caller.entries.enrollmentInfo({ eventId });
+    expect(info.event.name).toBe("Evento Scuderie");
+    expect(info.classes).toHaveLength(1);
+    expect(Number(info.classes[0]!.entryFee)).toBe(100);
+    expect(info.classes[0]!.remaining).toBe(10);
+  });
+});
+
+describe("roster: il dedup è esplicito", () => {
+  it("email nuova → creato; stessa email altrove → COLLEGATO, mai duplicato", async () => {
+    const caller = await api.as(stableToken);
+    const first = await caller.roster.addRider({
+      stableId,
+      fullName: "Anna Verdi",
+      email: "anna.verdi@example.com",
+      birthDate: "1990-01-15",
+    });
+    expect(first.linked).toBe(false);
+    riderId = first.personId;
+
+    const { stableId: otherStable } = await caller.roster.createStable({
+      name: "Seconda Scuderia",
+    });
+    // actor fresco: la nuova scuderia si risolve alla creazione del caller
+    const fresh = await api.as(stableToken);
+    const again = await fresh.roster.addRider({
+      stableId: otherStable,
+      fullName: "Anna V.",
+      email: "ANNA.VERDI@example.com", // case-insensitive
+    });
+    expect(again.linked).toBe(true);
+    expect(again.personId).toBe(riderId);
+  });
+});
+
+describe("le mie iscrizioni (byStable)", () => {
+  it("mostra i binomi della scuderia con stato e draw number", async () => {
+    const caller = await api.as(stableToken);
+    const horse = await caller.roster.addHorse({
+      stableId,
+      name: "Whiz Dream",
+      microchip: "380271000000777",
+      ownerPersonId: riderId,
+    });
+    horseId = horse.horseId;
+    const { entries } = await caller.entries.bulkCreate({
+      stableId,
+      items: [{ classId, horseId, riderId }],
+    });
+    await caller.entries.confirm({ entryIds: entries.map((e) => e.entryId) });
+
+    const mine = await caller.entries.byStable({ stableId });
+    expect(mine).toHaveLength(1);
+    expect(mine[0]!.status).toBe("confermata");
+    expect(mine[0]!.drawNumber).toBeNull(); // draw non ancora pubblicato
+    expect(mine[0]!.horseName).toBe("Whiz Dream");
+    expect(mine[0]!.eventName).toBe("Evento Scuderie");
+    // i posti rimasti scendono
+    const info = await caller.entries.enrollmentInfo({ eventId });
+    expect(info.classes[0]!.remaining).toBe(9);
+  });
+
+  it("chi non è referente non vede il roster altrui", async () => {
+    const other = await registerUserWithProfile(
+      api,
+      "altro@stable-test.example",
+      "Altro Utente",
+    );
+    const caller = await api.as(other.sessionToken);
+    await expect(caller.entries.byStable({ stableId })).rejects.toThrow(
+      /FORBIDDEN/,
+    );
+  });
+});
