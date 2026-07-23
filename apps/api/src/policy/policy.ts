@@ -12,6 +12,7 @@
 
 export const CAPABILITIES = [
   // matrice pubblica
+  "event.prepare", // prepara l'evento in bozza (classi, quote) — anche in verifica
   "event.configure", // crea e configura evento (classi, fee, montepremi, ruoli)
   "event.registry.manage", // anagrafiche dell'evento (segreteria: delegata ◐)
   "event.checkin", // verifica microchip/tessera
@@ -147,6 +148,13 @@ export function can(
   if (ADMIN_CAPABILITIES.has(capability)) return actor.platformAdmin;
 
   const membership = orgMembership(actor, resource.organizationId);
+
+  // Un'organizzazione in verifica PREPARA l'evento da sola (bozza, classi,
+  // quote): il vetting condiziona solo la pubblicazione — annuncio e apertura
+  // iscrizioni restano su event.configure, che richiede il vetting.
+  if (capability === "event.prepare") {
+    return membership?.role === "titolare";
+  }
 
   if (ORGANIZER_CAPABILITIES.has(capability) && membership?.vetted) {
     if (membership.role === "titolare") return true;

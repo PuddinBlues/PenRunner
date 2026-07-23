@@ -107,7 +107,57 @@ export const inviteRouter = router({
           body: `Entra nell'evento con questo token: ${token}`,
         });
       }
-      return { assignmentId: result.assignmentId, inviteId: result.inviteId };
+      // Il token torna anche a chi invita: in arena il link si passa spesso
+      // a mano (QR, WhatsApp) — l'email è una comodità, non l'unico canale.
+      return {
+        assignmentId: result.assignmentId,
+        inviteId: result.inviteId,
+        token,
+      };
+    }),
+
+  /** Le assegnazioni di un evento con lo stato dell'invito (vista organizzatore). */
+  list: verifiedProcedure
+    .input(z.object({ eventId: z.string().uuid() }))
+    .query(async ({ ctx, input }) => {
+      const event = await loadEventOrganization(ctx.db, input.eventId);
+      if (!event) throw new TRPCError({ code: "NOT_FOUND" });
+      if (
+        !can(ctx.actor, "event.configure", {
+          organizationId: event.organizationId,
+        })
+      ) {
+        throw new TRPCError({ code: "FORBIDDEN" });
+      }
+      const rows = await ctx.db
+        .select({
+          assignmentId: schema.eventRoleAssignments.id,
+          role: schema.eventRoleAssignments.role,
+          classId: schema.eventRoleAssignments.classId,
+          deactivatedAt: schema.eventRoleAssignments.deactivatedAt,
+          personId: schema.persons.id,
+          fullName: schema.persons.fullName,
+          email: schema.persons.email,
+          inviteId: schema.eventInvites.id,
+          acceptedAt: schema.eventInvites.acceptedAt,
+          revokedAt: schema.eventInvites.revokedAt,
+          expiresAt: schema.eventInvites.expiresAt,
+        })
+        .from(schema.eventRoleAssignments)
+        .innerJoin(
+          schema.persons,
+          eq(schema.persons.id, schema.eventRoleAssignments.personId),
+        )
+        .leftJoin(
+          schema.eventInvites,
+          eq(
+            schema.eventInvites.assignmentId,
+            schema.eventRoleAssignments.id,
+          ),
+        )
+        .where(eq(schema.eventRoleAssignments.eventId, input.eventId))
+        .orderBy(schema.eventRoleAssignments.createdAt);
+      return rows;
     }),
 
   /** Magic link: apre una sessione scoped, nessun account creato. */

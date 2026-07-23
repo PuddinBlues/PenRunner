@@ -28,16 +28,23 @@ beforeAll(async () => {
     name: "Reining Club Lombardia",
   }));
 
-  // Gate del vetting: senza verifica, creare eventi è vietato.
+  // Vetting gate spostato sulla PUBBLICAZIONE (BR-80): l'organizzazione in
+  // verifica prepara l'evento in bozza; è l'annuncio a richiedere l'approvazione.
+  // (Actor fresco: la membership appena creata si risolve alla creazione del caller.)
+  const draftCaller = await api.as(organizerToken);
+  const { eventId: draftEventId } = await draftCaller.events.create({
+    organizationId: orgId,
+    name: "Evento anticipato",
+    venue: "Arena",
+    startDate: "2026-09-01",
+    endDate: "2026-09-02",
+  });
   await expect(
-    organizerCaller.events.create({
-      organizationId: orgId,
-      name: "Evento anticipato",
-      venue: "Arena",
-      startDate: "2026-09-01",
-      endDate: "2026-09-02",
+    draftCaller.events.setStatus({
+      eventId: draftEventId,
+      status: "annunciato",
     }),
-  ).rejects.toThrow(/organizzazione verificata/);
+  ).rejects.toThrow(/in verifica/);
 
   const admin = await registerUserWithProfile(
     api,

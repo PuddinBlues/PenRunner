@@ -1,6 +1,9 @@
 import { router } from "../trpc.js";
 import { adminRouter } from "./admin.js";
+import { auditRouter } from "./audit.js";
 import { authRouter } from "./auth.js";
+import { catalogRouter } from "./catalog.js";
+import { classesRouter } from "./classes.js";
 import { drawRouter } from "./draw.js";
 import { entriesRouter } from "./entries.js";
 import { feesRouter } from "./fees.js";
@@ -17,6 +20,9 @@ export const appRouter = router({
   profile: profileRouter,
   org: orgRouter,
   events: eventsRouter,
+  catalog: catalogRouter,
+  classes: classesRouter,
+  audit: auditRouter,
   roster: rosterRouter,
   entries: entriesRouter,
   draw: drawRouter,

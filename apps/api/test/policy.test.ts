@@ -72,6 +72,23 @@ type Row = [
 
 const rows: Row[] = [
   [
+    // BR-80: la preparazione in bozza non aspetta il vetting — è la
+    // pubblicazione (event.configure via setStatus) a essere gated.
+    "prepara l'evento in bozza",
+    "event.prepare",
+    onOrg,
+    [
+      ["organizzatore ✓", organizzatore, true],
+      ["organizzatore non vetted ✓ (bozza)", organizzatoreNonVetted, true],
+      ["segreteria org —", segreteriaOrg, false],
+      ["scuderia —", scuderia, false],
+      ["concorrente —", concorrente, false],
+      ["giudice —", giudice, false],
+      ["admin — (BR-70: fuori matrice)", admin, false],
+      ["anonimo —", anonimo, false],
+    ],
+  ],
+  [
     "crea e configura evento",
     "event.configure",
     onOrg,
