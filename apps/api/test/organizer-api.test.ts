@@ -263,6 +263,24 @@ describe("inviti dal browser", () => {
   });
 });
 
+describe("viste operative di classe", () => {
+  it("registryByEvent espone i binomi già allo show (per la late entry)", async () => {
+    const caller = await api.as(organizerToken);
+    const registry = await caller.entries.registryByEvent({ eventId });
+    expect(registry.horses.map((h) => h.name)).toContain("Smart Chic");
+    expect(registry.riders.map((r) => r.fullName)).toContain("Rider Uno");
+  });
+
+  it("runsByClass è vuota prima della pubblicazione del draw", async () => {
+    const caller = await api.as(organizerToken);
+    const list = await caller.classes.listByEvent({ eventId });
+    const runs = await caller.scoring.runsByClass({
+      classId: list[0]!.id,
+    });
+    expect(runs).toEqual([]);
+  });
+});
+
 describe("audit event-scoped (trasparenza, non potere)", () => {
   it("l'organizzatore vede le righe del SUO evento; la nota della quota è tra staff", async () => {
     const caller = await api.as(organizerToken);

@@ -420,6 +420,51 @@ export const entriesRouter = router({
       return { status: "ritirata" as const };
     }),
 
+  /**
+   * Registro binomi dell'evento (cavalli e cavalieri già iscritti in una sua
+   * classe): alimenta il picker della late entry — al cancello il binomio è
+   * quasi sempre già allo show.
+   */
+  registryByEvent: verifiedProcedure
+    .input(z.object({ eventId: z.string().uuid() }))
+    .query(async ({ ctx, input }) => {
+      const [event] = await ctx.db
+        .select()
+        .from(schema.events)
+        .where(eq(schema.events.id, input.eventId));
+      if (!event) throw new TRPCError({ code: "NOT_FOUND" });
+      if (
+        !can(ctx.actor, "event.registry.manage", {
+          organizationId: event.organizationId,
+          eventId: event.id,
+        })
+      ) {
+        throw new TRPCError({ code: "FORBIDDEN" });
+      }
+      const classIds = ctx.db
+        .select({ id: schema.classes.id })
+        .from(schema.classes)
+        .where(eq(schema.classes.eventId, input.eventId));
+      const horses = await ctx.db
+        .selectDistinct({
+          id: schema.horses.id,
+          name: schema.horses.name,
+          microchip: schema.horses.microchip,
+        })
+        .from(schema.entries)
+        .innerJoin(schema.horses, eq(schema.horses.id, schema.entries.horseId))
+        .where(inArray(schema.entries.classId, classIds));
+      const riders = await ctx.db
+        .selectDistinct({
+          id: schema.persons.id,
+          fullName: schema.persons.fullName,
+        })
+        .from(schema.entries)
+        .innerJoin(schema.persons, eq(schema.persons.id, schema.entries.riderId))
+        .where(inArray(schema.entries.classId, classIds));
+      return { horses, riders };
+    }),
+
   /** Vista organizzatore/segreteria: iscrizioni di una classe con avvisi. */
   listByClass: verifiedProcedure
     .input(z.object({ classId: z.string().uuid() }))

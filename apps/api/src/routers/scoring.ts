@@ -203,6 +203,51 @@ async function maybeAwaitSignature(
 }
 
 export const scoringRouter = router({
+  /**
+   * Le run di una classe per il back-office (validazione BR-27): id, stato,
+   * binomio, ordine. La classifica resta un derivato (live.classRanking);
+   * qui serve l'aggancio operativo run → carte → valida.
+   */
+  runsByClass: verifiedProcedure
+    .input(z.object({ classId: z.string().uuid() }))
+    .query(async ({ ctx, input }) => {
+      const [cls] = await ctx.db
+        .select()
+        .from(schema.classes)
+        .where(eq(schema.classes.id, input.classId));
+      if (!cls) throw new TRPCError({ code: "NOT_FOUND" });
+      const [event] = await ctx.db
+        .select()
+        .from(schema.events)
+        .where(eq(schema.events.id, cls.eventId));
+      if (
+        !can(ctx.actor, "event.registry.manage", {
+          organizationId: event!.organizationId,
+          eventId: event!.id,
+        })
+      ) {
+        throw new TRPCError({ code: "FORBIDDEN" });
+      }
+      return ctx.db
+        .select({
+          runId: schema.runs.id,
+          status: schema.runs.status,
+          goRound: schema.runs.goRound,
+          reviewHeldAt: schema.runs.reviewHeldAt,
+          entryId: schema.entries.id,
+          entryStatus: schema.entries.status,
+          drawNumber: schema.entries.drawNumber,
+          horseName: schema.horses.name,
+          riderName: schema.persons.fullName,
+        })
+        .from(schema.runs)
+        .innerJoin(schema.entries, eq(schema.entries.id, schema.runs.entryId))
+        .innerJoin(schema.horses, eq(schema.horses.id, schema.entries.horseId))
+        .innerJoin(schema.persons, eq(schema.persons.id, schema.entries.riderId))
+        .where(eq(schema.entries.classId, input.classId))
+        .orderBy(asc(schema.entries.drawNumber));
+    }),
+
   /** Bundle offline: tutto ciò che serve a lavorare un'intera classe senza rete. */
   bundle: publicProcedure
     .input(z.object({ eventId: z.string().uuid() }))

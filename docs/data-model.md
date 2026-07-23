@@ -174,7 +174,7 @@ Principio: **account ≠ anagrafica**. `User` è l'identità con cui si entra; `
 | vetting_note | string? | obbligatoria se respinta (rifiuto motivato) |
 | verified_at / verified_by | datetime? / uuid? (FK User) | chi ha verificato |
 
-**OrganizationMember** — membership con ruolo `titolare` | `segreteria` (Person ↔ Organization, unica). Creare eventi richiede membership in un'organizzazione `verificata`; `Event.organization_id` (FK, not null) lega l'evento al club.
+**OrganizationMember** — membership con ruolo `titolare` | `segreteria` (Person ↔ Organization, unica). Il vetting condiziona la **pubblicazione**, non la preparazione (BR-80): il titolare di un'organizzazione `in_verifica` crea eventi in bozza e li configura (capability `event.prepare`); annuncio e apertura iscrizioni richiedono l'organizzazione `verificata` (`event.configure`). `Event.organization_id` (FK, not null) lega l'evento al club.
 
 **EventRoleAssignment** — ruolo operativo event-scoped: `giudice` | `scribe` | `segreteria`, con `class_id` opzionale (null = tutto l'evento). Si **disattiva** (`deactivated_at`), mai si cancella: la sostituzione di un giudice non tocca le ScoreCard già firmate (che referenziano Person).
 

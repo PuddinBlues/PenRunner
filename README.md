@@ -16,6 +16,7 @@ Monorepo pnpm (Node ≥ 22). Stato: **MVP backend completo (step 1-7)** — anag
 - `apps/api` — Fastify + tRPC: auth, roster/iscrizioni/fee, draw, scoring (sync offline, backfill, correzioni), viste derivate live + SSE, `payout.classPayout`, route PDF (`/documents/...`).
 - `apps/web` — portale pubblico Next.js (App Router, SSR): calendario, pagina evento live, start list con ETA e marker drag, pagina pattern, scoreboard kiosk. i18n it/en dal primo componente, percorsi `/it/` `/en/` (BR-60..62).
 - `apps/scribe` — **app scribe/giudice**: scoring in arena offline-first, PWA usabile da solo browser (BR-81). Vestizione UI del `ScribeStore` di `@penrunner/core`; chiusura≠firma (BR-27), score in review (BR-29), firma grafometrica, sync idempotente. Dettagli in `apps/scribe/README.md`.
+- `apps/organizer` — **back-office organizzatore**: wizard evento/classi dal catalogo ufficiale, check-in con avvisi mai bloccanti (BR-18), draw (BR-19/43) con late entry, validazione→pubblicazione risultati (BR-27), payout, PDF, inviti giudice/scribe con link, registro modifiche event-scoped. Un'organizzazione in verifica prepara l'evento in bozza; pubblica dopo l'approvazione (BR-80). Dettagli in `apps/organizer/README.md`.
 
 Documenti PDF: start list e classifica (pubblici), payout e score card (organizzatore/segreteria) — via `GET /documents/class/:id/{start-list,results,payout}.pdf` e `/documents/run/:runId/scorecard/:judgeId.pdf`.
 
