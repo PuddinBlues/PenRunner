@@ -43,6 +43,9 @@ Queste derivano dal regolamento di reining e da decisioni di design prese con cu
 - Display onesto: sempre "~", stato "da programma" vs "live", mai un orario promesso. Notifica push a soglia = Fase 2, default 75 minuti (finestra di sellaggio ~75–60').
 - Scratch (BR-17): lo scratch self-serve è un'IMPOSTAZIONE dello show (`self_scratch_enabled`, default on, scelta dell'organizzatore). On = concorrente/scuderia ritirano in-app fino al proprio turno; off = si comunica dal vivo e registra l'organizzazione. In entrambi i casi la cascata (ETA anticipata, draw col buco, esclusione da classifica/payout) è automatica e la fee resta dovuta dal cavaliere.
 
+### Montepremi (BR-33) — fonte normativa
+- Formula CONFERMATA da ART. 15 Reg. Disciplina Reining FISE/IRHA 2025 (verbatim in reference/art15-montepremi.md): iscrizioni + added money − trofei − 20% spese org; <4 partecipanti = trofeo non detratto; Payback A obbligatorio. Residuo: base del 20% (sole iscrizioni o tutto) — parametro, da precisare con segreteria. Vincoli collegati: iscrizioni regionali max 30€/categoria; trofei scalabili max 75€ IVA compresa; senza added money nessun obbligo di distribuzione; JACKPOT (% iscrizioni a scelta comitato) = Fase 2.
+
 ### Special events multi-go (BR-34, Fase 2)
 - Futurity/Derby/Maturity: go di qualificazione + finale ad accesso limitato — NON in MVP, predisposto da runs.go_round. Accesso alla finale = parametro dalle conditions dello show. Regole Handbook da non contraddire mai: 0 e no score non avanzano; il qualificato con 0/scratch in finale resta payout-eligible (0 sopra scratch). E in ogni classe: score 0 visibile in classifica ma MAI eligibile ai piazzamenti a premio (vincola il payout, step 7).
 
