@@ -47,10 +47,10 @@ Queste derivano dal regolamento di reining e da decisioni di design prese con cu
 - Futurity/Derby/Maturity: go di qualificazione + finale ad accesso limitato — NON in MVP, predisposto da runs.go_round. Accesso alla finale = parametro dalle conditions dello show. Regole Handbook da non contraddire mai: 0 e no score non avanzano; il qualificato con 0/scratch in finale resta payout-eligible (0 sopra scratch). E in ogni classe: score 0 visibile in classifica ma MAI eligibile ai piazzamenti a premio (vincola il payout, step 7).
 
 ### Chiusura ≠ firma (BR-27)
-- La CHIUSURA (scribe, fine run) mostra il totale, sincronizza e alimenta il live come provvisorio — è l'annuncio. La FIRMA del giudice è in batch a fine classe (elenco carte con totali visibili, tratto per carta); prima della firma la carta è riapribile con evento tracciato, dalla firma è immutabile. Il gate non rallenta mai per firmare.
+- La CHIUSURA (scribe, fine run) mostra il totale, sincronizza e alimenta il live come provvisorio — è l'annuncio. La FIRMA del giudice è in batch A OGNI DRAG (validato col giudice: il blocco di carte dal drag precedente; l'ultimo blocco chiude la classe); prima della firma la carta è riapribile con evento tracciato, dalla firma è immutabile. Il drag è il momento rituale: review risolte + firma del blocco.
 
 ### Score in review (BR-29)
-- Penalità dubbia → il giudice trattiene lo score: carta NON firmata con nota del dubbio, stato annunciato come evento di run ("Score in review" al posto del numero, in inglese in entrambe le lingue). Risoluzione al drag successivo: si fissa UN valore e si firma. Nessun doppio valore memorizzato; la firma resta l'unica ufficializzazione.
+- Penalità dubbia → carta trattenuta con nota del dubbio (flag sulla manovra specifica — suggerimento del giudice), "Score in review" al posto del numero. CASO MISTO multi-giudice (validato): un giudice dà 0 o penalità da 2/5 punti e gli altri no → review SEMPRE, confronto al drag successivo. Risoluzione: UN valore, chiusura, firma nel batch del drag. Nessun doppio valore memorizzato.
 
 ### Modalità degradata (BR-28)
 - Se il digitale si ferma: carta + radio come oggi, poi BACKFILL delle carte cartacee da organizzatore/segreteria — ScoreCard con source=manual_backfill, auditata, firma digitale mai simulata (fa fede la carta cartacea agli atti). PenRunner non è mai un single point of failure dello show.
@@ -59,7 +59,7 @@ Queste derivano dal regolamento di reining e da decisioni di design prese con cu
 ### Draw (BR-19, BR-43)
 - Distanziamento stesso cavaliere: obiettivo 7-8 cavalli in mezzo (warm-up del cavallo successivo), default generazione 8, degradazione a scala con warnings, mai fallimento.
 - Chirurgia del draw pubblicato = capacità concessa PER EVENTO (events.draw_surgery_enabled, default off; attiva solo il Platform Admin, per l'intero evento; visibile read-only all'organizzatore; auditata). Flag off → solo late entry in coda. Flag on → spostamenti auditati; spostamento in prima posizione dopo un drag annotato automaticamente.
-- Drag calcolati sulle run EFFETTIVE (scratch esclusi), marker di drag derivati visibili sulla start list pubblica in tempo reale — trasparenza: nessuno scopre al cancello che il confine si è spostato.
+- Drag a POSIZIONI FISSE del draw pubblicato (validato col giudice: lo scratch accorcia il blocco, il trattore resta lì — il marker non si muove mai). Intervallo = impostazione di gara (drag_every_n, default 5; regionali anche 7-10). Marker fissi sulla start list pubblica.
 
 ### Autonomia d'uso — self-serve (BR-80, BR-81)
 - Ogni organizzazione impara a usare PenRunner DA SOLA, senza formazione né supporto: è condizione del modello self-serve. Requisito trasversale a ogni UI (scribe, organizzatore, scuderia): wizard guidati, stati vuoti che indicano il passo dopo, aiuto contestuale nello schermo (non manuali esterni), nessun flusso critico che richieda sapere cose non presenti a video.
