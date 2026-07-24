@@ -184,7 +184,7 @@ describe("generazione e pubblicazione", () => {
 });
 
 describe("scratch sul draw pubblicato (BR-17 + BR-51)", () => {
-  it("il buco resta, la numerazione NON cambia, il confine del drag si sposta", async () => {
+  it("il buco resta, la numerazione NON cambia, il confine del drag NEMMENO", async () => {
     const before = await drawNumbers();
     // scratch self-serve del binomio in posizione 3
     const [target] = await api.db
@@ -209,10 +209,11 @@ describe("scratch sul draw pubblicato (BR-17 + BR-51)", () => {
       .where(eq(schema.runs.entryId, target!.id));
     expect(runs).toHaveLength(0);
 
-    // il marker di drag si sposta: 5ª run effettiva ora è il n° 6 (BR-51)
+    // BR-51 (validata col giudice): il marker NON si muove — lo scratch
+    // accorcia il blocco, entrano in 4, il trattore resta dopo il n° 5
     const anon = await api.as();
     const sl = await anon.draw.startList({ classId });
-    expect(sl.dragAfter).toEqual([6, 11]);
+    expect(sl.dragAfter).toEqual([5, 10]);
     const scratched = sl.entries.find((e) => e.drawNumber === 3)!;
     expect(scratched.scratched).toBe(true);
   });
@@ -311,16 +312,17 @@ describe("chirurgia del draw = capacità concessa (BR-43)", () => {
 
   it("flag on: spostamento auditato; l'arrivo in prima posizione post-drag è annotato", async () => {
     const caller = await api.as(organizerToken);
-    // con lo scratch del n°3, i confini sono dopo 6 e 11: la prima posizione
-    // post-drag è la 7. Scambiamo il n°4 col n°7: chi arriva alla 7 va annotato.
+    // Confini FISSI dopo 5 e 10 (lo scratch del n°3 non li muove): la prima
+    // partenza effettiva post-drag è la 6. Scambiamo il n°4 col n°6: chi
+    // arriva alla 6 va annotato (arena pulita).
     const nums = await drawNumbers();
     const at4 = [...nums.entries()].find(([, n]) => n === 4)![0];
-    const at7 = [...nums.entries()].find(([, n]) => n === 7)![0];
-    await caller.draw.swapPositions({ entryAId: at4, entryBId: at7 });
+    const at6 = [...nums.entries()].find(([, n]) => n === 6)![0];
+    await caller.draw.swapPositions({ entryAId: at4, entryBId: at6 });
 
     const after = await drawNumbers();
-    expect(after.get(at4)).toBe(7);
-    expect(after.get(at7)).toBe(4);
+    expect(after.get(at4)).toBe(6);
+    expect(after.get(at6)).toBe(4);
 
     const audit = await api.db
       .select()
@@ -337,11 +339,11 @@ describe("chirurgia del draw = capacità concessa (BR-43)", () => {
       .from(schema.auditLog)
       .where(eq(schema.auditLog.action, "draw.position.set"));
     expect(setAudit).toHaveLength(1);
-    expect(setAudit[0]!.before).toEqual({ drawNumber: 7 });
+    expect(setAudit[0]!.before).toEqual({ drawNumber: 6 });
     expect(setAudit[0]!.after).toEqual({ drawNumber: 20 });
     // posizione occupata → rifiutata
     await expect(
-      caller.draw.setPosition({ entryId: at7, position: 20 }),
+      caller.draw.setPosition({ entryId: at6, position: 20 }),
     ).rejects.toThrow(/già occupata/);
   });
 

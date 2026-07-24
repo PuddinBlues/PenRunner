@@ -78,14 +78,27 @@ export const runs = pgTable(
     status: runStatus("status").notNull().default("attesa"),
     // "Manda in campo" dello scribe: àncora reale per l'ETA (BR-52).
     startedAt: timestamp("started_at", { withTimezone: true }),
-    // BR-29: score in review. Alzato da un evento di run; la run resta "in
-    // review" (vista derivata) finché tutte le carte sono chiuse e firmate.
+    // BR-29: score in review. Alzato da un evento di run (hold del giudice)
+    // o dal TRIGGER di sistema sul caso misto multi-giudice (discordanza su
+    // score_0 / penalità ≥2 tra carte chiuse — validato col giudice: review
+    // SEMPRE, né maggioranza né prevalenza). La run resta "in review" (vista
+    // derivata) finché tutte le carte sono chiuse e firmate.
     reviewHeldAt: timestamp("review_held_at", { withTimezone: true }),
     reviewNote: text("review_note"),
+    // La MANOVRA del dubbio (suggerimento del giudice): al drag il confronto
+    // parte già informato. Null = dubbio sull'intera run (es. score_0).
+    reviewPosition: integer("review_position"),
+    // Due origini, due etichette: hold dichiarata dal giudice vs discordanza
+    // rilevata dal sistema.
+    reviewSource: text("review_source"),
   },
   (t) => [
     unique("runs_entry_go_round").on(t.entryId, t.goRound),
     check("runs_go_round_min", sql`${t.goRound} >= 1`),
+    check(
+      "runs_review_source_valid",
+      sql`${t.reviewSource} is null or ${t.reviewSource} in ('giudice', 'sistema')`,
+    ),
   ],
 );
 

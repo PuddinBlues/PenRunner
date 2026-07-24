@@ -300,7 +300,11 @@ export const eventsRouter = router({
 
 export async function loadEventOrganization(db: Db, eventId: string) {
   const [event] = await db
-    .select({ id: schema.events.id, organizationId: schema.events.organizationId })
+    .select({
+      id: schema.events.id,
+      organizationId: schema.events.organizationId,
+      tier: schema.events.tier,
+    })
     .from(schema.events)
     .where(eq(schema.events.id, eventId));
   return event;

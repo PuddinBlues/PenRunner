@@ -123,6 +123,41 @@ describe("catalogo per il wizard", () => {
   });
 });
 
+describe("validazioni leggere ART. 15 (avvisi, mai blocchi)", () => {
+  it("trofeo > 75 € e quota regionale > 30 € → warning, la classe si crea comunque", async () => {
+    const caller = await api.as(organizerToken);
+    // l'evento del test è tier regionale (default)
+    const res = await caller.classes.create({
+      eventId,
+      categoryId,
+      patternId: walkInPatternId,
+      name: "Classe fuori tetti",
+      entryFee: "40",
+      trophyCost: "90",
+    });
+    expect(res.classId).toBeTruthy(); // MAI bloccante
+    expect(res.warnings).toHaveLength(2);
+    expect(res.warnings.map((w) => w.code)).toEqual(["ART-15", "ART-15"]);
+    expect(res.warnings.some((w) => /75 €/.test(w.message))).toBe(true);
+    expect(res.warnings.some((w) => /30 €/.test(w.message))).toBe(true);
+    await caller.classes.remove({ classId: res.classId });
+  });
+
+  it("entro i tetti: nessun avviso", async () => {
+    const caller = await api.as(organizerToken);
+    const res = await caller.classes.create({
+      eventId,
+      categoryId,
+      patternId: walkInPatternId,
+      name: "Classe nei tetti",
+      entryFee: "30",
+      trophyCost: "75",
+    });
+    expect(res.warnings).toEqual([]);
+    await caller.classes.remove({ classId: res.classId });
+  });
+});
+
 describe("CRUD classi: guard di integrità", () => {
   it("il trot-in imposto vale solo dove il pattern lo ammette (BR-26)", async () => {
     const caller = await api.as(organizerToken);

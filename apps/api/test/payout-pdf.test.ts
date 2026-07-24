@@ -171,7 +171,9 @@ describe("payout derivato (BR-31/BR-34 go singolo)", () => {
     // quadratura al centesimo
     expect(p.distributedCents + p.undistributedCents).toBe(p.purse.purseCents);
     expect(p.undistributedCents).toBe(0);
-    expect(p.purseFormulaNote).toMatch(/da confermare/);
+    // Fonte normativa confermata (ART. 15); resta UN asterisco: la base del 20%
+    expect(p.purseFormulaNote).toMatch(/ART\. 15/);
+    expect(p.purseFormulaNote).toMatch(/base del 20%.*da precisare/);
   });
 
   it("l'organizzatore altrui non vede il payout", async () => {
@@ -206,12 +208,13 @@ describe("documenti PDF (document-model esatto + smoke renderer)", () => {
     expect(pdf.subarray(0, 5).toString()).toBe(PDF_MAGIC);
   });
 
-  it("payout PDF: purse scomposto nelle note, con avviso 'da confermare'", async () => {
+  it("payout PDF: purse scomposto nelle note, con la fonte ART. 15 e l'asterisco sul 20%", async () => {
     const doc = await buildPayoutDoc(api.db, classId, "it", new Date());
     const notes = doc.footNotes.join("\n");
     expect(notes).toMatch(/Montepremi: € 569,00/);
     expect(notes).toMatch(/Iscrizioni: € 180,00/);
-    expect(notes).toMatch(/da confermare/);
+    expect(notes).toMatch(/ART\. 15/);
+    expect(notes).toMatch(/da precisare/);
     const pdf = await renderTable(doc);
     expect(pdf.subarray(0, 5).toString()).toBe(PDF_MAGIC);
   });

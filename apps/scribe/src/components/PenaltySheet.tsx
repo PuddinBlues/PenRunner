@@ -37,12 +37,18 @@ export function PenaltySheet({
           </div>
           <button style={{ width: 48, height: 48, fontSize: 22, background: "var(--ink)", color: "#fff" }} onClick={() => setVal((v) => +(v + 0.5).toFixed(1))}>+</button>
         </div>
+        {/* Tocchi che SOMMANO (validato col giudice): nei cerchi le penalità
+            si dettano DURANTE la manovra — "mezzo… ancora mezzo… uno" — e il
+            totale cresce a video. "Azzera" per ricominciare. */}
         <div style={{ display: "flex", gap: 6, justifyContent: "center", marginBottom: 18 }}>
           {quick.map((q) => (
-            <button key={q} className="num" style={{ padding: "8px 16px", fontWeight: 600, background: val === q ? "var(--warn)" : "var(--slate-100)", color: val === q ? "#fff" : "var(--slate-700)" }} onClick={() => setVal(q)}>
-              {q === 0.5 ? "½" : q}
+            <button key={q} className="num" style={{ padding: "8px 16px", fontWeight: 600, background: "var(--slate-100)", color: "var(--slate-700)" }} onClick={() => setVal((v) => +(v + q).toFixed(1))}>
+              +{q === 0.5 ? "½" : q}
             </button>
           ))}
+          <button className="ghost" style={{ padding: "8px 14px" }} onClick={() => setVal(0)}>
+            {t("score.penaltyClear")}
+          </button>
         </div>
         <div style={{ display: "flex", gap: 8 }}>
           <button className="ghost" style={{ flex: 1 }} onClick={onClose}>{t("confirm.cancel")}</button>

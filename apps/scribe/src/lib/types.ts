@@ -46,6 +46,8 @@ export interface BundleJudge {
 
 export interface ScoringBundle {
   engineVersion: string;
+  /** BR-27/51: confini di drag a posizioni fisse (assente nei bundle vecchi) */
+  dragEveryNRuns?: number;
   selfJudgePersonId: string | null;
   classes: BundleClass[];
   patterns: BundlePattern[];

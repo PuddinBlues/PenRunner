@@ -42,6 +42,8 @@ export interface LocalRunEvent {
   type: RunEventType;
   at: string;
   note?: string;
+  /** held_for_review: la MANOVRA del dubbio (BR-29, suggerimento del giudice) */
+  position?: number;
 }
 
 interface StoreState {
@@ -119,6 +121,16 @@ export class ScribeStore {
   cardForRun(runId: string, judgeId: string): LocalCard | undefined {
     return Object.values(this.state.cards).find(
       (c) => c.runId === runId && c.judgeId === judgeId,
+    );
+  }
+
+  /** Le run trattenute in review da QUESTO device (BR-29): per lo stato
+   *  del blocco di firma la RunList deve dire PERCHÉ manca una carta. */
+  heldRunIds(): Set<string> {
+    return new Set(
+      this.state.events
+        .filter((e) => e.type === "held_for_review")
+        .map((e) => e.runId),
     );
   }
 
@@ -211,13 +223,24 @@ export class ScribeStore {
 
   /**
    * BR-29: il giudice trattiene lo score. La carta resta APERTA (né chiusa
-   * né firmata): verso il mondo viaggia solo l'evento di run.
+   * né firmata): verso il mondo viaggia solo l'evento di run. `position` =
+   * la manovra del dubbio: al drag il confronto parte già informato.
    */
-  async holdForReview(runId: string, note: string) {
-    await this.pushEvent({ runId, type: "held_for_review", note });
+  async holdForReview(runId: string, note: string, position?: number) {
+    await this.pushEvent({
+      runId,
+      type: "held_for_review",
+      note,
+      ...(position !== undefined ? { position } : {}),
+    });
   }
 
-  private async pushEvent(e: { runId: string; type: RunEventType; note?: string }) {
+  private async pushEvent(e: {
+    runId: string;
+    type: RunEventType;
+    note?: string;
+    position?: number;
+  }) {
     const next = this.next();
     const event: LocalRunEvent = {
       clientEventId: this.idGen(),
@@ -225,6 +248,7 @@ export class ScribeStore {
       type: e.type,
       at: this.clock(),
       ...(e.note !== undefined ? { note: e.note } : {}),
+      ...(e.position !== undefined ? { position: e.position } : {}),
     };
     next.events.push(event);
     next.outbox.events.push(event.clientEventId);

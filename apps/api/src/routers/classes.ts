@@ -31,6 +31,36 @@ async function requirePrepare(
   return event;
 }
 
+/**
+ * Validazioni leggere dall'ART. 15 Reg. Disciplina Reining FISE/IRHA 2025:
+ * avvisi in stile BR-18 — si vede, si decide, MAI si blocca.
+ */
+function art15Warnings(
+  values: { entryFee?: string | undefined; trophyCost?: string | undefined },
+  eventTier: string,
+): Array<{ code: string; message: string }> {
+  const warnings: Array<{ code: string; message: string }> = [];
+  if (values.trophyCost !== undefined && Number(values.trophyCost) > 75) {
+    warnings.push({
+      code: "ART-15",
+      message:
+        "Costo trofei oltre 75 € IVA compresa: il regolamento consente di scalare dal montepremi al massimo 75 € (gare non-NRHA)",
+    });
+  }
+  if (
+    values.entryFee !== undefined &&
+    eventTier === "regionale" &&
+    Number(values.entryFee) > 30
+  ) {
+    warnings.push({
+      code: "ART-15",
+      message:
+        "Quota classe oltre 30 €: tetto regolamentare d'iscrizione per le categorie regionali",
+    });
+  }
+  return warnings;
+}
+
 export const classesRouter = router({
   create: verifiedProcedure
     .input(
@@ -50,7 +80,7 @@ export const classesRouter = router({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      await requirePrepare(ctx, input.eventId);
+      const event = await requirePrepare(ctx, input.eventId);
       const [category] = await ctx.db
         .select()
         .from(schema.categories)
@@ -106,7 +136,12 @@ export const classesRouter = router({
             : {}),
         })
         .returning();
-      return { classId: created!.id, name: created!.name };
+      return {
+        classId: created!.id,
+        name: created!.name,
+        // Avvisi ART. 15 (mai bloccanti): l'organizzatore vede e decide.
+        warnings: art15Warnings(input, event.tier),
+      };
     }),
 
   /** Le classi di un evento, con catalogo e conteggi (vista organizzatore). */
@@ -172,7 +207,7 @@ export const classesRouter = router({
         .from(schema.classes)
         .where(eq(schema.classes.id, input.classId));
       if (!cls) throw new TRPCError({ code: "NOT_FOUND" });
-      await requirePrepare(ctx, cls.eventId);
+      const event = await requirePrepare(ctx, cls.eventId);
 
       // A draw pubblicato la struttura sportiva è congelata: pattern e numero
       // giudici non si toccano (le carte in arena ne dipendono). I campi
@@ -209,12 +244,13 @@ export const classesRouter = router({
       const changes = Object.fromEntries(
         Object.entries(fields).filter(([, v]) => v !== undefined),
       );
-      if (Object.keys(changes).length === 0) return { updated: false };
+      if (Object.keys(changes).length === 0)
+        return { updated: false, warnings: [] };
       await ctx.db
         .update(schema.classes)
         .set(changes)
         .where(eq(schema.classes.id, input.classId));
-      return { updated: true };
+      return { updated: true, warnings: art15Warnings(input, event.tier) };
     }),
 
   /**

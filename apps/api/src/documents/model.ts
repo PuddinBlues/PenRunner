@@ -43,7 +43,8 @@ const L = {
     trophy: "Trofei",
     orgExpense: "Spese org. (20%)",
     undistributed: "Non distribuito (show management)",
-    formulaNote: "Formula montepremi da confermare (segreteria IRHA)",
+    formulaNote:
+      "Montepremi ex ART. 15 Reg. Disciplina Reining FISE/IRHA 2025 (*base del 20%: sole iscrizioni, da precisare con la segreteria)",
     judge: "Giudice",
     pattern: "Pattern",
     runPenalty: "Penalità di run",
@@ -76,7 +77,8 @@ const L = {
     trophy: "Trophies",
     orgExpense: "Org. expenses (20%)",
     undistributed: "Undistributed (show management)",
-    formulaNote: "Purse formula to be confirmed (IRHA secretariat)",
+    formulaNote:
+      "Purse per ART. 15 FISE/IRHA Reining Rules 2025 (*20% base: entry fees only, to be finalized with the secretariat)",
     judge: "Judge",
     pattern: "Pattern",
     runPenalty: "Run penalty",

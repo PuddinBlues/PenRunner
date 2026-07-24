@@ -64,6 +64,8 @@ const syncEventInput = z.object({
   type: z.enum(["sent_to_field", "held_for_review", "reopened"]),
   at: z.string().datetime(),
   note: z.string().max(2000).optional(),
+  /** held_for_review: la manovra del dubbio (BR-29) */
+  position: z.number().int().min(1).optional(),
 });
 
 async function loadRunContext(db: DbOrTx, runId: string) {
@@ -177,6 +179,115 @@ function isRunInReview(
   return !(judges.length > 0 && judges.every((j) => signed.has(j.personId)));
 }
 
+/**
+ * BR-29, caso misto multi-giudice (validato col giudice): se tra le carte
+ * CHIUSE della stessa run un giudice ha score_0 o una penalità ≥2 su una
+ * manovra dove un altro non ce l'ha → review SEMPRE — né maggioranza né
+ * prevalenza. La nota di sistema riporta i valori discordanti PER GIUDICE:
+ * al drag il confronto parte già informato. Origine "sistema", distinta
+ * dalla hold manuale del giudice.
+ */
+async function maybeTriggerMixedReview(
+  tx: DbOrTx,
+  runCtx: NonNullable<Awaited<ReturnType<typeof loadRunContext>>>,
+) {
+  const [run] = await tx
+    .select()
+    .from(schema.runs)
+    .where(eq(schema.runs.id, runCtx.run.id));
+  if (!run || run.reviewHeldAt !== null) return; // già in review: resta com'è
+  const cards = await tx
+    .select({
+      card: schema.scoreCards,
+      judgeName: schema.persons.fullName,
+    })
+    .from(schema.scoreCards)
+    .innerJoin(schema.persons, eq(schema.persons.id, schema.scoreCards.judgeId))
+    .where(eq(schema.scoreCards.runId, run.id));
+  const closed = cards.filter((c) =>
+    ["chiusa", "firmata", "validata"].includes(c.card.status),
+  );
+  if (closed.length < 2) return;
+
+  let position: number | null = null;
+  let note: string | null = null;
+
+  // Discordanza sull'esito: un giudice dà score_0 (o no_score) e altri no.
+  const withSpecial = closed.filter((c) => c.card.special !== null);
+  if (withSpecial.length > 0 && withSpecial.length < closed.length) {
+    const others = closed.filter((c) => c.card.special === null);
+    note = `${withSpecial
+      .map((c) => `${c.judgeName}: ${c.card.special}`)
+      .join(" · ")} · ${others.map((c) => c.judgeName).join("/")}: score`;
+  } else {
+    // Discordanza per manovra: penalità ≥2 da un giudice, non dagli altri.
+    const scoresByCard = new Map<string, Map<number, number>>();
+    for (const c of closed) {
+      const rows = await tx
+        .select({
+          position: schema.patternManeuvers.position,
+          penalty: schema.maneuverScores.penalty,
+        })
+        .from(schema.maneuverScores)
+        .innerJoin(
+          schema.patternManeuvers,
+          eq(schema.patternManeuvers.id, schema.maneuverScores.maneuverId),
+        )
+        .where(eq(schema.maneuverScores.scoreCardId, c.card.id));
+      scoresByCard.set(
+        c.card.id,
+        new Map(rows.map((r) => [r.position, Number(r.penalty)])),
+      );
+    }
+    const positions = [
+      ...new Set(
+        [...scoresByCard.values()].flatMap((m) => [...m.keys()]),
+      ),
+    ].sort((a, b) => a - b);
+    for (const pos of positions) {
+      const heavy = closed.filter(
+        (c) => (scoresByCard.get(c.card.id)?.get(pos) ?? 0) >= 2,
+      );
+      if (heavy.length > 0 && heavy.length < closed.length) {
+        const light = closed.filter(
+          (c) => (scoresByCard.get(c.card.id)?.get(pos) ?? 0) < 2,
+        );
+        position = pos;
+        note = `Manovra ${pos} — ${heavy
+          .map(
+            (c) =>
+              `${c.judgeName}: penalità ${scoresByCard.get(c.card.id)!.get(pos)}`,
+          )
+          .join(" · ")} · ${light
+          .map((c) => {
+            const p = scoresByCard.get(c.card.id)?.get(pos) ?? 0;
+            return `${c.judgeName}: ${p > 0 ? `penalità ${p}` : "nessuna"}`;
+          })
+          .join(" · ")}`;
+        break; // la prima manovra discordante innesca; le altre si vedono al drag
+      }
+    }
+  }
+
+  if (note === null) return;
+  await tx
+    .update(schema.runs)
+    .set({
+      reviewHeldAt: new Date(),
+      reviewNote: note,
+      reviewPosition: position,
+      reviewSource: "sistema",
+    })
+    .where(eq(schema.runs.id, run.id));
+  await recordAudit(tx, {
+    actorUserId: null,
+    action: "run.review.system",
+    entityType: "run",
+    entityId: run.id,
+    note,
+  });
+}
+
 /** La run passa a in_attesa_firma quando tutti i giudici attivi hanno chiuso. */
 async function maybeAwaitSignature(
   tx: DbOrTx,
@@ -234,6 +345,9 @@ export const scoringRouter = router({
           status: schema.runs.status,
           goRound: schema.runs.goRound,
           reviewHeldAt: schema.runs.reviewHeldAt,
+          reviewNote: schema.runs.reviewNote,
+          reviewPosition: schema.runs.reviewPosition,
+          reviewSource: schema.runs.reviewSource,
           entryId: schema.entries.id,
           entryStatus: schema.entries.status,
           drawNumber: schema.entries.drawNumber,
@@ -269,6 +383,12 @@ export const scoringRouter = router({
             );
           })()));
       if (!allowed) throw new TRPCError({ code: "FORBIDDEN" });
+
+      const [event] = await ctx.db
+        .select()
+        .from(schema.events)
+        .where(eq(schema.events.id, input.eventId));
+      if (!event) throw new TRPCError({ code: "NOT_FOUND" });
 
       const classes = await ctx.db
         .select()
@@ -343,6 +463,9 @@ export const scoringRouter = router({
         : [];
       return {
         engineVersion: SCORING_ENGINE_VERSION,
+        // BR-27/51: il device conosce i confini di drag (posizioni fisse)
+        // per proporre la firma del blocco al drag.
+        dragEveryNRuns: event.dragEveryNRuns,
         // se la sessione è un giudice, è il giudice attivo predefinito
         selfJudgePersonId:
           ctx.actor.kind === "invite" && ctx.actor.role === "giudice"
@@ -401,11 +524,14 @@ export const scoringRouter = router({
           });
         } else if (e.type === "held_for_review") {
           // BR-29: la run è "in review"; il numero non c'è ancora, lo show va.
+          // Origine GIUDICE (dubbio dichiarato), con la manovra indicata.
           await ctx.db
             .update(schema.runs)
             .set({
               reviewHeldAt: runCtx.run.reviewHeldAt ?? now,
               reviewNote: e.note ?? runCtx.run.reviewNote,
+              reviewPosition: e.position ?? runCtx.run.reviewPosition,
+              reviewSource: runCtx.run.reviewSource ?? "giudice",
             })
             .where(eq(schema.runs.id, e.runId));
           eventResults.push({
@@ -530,6 +656,7 @@ export const scoringRouter = router({
                 .where(eq(schema.scoreCards.id, existing.id));
               if (mismatch) await auditMismatch(tx, existing.id, c, serverTotal);
               if (versionSkew) await auditVersionSkew(tx, existing.id, c);
+              await maybeTriggerMixedReview(tx, runCtx);
               await maybeAwaitSignature(tx, runCtx);
               return {
                 clientCardId: c.clientCardId,
@@ -604,6 +731,7 @@ export const scoringRouter = router({
                 note: `signed_at del device nel futuro del server: ${c.signedAt}`,
               });
             }
+            await maybeTriggerMixedReview(tx, runCtx);
             await maybeAwaitSignature(tx, runCtx);
             return {
               clientCardId: c.clientCardId,
@@ -937,6 +1065,8 @@ export const scoringRouter = router({
         runStatus: runCtx.run.status,
         inReview: isRunInReview(runCtx.run, judges, cards),
         reviewNote: runCtx.run.reviewNote,
+        reviewPosition: runCtx.run.reviewPosition,
+        reviewSource: runCtx.run.reviewSource,
         cards: result,
       };
     }),

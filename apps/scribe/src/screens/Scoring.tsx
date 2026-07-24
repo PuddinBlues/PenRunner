@@ -273,8 +273,9 @@ export function Scoring({
       {holdOpen && (
         <HoldSheet
           t={t}
-          onConfirm={async (note) => {
-            await store.holdForReview(runId, note);
+          maneuverCount={maneuverDefs.length}
+          onConfirm={async (note, position) => {
+            await store.holdForReview(runId, note, position);
             setHoldOpen(false);
             void syncNow(session, store).catch(() => undefined);
             onDone();

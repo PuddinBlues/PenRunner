@@ -169,32 +169,33 @@ function buildResult(order: DrawCandidate[], targetGap: number): DrawResult {
 }
 
 // ---------------------------------------------------------------------------
-// Marker di drag (BR-51): calcolati sulle run EFFETTIVE (scratch/assenti
-// esclusi — il fondo si consuma con chi corre davvero). Derivati, mai
-// memorizzati: uno scratch sposta il confine e la start list lo mostra live.
-// Predisposizione futura: un eventuale drag_mode "a posizioni fisse"
-// diventerebbe una seconda strategia qui, senza toccare i chiamanti.
+// Marker di drag (BR-51, validata col giudice): POSIZIONI FISSE del draw
+// pubblicato — "se c'è uno scratch ne entrano 4 invece di 5, il trattore
+// resta lì". Il confine non si sposta MAI (evita contestazioni sull'arena
+// pulita): lo scratch accorcia il blocco, il marker rimane sulla sua
+// posizione. L'intervallo è un'impostazione di gara (drag_every_n, default
+// 5; nei regionali affollati anche 7 o 10).
 // ---------------------------------------------------------------------------
 
 export interface StartListRow {
   drawNumber: number;
-  effective: boolean; // false per ritirata/assente (buco nel draw)
+  /** false per ritirata/assente — irrilevante per i marker (fissi), usato
+   *  dai chiamanti per "prima partenza effettiva dopo il drag" (BR-43). */
+  effective: boolean;
 }
 
 /**
- * Ritorna i drawNumber DOPO i quali cade un drag: ogni `dragEveryNRuns` run
- * effettive, se dopo ne restano altre.
+ * Ritorna i drawNumber DOPO i quali cade un drag: ogni `dragEveryNRuns`
+ * POSIZIONI del draw pubblicato, scratch inclusi, se dopo ne restano altre.
  */
 export function computeDragMarkers(
   rows: StartListRow[],
   dragEveryNRuns: number,
 ): number[] {
   const markers: number[] = [];
-  const effective = rows
-    .filter((r) => r.effective)
-    .sort((a, b) => a.drawNumber - b.drawNumber);
-  for (let i = dragEveryNRuns; i < effective.length; i += dragEveryNRuns) {
-    markers.push(effective[i - 1]!.drawNumber);
+  const ordered = [...rows].sort((a, b) => a.drawNumber - b.drawNumber);
+  for (let i = dragEveryNRuns; i < ordered.length; i += dragEveryNRuns) {
+    markers.push(ordered[i - 1]!.drawNumber);
   }
   return markers;
 }

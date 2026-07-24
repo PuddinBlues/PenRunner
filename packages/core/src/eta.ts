@@ -6,7 +6,9 @@
 //   solo il conteggio delle run mancanti (display onesto, sempre "~");
 // - la cadenza osservata (media mobile degli ultimi started_at) sostituisce
 //   progressivamente lo slot di default (BR-52);
-// - i drag si contano sulle run effettive, scratch esclusi (BR-51).
+// - gli SLOT si contano sulle run effettive (lo scratch accorcia il tempo),
+//   ma i confini di DRAG sono a POSIZIONI FISSE del draw pubblicato (BR-51,
+//   validata col giudice: il trattore resta lì, il marker non si muove mai).
 // Pause di programma: Fase 2 (nessuna entità schedule in MVP).
 // ---------------------------------------------------------------------------
 
@@ -64,26 +66,34 @@ export function computeEta<Ref>(
   );
   const slotS = cadence ?? params.slotSeconds;
   const ordered = [...rows].sort((a, b) => a.drawNumber - b.drawNumber);
-  // posizione effettiva progressiva dall'inizio classe (per i confini drag)
+  // Due griglie distinte (BR-51): la posizione EFFETTIVA progressiva conta
+  // gli slot (chi corre davvero), la posizione FISSA nel draw pubblicato
+  // decide i confini di drag (scratch inclusi: il marker non si muove).
   let effectiveIndex = 0;
   const effectivePositions = new Map<number, number>(); // drawNumber → indice effettivo 1-based
-  for (const r of ordered) {
+  const fixedPositions = new Map<number, number>(); // drawNumber → indice fisso 1-based
+  ordered.forEach((r, i) => {
+    fixedPositions.set(r.drawNumber, i + 1);
     if (r.effective) {
       effectiveIndex += 1;
       effectivePositions.set(r.drawNumber, effectiveIndex);
     }
-  }
+  });
   const doneEffective = ordered.filter((r) => r.effective && r.done).length;
+  const doneFixed = ordered
+    .filter((r) => r.effective && r.done)
+    .reduce((max, r) => Math.max(max, fixedPositions.get(r.drawNumber)!), 0);
 
   const out: EtaEstimate<Ref>[] = [];
   for (const r of ordered) {
     if (r.done || !r.effective) continue;
     const myPos = effectivePositions.get(r.drawNumber)!;
+    const myFixedPos = fixedPositions.get(r.drawNumber)!;
     const runsBefore = myPos - doneEffective - 1;
-    // drag i cui confini cadono tra l'ultima run partita e la mia
+    // drag i cui confini FISSI cadono tra l'ultima run partita e la mia
     const drags =
-      Math.floor((myPos - 1) / params.dragEveryNRuns) -
-      Math.floor(doneEffective / params.dragEveryNRuns);
+      Math.floor((myFixedPos - 1) / params.dragEveryNRuns) -
+      Math.floor(doneFixed / params.dragEveryNRuns);
     const etaMs =
       anchorMs === null
         ? null

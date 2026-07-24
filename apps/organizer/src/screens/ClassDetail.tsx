@@ -753,7 +753,17 @@ function RunRowView({
           {r.reviewHeldAt && (
             <>
               {" "}
-              <Badge tone="warn">{t("results.inReview")}</Badge>
+              <Badge tone="warn">{t("results.inReview")}</Badge>{" "}
+              <Badge tone={r.reviewSource === "sistema" ? "danger" : "info"}>
+                {r.reviewSource === "sistema"
+                  ? t("results.reviewSystem")
+                  : t("results.reviewJudge")}
+              </Badge>
+              <div className="muted">
+                {r.reviewPosition !== null &&
+                  `${t("results.reviewManeuver", { n: r.reviewPosition })} — `}
+                {r.reviewNote}
+              </div>
             </>
           )}
         </td>

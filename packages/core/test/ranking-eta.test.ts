@@ -147,6 +147,24 @@ describe("ETA derivata (BR-50..52)", () => {
     expect(after).toBeLessThan(before);
   });
 
+  it("BR-51: lo scratch accorcia gli slot ma NON sposta i confini di drag", () => {
+    const params = {
+      slotSeconds: 270,
+      dragEveryNRuns: 5,
+      dragSeconds: 420,
+      observedStartsMs: [],
+    };
+    // scratch del n°3: il n°6 resta OLTRE il confine fisso (dopo il n°5),
+    // quindi paga comunque 1 drag — ma solo 5 slot (4 run prima + la sua).
+    const eta = computeEta(rows(12, { scratched: [3] }), 0, params);
+    const e6 = eta.find((x) => x.ref === "e6")!;
+    expect(e6.runsBefore).toBe(4);
+    expect(e6.etaMs).toBe((5 * 270 + 420) * 1000);
+    // il n°5 è PRIMA del confine: nessun drag, 4 slot
+    const e5 = eta.find((x) => x.ref === "e5")!;
+    expect(e5.etaMs).toBe(4 * 270 * 1000);
+  });
+
   it("la cadenza osservata sostituisce lo slot di default (BR-52)", () => {
     // 4 start a distanza di 300s → cadenza 300
     const starts = [0, 300_000, 600_000, 900_000];

@@ -115,14 +115,14 @@ describe("generazione draw (BR-19)", () => {
   });
 });
 
-describe("marker di drag su run effettive (BR-51)", () => {
+describe("marker di drag a POSIZIONI FISSE (BR-51, validata col giudice)", () => {
   const rows = (n: number, scratched: number[] = []) =>
     Array.from({ length: n }, (_, i) => ({
       drawNumber: i + 1,
       effective: !scratched.includes(i + 1),
     }));
 
-  it("12 run effettive, drag ogni 5 → dopo la 5 e la 10", () => {
+  it("12 posizioni, drag ogni 5 → dopo la 5 e la 10", () => {
     expect(computeDragMarkers(rows(12), 5)).toEqual([5, 10]);
   });
 
@@ -130,12 +130,16 @@ describe("marker di drag su run effettive (BR-51)", () => {
     expect(computeDragMarkers(rows(10), 5)).toEqual([5]);
   });
 
-  it("uno scratch sposta il confine: il fondo si consuma con chi corre", () => {
-    // scratch del n° 3: la quinta run effettiva diventa il n° 6
-    expect(computeDragMarkers(rows(12, [3]), 5)).toEqual([6, 11]);
+  it("lo scratch NON sposta il confine: entrano in 4, il trattore resta lì", () => {
+    // scratch del n° 3: il blocco si accorcia, i marker restano 5 e 10
+    expect(computeDragMarkers(rows(12, [3]), 5)).toEqual([5, 10]);
   });
 
-  it("scratch dopo il confine: il primo marker non si muove", () => {
-    expect(computeDragMarkers(rows(12, [7]), 5)).toEqual([5, 11]);
+  it("nemmeno lo scratch dopo il confine muove i marker", () => {
+    expect(computeDragMarkers(rows(12, [7]), 5)).toEqual([5, 10]);
+  });
+
+  it("l'intervallo è impostazione di gara: con 7 il marker cade dopo la 7", () => {
+    expect(computeDragMarkers(rows(15), 7)).toEqual([7, 14]);
   });
 });

@@ -6,14 +6,18 @@ import { SignaturePad } from "../components/SignaturePad.js";
 
 type T = (key: MessageKey, vars?: Record<string, string | number>) => string;
 
-// BR-27: la firma è un momento separato, in BATCH a fine classe. Il giudice
-// rivede l'elenco con OGNI totale visibile, firma una volta; dopo, immutabili.
+// BR-27 (validata col giudice): la firma è in BATCH A OGNI DRAG — il blocco
+// di carte chiuse dal drag precedente; l'ultimo blocco chiude la classe. Il
+// giudice rivede l'elenco con OGNI totale visibile, firma una volta; dopo,
+// immutabili. `blockCardIds` delimita il blocco (vuoto = tutte le chiuse:
+// chi salta un blocco firma due blocchi al drag dopo).
 export function Signing({
   t,
   bundle,
   store,
   classId,
   judgeId,
+  blockCardIds,
   onMutate,
   onDone,
 }: {
@@ -22,6 +26,7 @@ export function Signing({
   store: ScribeStore;
   classId: string;
   judgeId: string;
+  blockCardIds: string[];
   onMutate: () => void;
   onDone: () => void;
 }) {
@@ -34,7 +39,12 @@ export function Signing({
       .map((e) => bundle.runs.find((r) => r.entryId === e.id)?.id)
       .filter((x): x is string => Boolean(x));
     const cards = runIdsOfClass.map((rid) => store.cardForRun(rid, judgeId));
-    const closed = cards.filter((c) => c && c.status === "chiusa");
+    const closed = cards.filter(
+      (c) =>
+        c &&
+        c.status === "chiusa" &&
+        (blockCardIds.length === 0 || blockCardIds.includes(c.clientCardId)),
+    );
     const batch = prepareSignatureBatch(
       closed.map((c) => ({
         ref: c!.clientCardId,

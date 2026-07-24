@@ -30,6 +30,7 @@ export function ClassesManager({
   const [catalog, setCatalog] = useState<Catalog | null>(null);
   const [rows, setRows] = useState<ClassRow[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [warnings, setWarnings] = useState<{ code: string; message: string }[]>([]);
 
   const [categoryId, setCategoryId] = useState("");
   const [patternId, setPatternId] = useState("");
@@ -231,8 +232,9 @@ export function ClassesManager({
         disabled={!categoryId || !patternId}
         onClick={async () => {
           setError(null);
+          setWarnings([]);
           try {
-            await client.classes.create.mutate({
+            const created = await client.classes.create.mutate({
               eventId,
               categoryId,
               patternId,
@@ -245,6 +247,8 @@ export function ClassesManager({
               ...(maxEntries ? { maxEntries: Number(maxEntries) } : {}),
             });
             setName("");
+            // ART. 15: avvisi in stile BR-18 — si vede, si decide, mai blocca.
+            setWarnings(created.warnings ?? []);
             await reload();
           } catch (err) {
             setError(errorMessage(err));
@@ -253,6 +257,15 @@ export function ClassesManager({
       >
         {t("classes.add")}
       </button>
+      {warnings.length > 0 && (
+        <div className="banner warn" style={{ marginTop: 12 }}>
+          {warnings.map((w, i) => (
+            <div key={i}>
+              <strong>{w.code}</strong> — {w.message}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

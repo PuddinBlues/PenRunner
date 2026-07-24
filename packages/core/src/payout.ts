@@ -4,12 +4,15 @@
 // Invariante non negoziabile: distribuito + non_distribuito = purse, sempre,
 // al centesimo. Nessun centesimo creato o perso.
 //
-// La formula del montepremi è un'ASSUNZIONE ESPLICITA parametrica (tasso 20%
-// e trophy_cost passati dall'esterno), da confermare con la segreteria IRHA:
-// il report la mostra sempre scomposta componente per componente.
+// Formula del montepremi CONFERMATA da ART. 15 Reg. Disciplina Reining
+// FISE/IRHA 2025 (verbatim in reference/art15-montepremi.md): iscrizioni +
+// added money − trofei − 20% spese org.; con <4 partecipanti il trofeo non
+// si detrae; Payback A obbligatorio. UNICO residuo parametrico: la BASE del
+// 20% (qui: sole iscrizioni) — il testo non la precisa, si chiude con la
+// segreteria. Il report mostra sempre la scomposizione.
 // ---------------------------------------------------------------------------
 
-export const ORG_EXPENSE_RATE = 0.2; // 20% spese org. — da confermare (IRHA)
+export const ORG_EXPENSE_RATE = 0.2; // 20% spese org. (ART. 15; base: iscrizioni*)
 
 export interface PurseComponents {
   entryFeesCents: number;

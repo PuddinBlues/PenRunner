@@ -109,10 +109,10 @@ export const payoutRouter = router({
         official: data.official,
         firstPlaceTie: data.firstPlaceTie,
         confirmedEntries: data.confirmedEntries,
-        // purse SEMPRE scomposto (formula da confermare con la segreteria)
+        // purse SEMPRE scomposto — fonte normativa: ART. 15
         purse: data.purse,
         purseFormulaNote:
-          "Montepremi = iscrizioni + added money − trofei − 20% spese org. (formula da confermare con la segreteria IRHA)",
+          "Montepremi ex ART. 15 Reg. Disciplina Reining FISE/IRHA 2025: iscrizioni + added money − trofei − 20% spese org. (*base del 20%: sole iscrizioni — da precisare con la segreteria)",
         placesPaid: data.band.places_paid,
         distributedCents: data.payout.distributedCents,
         undistributedCents: data.payout.undistributedCents,

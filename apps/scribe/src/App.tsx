@@ -18,7 +18,7 @@ type Screen =
   | { name: "enter" }
   | { name: "runlist" }
   | { name: "scoring"; runId: string }
-  | { name: "signing" };
+  | { name: "signing"; blockCardIds: string[] };
 
 export function App() {
   const [locale, setLocale] = useState<Locale>(detectLocale());
@@ -116,7 +116,7 @@ export function App() {
           judgeId={judgeId}
           tick={tick}
           onScore={(runId) => setScreen({ name: "scoring", runId })}
-          onSign={() => setScreen({ name: "signing" })}
+          onSign={(blockCardIds) => setScreen({ name: "signing", blockCardIds })}
         />
       )}
       {screen.name === "scoring" && store && bundle && session && judgeId && (
@@ -142,6 +142,7 @@ export function App() {
           store={store}
           classId={classId}
           judgeId={judgeId}
+          blockCardIds={screen.blockCardIds}
           onMutate={refresh}
           onDone={() => {
             refresh();
