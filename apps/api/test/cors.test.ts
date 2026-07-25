@@ -62,4 +62,9 @@ describe("CORS unificato (browser cross-origin)", () => {
       "http://localhost:5175",
     );
   });
+
+  it("l'API non è contenuto: X-Robots-Tag noindex su ogni risposta", async () => {
+    const res = await server.inject({ method: "GET", url: "/health" });
+    expect(res.headers["x-robots-tag"]).toBe("noindex, nofollow");
+  });
 });

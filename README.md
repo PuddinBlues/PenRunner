@@ -37,7 +37,7 @@ pnpm --filter @penrunner/organizer dev  # back-office organizzatore su :5174
 pnpm --filter @penrunner/stable dev     # app scuderia (mobile-first) su :5175
 ```
 
-Collaudo del ciclo completo contro l'API viva: `pnpm --filter @penrunner/api pilot:e2e` (vedi `apps/api/scripts/pilot-e2e.ts` — il passo scuderia è il percorso umano dell'app, account distinto). `demo:scuderia` resta come seed per CI/demo. CORS: origini in `CORS_ORIGINS` (una sola fonte, `apps/api/src/config/cors.ts`).
+Collaudo del ciclo completo contro l'API viva: `pnpm --filter @penrunner/api pilot:e2e` (vedi `apps/api/scripts/pilot-e2e.ts` — il passo scuderia è il percorso umano dell'app, account distinto). `demo:scuderia` resta come seed per CI/demo. CORS: origini in `CORS_ORIGINS` (una sola fonte, `apps/api/src/config/cors.ts`). Mailer: `MAILER=dev|smtp` (Resend-ready). **Deploy staging: vedi `DEPLOY.md`** (Railway + Neon + Resend + Cloudflare Pages + Vercel, noindex a flag).
 
 Dettagli in `packages/db/README.md`.
 

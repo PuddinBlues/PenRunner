@@ -8,6 +8,7 @@ import {
   hashToken,
   verifyPassword,
 } from "../services/crypto.js";
+import { AUTH_LIMITS, rateLimit } from "../services/ratelimit.js";
 import {
   createUserSession,
   revokeAllUserSessions,
@@ -41,6 +42,7 @@ export const authRouter = router({
   register: publicProcedure
     .input(z.object({ email: emailSchema, password: passwordSchema }))
     .mutation(async ({ ctx, input }) => {
+      rateLimit(ctx.ip, AUTH_LIMITS.register);
       const [existing] = await ctx.db
         .select({ id: schema.users.id })
         .from(schema.users)
@@ -112,6 +114,7 @@ export const authRouter = router({
   login: publicProcedure
     .input(z.object({ email: emailSchema, password: z.string() }))
     .mutation(async ({ ctx, input }) => {
+      rateLimit(ctx.ip, AUTH_LIMITS.login);
       const [user] = await ctx.db
         .select()
         .from(schema.users)
@@ -139,6 +142,7 @@ export const authRouter = router({
   requestPasswordReset: publicProcedure
     .input(z.object({ email: emailSchema }))
     .mutation(async ({ ctx, input }) => {
+      rateLimit(ctx.ip, AUTH_LIMITS.passwordReset);
       const [user] = await ctx.db
         .select()
         .from(schema.users)

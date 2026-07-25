@@ -10,6 +10,8 @@ export interface AppContext {
   actor: Actor;
   /** id della sessione corrente, se autenticata (serve al logout) */
   sessionId?: string;
+  /** IP del client (trustProxy) — chiave del rate-limit auth; assente nei test unitari */
+  ip?: string;
 }
 
 export async function resolveActor(

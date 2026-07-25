@@ -9,15 +9,17 @@ import { createDb } from "@penrunner/db";
 import { corsOrigins, resolveCorsOrigin } from "./config/cors.js";
 import { resolveActor, type AppContext } from "./context.js";
 import { appRouter, type AppRouter } from "./routers/index.js";
-import { DevMailer } from "./services/mailer.js";
+import { makeMailer } from "./services/mailer.js";
 
 const SESSION_COOKIE = "penrunner_session";
 
 export async function buildServer() {
   const { db } = createDb();
-  const mailer = new DevMailer();
+  const mailer = makeMailer();
 
-  const server = Fastify({ logger: true });
+  // trustProxy: dietro Cloudflare/Railway l'IP del client arriva via
+  // X-Forwarded-For — serve al rate-limit per non punire il proxy.
+  const server = Fastify({ logger: true, trustProxy: true });
   await server.register(cookie);
   // CORS su TUTTE le route (tRPC, documenti, health) da un'unica lista di
   // origini; la SSE, che scrive gli header a mano, riusa la stessa fonte.
@@ -25,6 +27,10 @@ export async function buildServer() {
     origin: corsOrigins(),
     methods: ["GET", "POST", "OPTIONS"],
     allowedHeaders: ["authorization", "content-type"],
+  });
+  // L'API non è contenuto: mai indicizzata (a prescindere dal flag di lancio).
+  server.addHook("onSend", async (_req, reply) => {
+    reply.header("x-robots-tag", "noindex, nofollow");
   });
   await server.register(fastifyTRPCPlugin, {
     prefix: "/trpc",
@@ -35,9 +41,13 @@ export async function buildServer() {
         const bearer = req.headers.authorization?.replace(/^Bearer /, "");
         const sessionToken = req.cookies[SESSION_COOKIE] ?? bearer;
         const { actor, sessionId } = await resolveActor(db, sessionToken);
-        return sessionId
-          ? { db, mailer, actor, sessionId }
-          : { db, mailer, actor };
+        return {
+          db,
+          mailer,
+          actor,
+          ip: req.ip,
+          ...(sessionId ? { sessionId } : {}),
+        };
       },
     } satisfies FastifyTRPCPluginOptions<AppRouter>["trpcOptions"],
   });
