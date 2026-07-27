@@ -1,7 +1,12 @@
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { afterEach, describe, expect, it } from "vitest";
-import { DevMailer, SmtpMailer, makeMailer } from "../src/services/mailer.js";
+import {
+  DevMailer,
+  ResendMailer,
+  SmtpMailer,
+  makeMailer,
+} from "../src/services/mailer.js";
 import { PAYBACK_A } from "../src/services/payback.js";
 import {
   AUTH_LIMITS,
@@ -37,8 +42,25 @@ describe("makeMailer (MAILER=dev|smtp)", () => {
     expect(mailer).toBeInstanceOf(SmtpMailer);
   });
 
+  it("resend (API HTTP, porta 443: per i PaaS che bloccano l'egress SMTP)", () => {
+    const mailer = makeMailer({
+      MAILER: "resend",
+      RESEND_API_KEY: "re_test_key",
+      MAIL_FROM: "PenRunner <noreply@penrunner.com>",
+    });
+    expect(mailer).toBeInstanceOf(ResendMailer);
+  });
+
+  it("resend senza chiave → errore all'avvio con l'elenco", () => {
+    expect(() => makeMailer({ MAILER: "resend" })).toThrow(
+      /RESEND_API_KEY.*MAIL_FROM/,
+    );
+  });
+
   it("valore sconosciuto → errore, non un default silenzioso", () => {
-    expect(() => makeMailer({ MAILER: "sendgrid" })).toThrow(/sconosciuto/);
+    expect(() => makeMailer({ MAILER: "sendgrid" })).toThrow(
+      /sconosciuto.*dev, resend, smtp/,
+    );
   });
 });
 

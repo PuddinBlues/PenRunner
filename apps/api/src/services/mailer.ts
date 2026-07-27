@@ -33,9 +33,10 @@ export function extractToken(message: MailMessage): string {
 }
 
 /**
- * Mailer di produzione: SMTP generico via nodemailer — con Resend:
- * SMTP_HOST=smtp.resend.com, SMTP_USER=resend, SMTP_PASS=<api key>.
- * Provider-neutro: cambiare fornitore è solo un cambio di env.
+ * Mailer SMTP generico via nodemailer (provider-neutro). Timeout stretti:
+ * il collaudo staging ha trovato l'egress SMTP bloccato dall'host (Railway)
+ * — il sintomo era un hang di oltre 2 minuti sulla register. Mai più: si
+ * fallisce in ~10 s con un errore che dice dove guardare.
  */
 export class SmtpMailer implements Mailer {
   private readonly transportPromise: Promise<
@@ -44,7 +45,7 @@ export class SmtpMailer implements Mailer {
 
   constructor(
     private readonly from: string,
-    opts: { host: string; port: number; user: string; pass: string },
+    private readonly opts: { host: string; port: number; user: string; pass: string },
   ) {
     this.transportPromise = import("nodemailer").then((nodemailer) =>
       nodemailer.createTransport({
@@ -52,31 +53,85 @@ export class SmtpMailer implements Mailer {
         port: opts.port,
         secure: opts.port === 465,
         auth: { user: opts.user, pass: opts.pass },
+        connectionTimeout: 10_000,
+        greetingTimeout: 10_000,
+        socketTimeout: 10_000,
       }),
     );
   }
 
   async send(message: MailMessage): Promise<void> {
     const transport = await this.transportPromise;
-    await transport.sendMail({
-      from: this.from,
-      to: message.to,
-      subject: message.subject,
-      text: message.body,
-    });
+    try {
+      await transport.sendMail({
+        from: this.from,
+        to: message.to,
+        subject: message.subject,
+        text: message.body,
+      });
+    } catch (err) {
+      throw new Error(
+        `Invio SMTP fallito verso ${this.opts.host}:${this.opts.port} — ` +
+          "verifica le SMTP_* e che l'host di deploy consenta l'egress SMTP " +
+          "(alcuni PaaS bloccano 465/587: in quel caso usa MAILER=resend, API HTTP). " +
+          `Causa: ${err instanceof Error ? err.message : String(err)}`,
+      );
+    }
   }
 }
 
 /**
- * Selezione da env: MAILER=dev (default) | smtp. In smtp servono
- * SMTP_HOST/SMTP_USER/SMTP_PASS/MAIL_FROM (SMTP_PORT default 465):
- * meglio fallire all'avvio che scoprire in gara che le email non partono.
+ * Mailer via API HTTP di Resend (porta 443: mai bloccata dai PaaS).
+ * Fetch nativo, zero dipendenze; timeout 10 s.
+ */
+export class ResendMailer implements Mailer {
+  constructor(
+    private readonly from: string,
+    private readonly apiKey: string,
+  ) {}
+
+  async send(message: MailMessage): Promise<void> {
+    const res = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        authorization: `Bearer ${this.apiKey}`,
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        from: this.from,
+        to: message.to,
+        subject: message.subject,
+        text: message.body,
+      }),
+      signal: AbortSignal.timeout(10_000),
+    });
+    if (!res.ok) {
+      const detail = await res.text().catch(() => "");
+      throw new Error(
+        `Resend API ${res.status}: invio a ${message.to} fallito — ` +
+          `verifica RESEND_API_KEY e il dominio verificato di MAIL_FROM. ${detail}`.trim(),
+      );
+    }
+  }
+}
+
+/**
+ * Selezione da env: MAILER=dev (default) | resend | smtp. Le env mancanti
+ * fanno fallire l'AVVIO con l'elenco esplicito: meglio che scoprire in gara
+ * che le email non partono.
  */
 export function makeMailer(env: NodeJS.ProcessEnv = process.env): Mailer {
   const mode = env.MAILER ?? "dev";
   if (mode === "dev") return new DevMailer();
+  if (mode === "resend") {
+    const missing = ["RESEND_API_KEY", "MAIL_FROM"].filter((k) => !env[k]);
+    if (missing.length > 0) {
+      throw new Error(`MAILER=resend: mancano ${missing.join(", ")}`);
+    }
+    return new ResendMailer(env.MAIL_FROM!, env.RESEND_API_KEY!);
+  }
   if (mode !== "smtp") {
-    throw new Error(`MAILER sconosciuto: "${mode}" (valori: dev, smtp)`);
+    throw new Error(`MAILER sconosciuto: "${mode}" (valori: dev, resend, smtp)`);
   }
   const missing = ["SMTP_HOST", "SMTP_USER", "SMTP_PASS", "MAIL_FROM"].filter(
     (k) => !env[k],
