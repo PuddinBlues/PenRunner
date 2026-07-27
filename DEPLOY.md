@@ -8,11 +8,13 @@ Obiettivo: la piattaforma provabile **da telefono e tablet, senza ambiente di sv
 |---|---|---|
 | API (Fastify + tRPC + SSE + PDF) | `api.penrunner.com` | **Railway** (Dockerfile: `apps/api/Dockerfile`, build context = root del repo) |
 | Portale pubblico (Next SSR) | `penrunner.com` (+ `www`) | **Vercel** (root directory: `apps/web`) |
-| App organizzatore | `organizer.penrunner.com` | **Cloudflare Pages** |
-| App scribe/giudice | `scribe.penrunner.com` | **Cloudflare Pages** |
-| App scuderia | `stable.penrunner.com` | **Cloudflare Pages** |
+| App organizzatore | `organizer.penrunner.com` | **Cloudflare Workers** (static assets, `apps/organizer/wrangler.jsonc`) |
+| App scribe/giudice | `scribe.penrunner.com` | **Cloudflare Workers** (static assets, `apps/scribe/wrangler.jsonc`) |
+| App scuderia | `stable.penrunner.com` | **Cloudflare Workers** (static assets, `apps/stable/wrangler.jsonc`) |
 | Database | — | **Neon** (Postgres gestito, backup inclusi) |
 | Email | — | **Resend** via SMTP (`SmtpMailer`, `MAILER=smtp`) |
+
+*(Nota: Cloudflare ha dismesso la creazione di nuovi progetti Pages — le SPA sono Worker con static assets: stesso risultato, config `wrangler.jsonc` per app con fallback `single-page-application` per il routing client-side.)*
 
 Le migrazioni girano **al boot dell'API** (CMD del Dockerfile): un deploy = schema allineato.
 
@@ -22,7 +24,7 @@ Le migrazioni girano **al boot dell'API** (CMD del Dockerfile): un deploy = sche
 2. **Railway** — progetto collegato al repo GitHub (service dal Dockerfile `apps/api/Dockerfile`).
 3. **Resend** — dominio `penrunner.com` verificato (Resend fornisce i record DNS da inserire su Cloudflare); serve una *API key*.
 4. **Vercel** — progetto collegato al repo, root directory `apps/web`.
-5. **Cloudflare** — esiste già: Pages (3 progetti) + i record DNS sotto.
+5. **Cloudflare** — esiste già: 3 progetti **Workers** ("Import from Git", form sotto) + i record DNS sotto.
 
 **Consegna segreti:** preferenza — inseriti direttamente **nei pannelli di ciascun servizio** (Railway/Vercel/Pages hanno le loro sezioni "Variables"); a me serve solo conferma di quali sono impostati, mai i valori in chat. Se serve che li verifichi io: file `.env` condiviso una tantum per canale privato, mai committato.
 
@@ -48,13 +50,23 @@ NEXT_PUBLIC_API_URL = https://api.penrunner.com   (SSE/polling dal browser)
 PUBLIC_INDEXING     = false      ← al LANCIO: true (via il noindex, SEO pulita)
 ```
 
-**Cloudflare Pages (3 progetti, build: `pnpm --filter @penrunner/<app> build`, output `apps/<app>/dist`):**
+**Cloudflare Workers Builds (3 progetti "Import from Git" — valori da incollare nei form):**
+
+| Campo | organizer | scribe | stable |
+|---|---|---|---|
+| Root directory | `apps/organizer` | `apps/scribe` | `apps/stable` |
+| Build command | `pnpm --filter @penrunner/organizer build` | `pnpm --filter @penrunner/scribe build` | `pnpm --filter @penrunner/stable build` |
+| Deploy command | `npx wrangler deploy` | `npx wrangler deploy` | `npx wrangler deploy` |
+
+Il `wrangler.jsonc` di ciascuna app viene trovato da solo grazie alla root directory (niente `--config`); `wrangler@^4` è devDependency di root del repo, quindi `npx` usa la versione lockata. L'install lo rileva Workers Builds dal lockfile pnpm; se il form espone "Install command": `pnpm install --frozen-lockfile`.
+
+**Build variables** (per progetto — sono BUILD-time di Vite, mai nel wrangler config):
 ```
 organizer:  VITE_API_URL=https://api.penrunner.com  VITE_SCRIBE_URL=https://scribe.penrunner.com
 scribe:     VITE_API_URL=https://api.penrunner.com
 stable:     VITE_API_URL=https://api.penrunner.com  VITE_PORTAL_URL=https://penrunner.com
 ```
-Le SPA sono **sempre noindex** (meta + robots.txt): sono strumenti di lavoro, non contenuto — resta così anche dopo il lancio.
+Le SPA sono **sempre noindex** (meta + robots.txt): sono strumenti di lavoro, non contenuto — resta così anche dopo il lancio (e copre anche gli URL `*.workers.dev` di anteprima).
 
 ## Record DNS su Cloudflare
 
@@ -62,9 +74,7 @@ Le SPA sono **sempre noindex** (meta + robots.txt): sono strumenti di lavoro, no
 |---|---|---|---|
 | CNAME | `api` | `<service>.up.railway.app` | dal pannello Railway → Custom Domain |
 | CNAME | `@` e `www` | `cname.vercel-dns.com` | dal pannello Vercel → Domains |
-| CNAME | `organizer` | `<progetto>.pages.dev` | Pages → Custom Domain |
-| CNAME | `scribe` | `<progetto>.pages.dev` | idem |
-| CNAME | `stable` | `<progetto>.pages.dev` | idem |
+| — | `organizer` / `scribe` / `stable` | *(automatici)* | per i Worker NON si creano a mano: Worker → **Settings → Domains & Routes → Custom domain** — il record DNS lo crea Cloudflare |
 | TXT/CNAME | *(da Resend)* | record SPF + DKIM che Resend mostra alla verifica del dominio | senza, le email non partono |
 
 ## Sequenza di collaudo staging

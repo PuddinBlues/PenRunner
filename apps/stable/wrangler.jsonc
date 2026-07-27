@@ -1,0 +1,10 @@
+// Worker static-assets (vedi apps/organizer/wrangler.jsonc per le note).
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "penrunner-stable",
+  "compatibility_date": "2026-07-27",
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "single-page-application"
+  }
+}

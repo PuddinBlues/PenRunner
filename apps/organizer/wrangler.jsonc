@@ -1,0 +1,14 @@
+// Worker static-assets (Cloudflare ha dismesso i nuovi progetti Pages).
+// Assets-only: nessun "main", nessun binding — solo la SPA servita da CDN,
+// con fallback single-page-application per il routing client-side.
+// Le VITE_* sono build-time: vivono nelle Build variables del progetto
+// Cloudflare, MAI qui (i "vars" del Worker non raggiungono una SPA statica).
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "penrunner-organizer",
+  "compatibility_date": "2026-07-27",
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "single-page-application"
+  }
+}
