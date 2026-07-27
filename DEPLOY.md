@@ -32,16 +32,14 @@ Le migrazioni girano **al boot dell'API** (CMD del Dockerfile): un deploy = sche
 
 **Railway (API):**
 ```
-DATABASE_URL   = <Neon connection string>
-CORS_ORIGINS   = https://penrunner.com,https://www.penrunner.com,https://organizer.penrunner.com,https://scribe.penrunner.com,https://stable.penrunner.com
-MAILER         = smtp
-SMTP_HOST      = smtp.resend.com
-SMTP_PORT      = 465
-SMTP_USER      = resend
-SMTP_PASS      = <Resend API key>
-MAIL_FROM      = PenRunner <noreply@penrunner.com>
-PORT           = 3001
+DATABASE_URL    = <Neon connection string>
+CORS_ORIGINS    = https://penrunner.com,https://www.penrunner.com,https://organizer.penrunner.com,https://scribe.penrunner.com,https://stable.penrunner.com
+MAILER          = resend
+RESEND_API_KEY  = <Resend API key>
+MAIL_FROM       = PenRunner <noreply@penrunner.com>
+PORT            = 3001
 ```
+*(MAILER=resend usa l'API HTTP di Resend su porta 443 — reperto del collaudo staging: Railway blocca l'egress SMTP e l'invio si appendeva. Il modo `smtp` resta disponibile e provider-neutro per host che consentono l'egress: `SMTP_HOST/PORT/USER/PASS` + `MAIL_FROM`, ora con timeout 10 s ed errore parlante.)*
 
 **Vercel (portale):**
 ```
