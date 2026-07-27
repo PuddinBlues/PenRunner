@@ -1,5 +1,8 @@
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 import { afterEach, describe, expect, it } from "vitest";
 import { DevMailer, SmtpMailer, makeMailer } from "../src/services/mailer.js";
+import { PAYBACK_A } from "../src/services/payback.js";
 import {
   AUTH_LIMITS,
   rateLimit,
@@ -68,5 +71,34 @@ describe("rate-limit auth (finestra scorrevole per IP)", () => {
     for (let i = 0; i < 100; i++) {
       expect(() => rateLimit(undefined, AUTH_LIMITS.register)).not.toThrow();
     }
+  });
+});
+
+describe("contratto dell'immagine Docker (letture runtime dal filesystem)", () => {
+  // Inventario delle cartelle lette a RUNTIME fuori da node_modules — nato
+  // dal crash in staging (reference/ non copiata). Chi aggiunge una lettura
+  // deve aggiungerla QUI e nel Dockerfile: questo test rompe in CI, non in
+  // produzione.
+  const RUNTIME_DIRS = [
+    "reference", // payback.ts (Payback A), seed (patterns/categories)
+    "packages/db", // migrazioni drizzle/ al boot
+    "packages/core",
+    "apps/api",
+  ];
+
+  it("il Dockerfile copia ogni cartella dell'inventario", () => {
+    const dockerfile = readFileSync(
+      fileURLToPath(new URL("../Dockerfile", import.meta.url)),
+      "utf-8",
+    );
+    for (const dir of RUNTIME_DIRS) {
+      expect(dockerfile, `manca COPY ${dir}`).toMatch(
+        new RegExp(`^COPY ${dir} `, "m"),
+      );
+    }
+  });
+
+  it("la tabella Payback A si carica (fail-fast del boot)", () => {
+    expect(PAYBACK_A.length).toBeGreaterThan(0);
   });
 });
