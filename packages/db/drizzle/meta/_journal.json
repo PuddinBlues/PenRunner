@@ -1,0 +1,83 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1784248874059,
+      "tag": "0000_needy_stark_industries",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1784272308279,
+      "tag": "0001_late_the_watchers",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1784272317743,
+      "tag": "0002_audit_log_immutable",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1784278168204,
+      "tag": "0003_right_ben_urich",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1784278179354,
+      "tag": "0004_black_rage",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1784292393429,
+      "tag": "0005_faulty_leopardon",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1784317619707,
+      "tag": "0006_perpetual_bucky",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1784405942332,
+      "tag": "0007_thin_daredevil",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1784549314490,
+      "tag": "0008_clear_sunset_bain",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1784553444084,
+      "tag": "0009_heavy_gladiator",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1784910869666,
+      "tag": "0010_large_richard_fisk",
+      "breakpoints": true
+    }
+  ]
+}

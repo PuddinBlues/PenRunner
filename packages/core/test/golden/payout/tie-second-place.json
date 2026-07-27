@@ -1,0 +1,18 @@
+{
+  "description": "Fascia 6-9 (45/35/20). Pari merito al 2° posto: i premi di 2ª+3ª posizione (35+20=55%) sommati e divisi tra i due. Purse 700 € → 1°=315; 2°=(245+140)/2=192,50 ciascuno",
+  "source": "sintetico",
+  "purse": { "confirmedEntries": 6, "entryFeeCents": 0, "addedMoneyCents": 70000, "trophyCostCents": 0 },
+  "expectedPurseCents": 70000,
+  "placements": [
+    { "rank": 1, "refs": ["a"] },
+    { "rank": 2, "refs": ["b", "c"] }
+  ],
+  "expected": {
+    "distributedCents": 70000,
+    "undistributedCents": 0,
+    "placements": [
+      { "rank": 1, "amountCents": 31500, "perRefCents": [31500] },
+      { "rank": 2, "amountCents": 38500, "perRefCents": [19250, 19250] }
+    ]
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "name": "@penrunner/api",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "start": "tsx src/server.ts",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "demo:scuderia": "tsx scripts/demo-scuderia.ts",
+    "pilot:e2e": "tsx scripts/pilot-e2e.ts"
+  },
+  "dependencies": {
+    "@fastify/cookie": "^11.0.2",
+    "@fastify/cors": "^11.3.0",
+    "@node-rs/argon2": "^2.0.2",
+    "@penrunner/core": "workspace:*",
+    "@penrunner/db": "workspace:*",
+    "@trpc/server": "^11.4.0",
+    "drizzle-orm": "^0.44.7",
+    "fastify": "^5.4.0",
+    "nodemailer": "^9.0.3",
+    "pdfkit": "^0.15.2",
+    "pg": "^8.22.0",
+    "zod": "^3.25.0"
+  },
+  "devDependencies": {
+    "@trpc/client": "^11.18.0",
+    "@types/node": "^22.15.0",
+    "@types/nodemailer": "^8.0.1",
+    "@types/pdfkit": "^0.13.9",
+    "tsx": "^4.19.0",
+    "typescript": "^5.8.0",
+    "vitest": "^3.2.0"
+  },
+  "exports": {
+    "./router": "./src/routers/index.ts"
+  }
+}

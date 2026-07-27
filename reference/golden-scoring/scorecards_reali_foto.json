@@ -1,0 +1,54 @@
+[
+  {
+    "description": "4a Tappa LR Lombardia 2025, Green Level, Pattern 6, DRAW 1 EXH 124 (card canarino)",
+    "source": "Score card reale firmata (giudice A. Monesso)",
+    "pattern": 6,
+    "maneuvers": [
+      {
+        "quality": 0,
+        "penalty": 0
+      },
+      {
+        "quality": 0,
+        "penalty": 0
+      },
+      {
+        "quality": -0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0,
+        "penalty": 0
+      },
+      {
+        "quality": 0,
+        "penalty": 0
+      },
+      {
+        "quality": -0.5,
+        "penalty": 0
+      },
+      {
+        "quality": -0.5,
+        "penalty": 0
+      }
+    ],
+    "runPenalty": 0,
+    "special": null,
+    "expected": {
+      "total": 68.5,
+      "outcome": "scored"
+    }
+  },
+  {
+    "description": "2a Tappa LR Lombardia 2025, Green Level, Pattern 17, DRAW 7 EXH 707 — SCRATCH",
+    "source": "Score card reale firmata (giudice A. Tuzakou)",
+    "pattern": 17,
+    "maneuvers": [],
+    "runPenalty": 0,
+    "special": "scratch",
+    "expected": {
+      "outcome": "no_score"
+    }
+  }
+]

@@ -1,0 +1,18 @@
+{
+  "description": "Fascia 6-9 paga 3 posti ma solo 2 piazzati eligibili (gli altri score_0/no_score/scratch): la 3ª quota (20% = 140 €) resta allo show management",
+  "source": "sintetico",
+  "purse": { "confirmedEntries": 6, "entryFeeCents": 0, "addedMoneyCents": 70000, "trophyCostCents": 0 },
+  "expectedPurseCents": 70000,
+  "placements": [
+    { "rank": 1, "refs": ["a"] },
+    { "rank": 2, "refs": ["b"] }
+  ],
+  "expected": {
+    "distributedCents": 56000,
+    "undistributedCents": 14000,
+    "placements": [
+      { "rank": 1, "amountCents": 31500 },
+      { "rank": 2, "amountCents": 24500 }
+    ]
+  }
+}

@@ -1,0 +1,1667 @@
+[
+  {
+    "description": "Futurity ShowManager DRAW 1 EXH 321 Judge 2 — con penalità di manovra",
+    "source": "NRHA EuroFuturity 2026 (ShowManager official) — esercita il percorso penalità",
+    "pattern": 10,
+    "maneuvers": [
+      {
+        "quality": -0.5,
+        "penalty": 0.5
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": -0.5,
+        "penalty": 0
+      },
+      {
+        "quality": -0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.5,
+        "penalty": 0
+      },
+      {
+        "quality": -0.5,
+        "penalty": 0
+      },
+      {
+        "quality": -0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      }
+    ],
+    "runPenalty": 0,
+    "special": null,
+    "expected": {
+      "total": 67.5,
+      "outcome": "scored"
+    }
+  },
+  {
+    "description": "Futurity ShowManager DRAW 3 EXH 147 Judge 2 — con penalità di manovra",
+    "source": "NRHA EuroFuturity 2026 (ShowManager official) — esercita il percorso penalità",
+    "pattern": 10,
+    "maneuvers": [
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.5,
+        "penalty": 0.5
+      },
+      {
+        "quality": 0.0,
+        "penalty": 2.0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.5,
+        "penalty": 0
+      }
+    ],
+    "runPenalty": 0,
+    "special": null,
+    "expected": {
+      "total": 68.5,
+      "outcome": "scored"
+    }
+  },
+  {
+    "description": "Futurity ShowManager DRAW 3 EXH 147 Judge 3 — con penalità di manovra",
+    "source": "NRHA EuroFuturity 2026 (ShowManager official) — esercita il percorso penalità",
+    "pattern": 10,
+    "maneuvers": [
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": -0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 2.0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": -0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.5,
+        "penalty": 0
+      }
+    ],
+    "runPenalty": 0,
+    "special": null,
+    "expected": {
+      "total": 67.5,
+      "outcome": "scored"
+    }
+  },
+  {
+    "description": "Futurity ShowManager DRAW 3 EXH 147 Judge 2 — con penalità di manovra",
+    "source": "NRHA EuroFuturity 2026 (ShowManager official) — esercita il percorso penalità",
+    "pattern": 10,
+    "maneuvers": [
+      {
+        "quality": 0.0,
+        "penalty": 0.5
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0.5
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.5,
+        "penalty": 0
+      }
+    ],
+    "runPenalty": 0,
+    "special": null,
+    "expected": {
+      "total": 71.0,
+      "outcome": "scored"
+    }
+  },
+  {
+    "description": "Futurity ShowManager DRAW 4 EXH 217 Judge 5 — con penalità di manovra",
+    "source": "NRHA EuroFuturity 2026 (ShowManager official) — esercita il percorso penalità",
+    "pattern": 10,
+    "maneuvers": [
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0.5
+      },
+      {
+        "quality": 0.0,
+        "penalty": 1.0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.5,
+        "penalty": 0
+      }
+    ],
+    "runPenalty": 0,
+    "special": null,
+    "expected": {
+      "total": 70.0,
+      "outcome": "scored"
+    }
+  },
+  {
+    "description": "Futurity ShowManager DRAW 5 EXH 196 Judge 5 — con penalità di manovra",
+    "source": "NRHA EuroFuturity 2026 (ShowManager official) — esercita il percorso penalità",
+    "pattern": 10,
+    "maneuvers": [
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 1.0
+      },
+      {
+        "quality": 0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      }
+    ],
+    "runPenalty": 0,
+    "special": null,
+    "expected": {
+      "total": 70.0,
+      "outcome": "scored"
+    }
+  },
+  {
+    "description": "Futurity ShowManager DRAW 13 EXH 126 Judge 3 — con penalità di manovra",
+    "source": "NRHA EuroFuturity 2026 (ShowManager official) — esercita il percorso penalità",
+    "pattern": 10,
+    "maneuvers": [
+      {
+        "quality": 0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0.5
+      },
+      {
+        "quality": -0.5,
+        "penalty": 2.0
+      },
+      {
+        "quality": -0.5,
+        "penalty": 1.0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0.5
+      },
+      {
+        "quality": -0.5,
+        "penalty": 0
+      },
+      {
+        "quality": -1.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      }
+    ],
+    "runPenalty": 0,
+    "special": null,
+    "expected": {
+      "total": 63.5,
+      "outcome": "scored"
+    }
+  },
+  {
+    "description": "Futurity ShowManager DRAW 17 EXH 407 Judge 4 — con penalità di manovra",
+    "source": "NRHA EuroFuturity 2026 (ShowManager official) — esercita il percorso penalità",
+    "pattern": 10,
+    "maneuvers": [
+      {
+        "quality": -0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.5,
+        "penalty": 0.5
+      },
+      {
+        "quality": 0.5,
+        "penalty": 2.0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 1.0
+      },
+      {
+        "quality": -1.0,
+        "penalty": 0
+      },
+      {
+        "quality": -0.5,
+        "penalty": 0
+      },
+      {
+        "quality": -0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      }
+    ],
+    "runPenalty": 0,
+    "special": null,
+    "expected": {
+      "total": 65.0,
+      "outcome": "scored"
+    }
+  },
+  {
+    "description": "Futurity ShowManager DRAW 19 EXH 148 Judge 3 — con penalità di manovra",
+    "source": "NRHA EuroFuturity 2026 (ShowManager official) — esercita il percorso penalità",
+    "pattern": 10,
+    "maneuvers": [
+      {
+        "quality": -0.5,
+        "penalty": 0.5
+      },
+      {
+        "quality": -0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.5,
+        "penalty": 2.0
+      },
+      {
+        "quality": -0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.5,
+        "penalty": 0.5
+      },
+      {
+        "quality": -0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      }
+    ],
+    "runPenalty": 0,
+    "special": null,
+    "expected": {
+      "total": 66.0,
+      "outcome": "scored"
+    }
+  },
+  {
+    "description": "Futurity ShowManager DRAW 23 EXH 337 Judge 2 — con penalità di manovra",
+    "source": "NRHA EuroFuturity 2026 (ShowManager official) — esercita il percorso penalità",
+    "pattern": 10,
+    "maneuvers": [
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.5,
+        "penalty": 0.5
+      },
+      {
+        "quality": 0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.5,
+        "penalty": 1.0
+      },
+      {
+        "quality": 0.5,
+        "penalty": 0.5
+      },
+      {
+        "quality": -0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.5,
+        "penalty": 0
+      }
+    ],
+    "runPenalty": 0,
+    "special": null,
+    "expected": {
+      "total": 70.5,
+      "outcome": "scored"
+    }
+  },
+  {
+    "description": "Futurity ShowManager DRAW 31 EXH 311 Judge 3 — con penalità di manovra",
+    "source": "NRHA EuroFuturity 2026 (ShowManager official) — esercita il percorso penalità",
+    "pattern": 10,
+    "maneuvers": [
+      {
+        "quality": -0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0.5
+      },
+      {
+        "quality": 0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0.5
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0.5
+      },
+      {
+        "quality": -1.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      }
+    ],
+    "runPenalty": 0,
+    "special": null,
+    "expected": {
+      "total": 67.5,
+      "outcome": "scored"
+    }
+  },
+  {
+    "description": "Futurity ShowManager DRAW 36 EXH 156 Judge 4 — con penalità di manovra",
+    "source": "NRHA EuroFuturity 2026 (ShowManager official) — esercita il percorso penalità",
+    "pattern": 10,
+    "maneuvers": [
+      {
+        "quality": -0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.5,
+        "penalty": 3.0
+      },
+      {
+        "quality": 0.5,
+        "penalty": 0
+      },
+      {
+        "quality": -0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": -1.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": -1.0,
+        "penalty": 0
+      }
+    ],
+    "runPenalty": 0,
+    "special": null,
+    "expected": {
+      "total": 65.0,
+      "outcome": "scored"
+    }
+  },
+  {
+    "description": "Futurity ShowManager DRAW 1 EXH 321 Judge 3 — con penalità di manovra",
+    "source": "NRHA EuroFuturity 2026 (ShowManager official) — esercita il percorso penalità",
+    "pattern": 10,
+    "maneuvers": [
+      {
+        "quality": 0.0,
+        "penalty": 0.5
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": -0.5,
+        "penalty": 0
+      },
+      {
+        "quality": -0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.5,
+        "penalty": 0
+      },
+      {
+        "quality": -0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.5,
+        "penalty": 0
+      }
+    ],
+    "runPenalty": 0,
+    "special": null,
+    "expected": {
+      "total": 69.0,
+      "outcome": "scored"
+    }
+  },
+  {
+    "description": "Futurity ShowManager DRAW 1 EXH 321 Judge 4 — con penalità di manovra",
+    "source": "NRHA EuroFuturity 2026 (ShowManager official) — esercita il percorso penalità",
+    "pattern": 10,
+    "maneuvers": [
+      {
+        "quality": -0.5,
+        "penalty": 0.5
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": -0.5,
+        "penalty": 0
+      },
+      {
+        "quality": -0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.5,
+        "penalty": 0
+      }
+    ],
+    "runPenalty": 0,
+    "special": null,
+    "expected": {
+      "total": 69.0,
+      "outcome": "scored"
+    }
+  },
+  {
+    "description": "Futurity ShowManager DRAW 3 EXH 147 Judge 5 — con penalità di manovra",
+    "source": "NRHA EuroFuturity 2026 (ShowManager official) — esercita il percorso penalità",
+    "pattern": 10,
+    "maneuvers": [
+      {
+        "quality": -0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.5,
+        "penalty": 2.0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.5,
+        "penalty": 0
+      }
+    ],
+    "runPenalty": 0,
+    "special": null,
+    "expected": {
+      "total": 69.5,
+      "outcome": "scored"
+    }
+  },
+  {
+    "description": "Futurity ShowManager DRAW 3 EXH 147 Judge 3 — con penalità di manovra",
+    "source": "NRHA EuroFuturity 2026 (ShowManager official) — esercita il percorso penalità",
+    "pattern": 10,
+    "maneuvers": [
+      {
+        "quality": 0.0,
+        "penalty": 0.5
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.5,
+        "penalty": 0
+      }
+    ],
+    "runPenalty": 0,
+    "special": null,
+    "expected": {
+      "total": 71.5,
+      "outcome": "scored"
+    }
+  },
+  {
+    "description": "Futurity ShowManager DRAW 4 EXH 217 Judge 2 — con penalità di manovra",
+    "source": "NRHA EuroFuturity 2026 (ShowManager official) — esercita il percorso penalità",
+    "pattern": 10,
+    "maneuvers": [
+      {
+        "quality": 0.0,
+        "penalty": 0.5
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0.5
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.5,
+        "penalty": 0
+      }
+    ],
+    "runPenalty": 0,
+    "special": null,
+    "expected": {
+      "total": 71.0,
+      "outcome": "scored"
+    }
+  },
+  {
+    "description": "Futurity ShowManager DRAW 4 EXH 217 Judge 3 — con penalità di manovra",
+    "source": "NRHA EuroFuturity 2026 (ShowManager official) — esercita il percorso penalità",
+    "pattern": 10,
+    "maneuvers": [
+      {
+        "quality": 0.0,
+        "penalty": 0.5
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.5,
+        "penalty": 0
+      }
+    ],
+    "runPenalty": 0,
+    "special": null,
+    "expected": {
+      "total": 71.5,
+      "outcome": "scored"
+    }
+  },
+  {
+    "description": "Futurity ShowManager DRAW 5 EXH 196 Judge 2 — con penalità di manovra",
+    "source": "NRHA EuroFuturity 2026 (ShowManager official) — esercita il percorso penalità",
+    "pattern": 10,
+    "maneuvers": [
+      {
+        "quality": 0.5,
+        "penalty": 0.5
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": -0.5,
+        "penalty": 1.0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      }
+    ],
+    "runPenalty": 0,
+    "special": null,
+    "expected": {
+      "total": 68.5,
+      "outcome": "scored"
+    }
+  },
+  {
+    "description": "Futurity ShowManager DRAW 5 EXH 196 Judge 3 — con penalità di manovra",
+    "source": "NRHA EuroFuturity 2026 (ShowManager official) — esercita il percorso penalità",
+    "pattern": 10,
+    "maneuvers": [
+      {
+        "quality": 0.5,
+        "penalty": 0.5
+      },
+      {
+        "quality": -0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": -0.5,
+        "penalty": 0.5
+      },
+      {
+        "quality": -0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      }
+    ],
+    "runPenalty": 0,
+    "special": null,
+    "expected": {
+      "total": 68.0,
+      "outcome": "scored"
+    }
+  },
+  {
+    "description": "Futurity ShowManager DRAW 6 EXH 230 Judge 2 — con penalità di manovra",
+    "source": "NRHA EuroFuturity 2026 (ShowManager official) — esercita il percorso penalità",
+    "pattern": 10,
+    "maneuvers": [
+      {
+        "quality": 0.5,
+        "penalty": 0.5
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": -0.5,
+        "penalty": 1.0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      }
+    ],
+    "runPenalty": 0,
+    "special": null,
+    "expected": {
+      "total": 68.5,
+      "outcome": "scored"
+    }
+  },
+  {
+    "description": "Futurity ShowManager DRAW 6 EXH 230 Judge 3 — con penalità di manovra",
+    "source": "NRHA EuroFuturity 2026 (ShowManager official) — esercita il percorso penalità",
+    "pattern": 10,
+    "maneuvers": [
+      {
+        "quality": 0.5,
+        "penalty": 0.5
+      },
+      {
+        "quality": -0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": -0.5,
+        "penalty": 0.5
+      },
+      {
+        "quality": -0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      }
+    ],
+    "runPenalty": 0,
+    "special": null,
+    "expected": {
+      "total": 68.0,
+      "outcome": "scored"
+    }
+  },
+  {
+    "description": "Futurity ShowManager DRAW 6 EXH 230 Judge 5 — con penalità di manovra",
+    "source": "NRHA EuroFuturity 2026 (ShowManager official) — esercita il percorso penalità",
+    "pattern": 10,
+    "maneuvers": [
+      {
+        "quality": 0.5,
+        "penalty": 0.5
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": -0.5,
+        "penalty": 1.0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      }
+    ],
+    "runPenalty": 0,
+    "special": null,
+    "expected": {
+      "total": 69.0,
+      "outcome": "scored"
+    }
+  },
+  {
+    "description": "Futurity ShowManager DRAW 7 EXH 272 Judge 3 — con penalità di manovra",
+    "source": "NRHA EuroFuturity 2026 (ShowManager official) — esercita il percorso penalità",
+    "pattern": 10,
+    "maneuvers": [
+      {
+        "quality": 0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 1.0
+      },
+      {
+        "quality": -0.5,
+        "penalty": 0.5
+      },
+      {
+        "quality": 0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.5,
+        "penalty": 0
+      }
+    ],
+    "runPenalty": 0,
+    "special": null,
+    "expected": {
+      "total": 70.5,
+      "outcome": "scored"
+    }
+  },
+  {
+    "description": "Futurity ShowManager DRAW 8 EXH 286 Judge 3 — con penalità di manovra",
+    "source": "NRHA EuroFuturity 2026 (ShowManager official) — esercita il percorso penalità",
+    "pattern": 10,
+    "maneuvers": [
+      {
+        "quality": 0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 1.0
+      },
+      {
+        "quality": -0.5,
+        "penalty": 0.5
+      },
+      {
+        "quality": 0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.5,
+        "penalty": 0
+      }
+    ],
+    "runPenalty": 0,
+    "special": null,
+    "expected": {
+      "total": 70.5,
+      "outcome": "scored"
+    }
+  },
+  {
+    "description": "Futurity ShowManager DRAW 8 EXH 286 Judge 4 — con penalità di manovra",
+    "source": "NRHA EuroFuturity 2026 (ShowManager official) — esercita il percorso penalità",
+    "pattern": 10,
+    "maneuvers": [
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 1.0
+      },
+      {
+        "quality": 0.5,
+        "penalty": 0.5
+      },
+      {
+        "quality": -0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      }
+    ],
+    "runPenalty": 0,
+    "special": null,
+    "expected": {
+      "total": 69.0,
+      "outcome": "scored"
+    }
+  },
+  {
+    "description": "Futurity ShowManager DRAW 11 EXH 419 Judge 3 — con penalità di manovra",
+    "source": "NRHA EuroFuturity 2026 (ShowManager official) — esercita il percorso penalità",
+    "pattern": 10,
+    "maneuvers": [
+      {
+        "quality": 0.0,
+        "penalty": 0.5
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      }
+    ],
+    "runPenalty": 0,
+    "special": null,
+    "expected": {
+      "total": 71.5,
+      "outcome": "scored"
+    }
+  },
+  {
+    "description": "Futurity ShowManager DRAW 12 EXH 206 Judge 3 — con penalità di manovra",
+    "source": "NRHA EuroFuturity 2026 (ShowManager official) — esercita il percorso penalità",
+    "pattern": 10,
+    "maneuvers": [
+      {
+        "quality": 0.0,
+        "penalty": 0.5
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      }
+    ],
+    "runPenalty": 0,
+    "special": null,
+    "expected": {
+      "total": 71.5,
+      "outcome": "scored"
+    }
+  },
+  {
+    "description": "Futurity ShowManager DRAW 15 EXH 243 Judge 2 — con penalità di manovra",
+    "source": "NRHA EuroFuturity 2026 (ShowManager official) — esercita il percorso penalità",
+    "pattern": 10,
+    "maneuvers": [
+      {
+        "quality": -0.5,
+        "penalty": 0
+      },
+      {
+        "quality": -0.5,
+        "penalty": 0.5
+      },
+      {
+        "quality": -0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": -0.5,
+        "penalty": 0
+      },
+      {
+        "quality": -0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      }
+    ],
+    "runPenalty": 0,
+    "special": null,
+    "expected": {
+      "total": 67.0,
+      "outcome": "scored"
+    }
+  },
+  {
+    "description": "Futurity ShowManager DRAW 15 EXH 243 Judge 3 — con penalità di manovra",
+    "source": "NRHA EuroFuturity 2026 (ShowManager official) — esercita il percorso penalità",
+    "pattern": 10,
+    "maneuvers": [
+      {
+        "quality": -0.5,
+        "penalty": 0
+      },
+      {
+        "quality": -0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0.5
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": -0.5,
+        "penalty": 0
+      },
+      {
+        "quality": -0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      }
+    ],
+    "runPenalty": 0,
+    "special": null,
+    "expected": {
+      "total": 67.5,
+      "outcome": "scored"
+    }
+  },
+  {
+    "description": "Futurity ShowManager DRAW 16 EXH 129 Judge 2 — con penalità di manovra",
+    "source": "NRHA EuroFuturity 2026 (ShowManager official) — esercita il percorso penalità",
+    "pattern": 10,
+    "maneuvers": [
+      {
+        "quality": -0.5,
+        "penalty": 0
+      },
+      {
+        "quality": -0.5,
+        "penalty": 0.5
+      },
+      {
+        "quality": -0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": -0.5,
+        "penalty": 0
+      },
+      {
+        "quality": -0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      }
+    ],
+    "runPenalty": 0,
+    "special": null,
+    "expected": {
+      "total": 67.0,
+      "outcome": "scored"
+    }
+  },
+  {
+    "description": "Futurity ShowManager DRAW 16 EXH 129 Judge 3 — con penalità di manovra",
+    "source": "NRHA EuroFuturity 2026 (ShowManager official) — esercita il percorso penalità",
+    "pattern": 10,
+    "maneuvers": [
+      {
+        "quality": -0.5,
+        "penalty": 0
+      },
+      {
+        "quality": -0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0.5
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": -0.5,
+        "penalty": 0
+      },
+      {
+        "quality": -0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      }
+    ],
+    "runPenalty": 0,
+    "special": null,
+    "expected": {
+      "total": 67.5,
+      "outcome": "scored"
+    }
+  },
+  {
+    "description": "Futurity ShowManager DRAW 16 EXH 129 Judge 4 — con penalità di manovra",
+    "source": "NRHA EuroFuturity 2026 (ShowManager official) — esercita il percorso penalità",
+    "pattern": 10,
+    "maneuvers": [
+      {
+        "quality": -1.0,
+        "penalty": 0
+      },
+      {
+        "quality": -0.5,
+        "penalty": 0.5
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": -0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      }
+    ],
+    "runPenalty": 0,
+    "special": null,
+    "expected": {
+      "total": 67.5,
+      "outcome": "scored"
+    }
+  },
+  {
+    "description": "Futurity ShowManager DRAW 16 EXH 129 Judge 5 — con penalità di manovra",
+    "source": "NRHA EuroFuturity 2026 (ShowManager official) — esercita il percorso penalità",
+    "pattern": 10,
+    "maneuvers": [
+      {
+        "quality": -0.5,
+        "penalty": 0
+      },
+      {
+        "quality": -0.5,
+        "penalty": 0.5
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": -0.5,
+        "penalty": 0
+      },
+      {
+        "quality": -0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      }
+    ],
+    "runPenalty": 0,
+    "special": null,
+    "expected": {
+      "total": 67.5,
+      "outcome": "scored"
+    }
+  },
+  {
+    "description": "Futurity ShowManager DRAW 18 EXH 372 Judge 5 — con penalità di manovra",
+    "source": "NRHA EuroFuturity 2026 (ShowManager official) — esercita il percorso penalità",
+    "pattern": 10,
+    "maneuvers": [
+      {
+        "quality": -1.0,
+        "penalty": 0
+      },
+      {
+        "quality": -0.5,
+        "penalty": 0.5
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      }
+    ],
+    "runPenalty": 0,
+    "special": null,
+    "expected": {
+      "total": 68.0,
+      "outcome": "scored"
+    }
+  },
+  {
+    "description": "Futurity ShowManager DRAW 19 EXH 148 Judge 2 — con penalità di manovra",
+    "source": "NRHA EuroFuturity 2026 (ShowManager official) — esercita il percorso penalità",
+    "pattern": 10,
+    "maneuvers": [
+      {
+        "quality": 0.0,
+        "penalty": 0.5
+      },
+      {
+        "quality": 0.5,
+        "penalty": 0.5
+      },
+      {
+        "quality": 0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      }
+    ],
+    "runPenalty": 0,
+    "special": null,
+    "expected": {
+      "total": 71.0,
+      "outcome": "scored"
+    }
+  },
+  {
+    "description": "Futurity ShowManager DRAW 19 EXH 148 Judge 3 — con penalità di manovra",
+    "source": "NRHA EuroFuturity 2026 (ShowManager official) — esercita il percorso penalità",
+    "pattern": 10,
+    "maneuvers": [
+      {
+        "quality": 0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.5,
+        "penalty": 0.5
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.0,
+        "penalty": 0
+      },
+      {
+        "quality": 0.5,
+        "penalty": 0
+      },
+      {
+        "quality": 0.5,
+        "penalty": 0
+      }
+    ],
+    "runPenalty": 0,
+    "special": null,
+    "expected": {
+      "total": 71.5,
+      "outcome": "scored"
+    }
+  }
+]

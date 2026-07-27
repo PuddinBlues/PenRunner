@@ -1,0 +1,28 @@
+{
+  "description": "Purse completo: 10 iscritti × 30 € = 300 € iscrizioni + 500 € AM − 75 € trofei − 20% (60 €) = 665 €. Fascia 10-13 (4 posti 40/30/20/10)",
+  "source": "sintetico",
+  "purse": { "confirmedEntries": 10, "entryFeeCents": 3000, "addedMoneyCents": 50000, "trophyCostCents": 7500 },
+  "expectedPurseCents": 66500,
+  "expectedComponents": {
+    "entryFeesCents": 30000,
+    "addedMoneyCents": 50000,
+    "trophyDeductionCents": 7500,
+    "orgExpenseCents": 6000
+  },
+  "placements": [
+    { "rank": 1, "refs": ["a"] },
+    { "rank": 2, "refs": ["b"] },
+    { "rank": 3, "refs": ["c"] },
+    { "rank": 4, "refs": ["d"] }
+  ],
+  "expected": {
+    "distributedCents": 66500,
+    "undistributedCents": 0,
+    "placements": [
+      { "rank": 1, "amountCents": 26600 },
+      { "rank": 2, "amountCents": 19950 },
+      { "rank": 3, "amountCents": 13300 },
+      { "rank": 4, "amountCents": 6650 }
+    ]
+  }
+}

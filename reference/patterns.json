@@ -1,0 +1,1535 @@
+{
+  "source": "IRHA 2026 Patternbook (pattern NRHA riprodotti su licenza, edizione italiana)",
+  "season": 2026,
+  "note": "Seed dei pattern ufficiali. Ogni pattern e' la sequenza ORDINATA delle manovre di gara cosi' come descritte nel patternbook (istruzioni per il binomio). Usare per popolare il catalogo Pattern e assegnarli alle Class in creazione evento.",
+  "entry_rule": {
+    "default": "walk_in",
+    "trot_in_mandatable": true,
+    "descr": "Per tutti i pattern a ingresso al passo (walk-in) lo show management puo' richiedere l'ingresso obbligatorio al trotto. La richiesta va pubblicata nell'ordine di partenza e in tutte le comunicazioni di schedule. La mancata osservanza comporta SCORE 0.",
+    "rule_ref": "BR-26"
+  },
+  "maneuver_types": [
+    "rundown",
+    "rollback",
+    "stop",
+    "backup",
+    "spin",
+    "circles",
+    "lead_change",
+    "figure_8",
+    "hesitate"
+  ],
+  "type_notes": {
+    "stop": "sliding stop",
+    "rundown": "galoppo di avvicinamento prima di stop/rollback",
+    "circles": "insieme di cerchi in una direzione, con qualificatori large-fast / small-slow; include il cambio di galoppo in uscita",
+    "lead_change": "cambio di galoppo, di norma al centro dell'arena tra due set di cerchi",
+    "figure_8": "due cerchi di direzione opposta con cambio di galoppo al centro",
+    "hesitate": "esitazione richiesta per demarcare (non e' una manovra a se' nel punteggio, ma e' elemento del pattern)"
+  },
+  "scoring_grouping_note": "CONFERMATO su score card reale (Pattern 6): i passi numerati di questo file coincidono 1:1 con le colonne manovra del cartellino giudice (es. P6: RS, LS, LC, RC, RRB, LRB, SB). Usare 'maneuvers' direttamente per generare i cartellini digitali.",
+  "patterns": [
+    {
+      "code": "1",
+      "name": "Pattern 1",
+      "entry": {
+        "gait": "walk_in",
+        "trot_in_mandatable": true
+      },
+      "maneuvers": [
+        {
+          "order": 1,
+          "types": [
+            "rundown",
+            "rollback"
+          ],
+          "it": "Galoppo fino al lato opposto, rollback a sinistra, senza esitare"
+        },
+        {
+          "order": 2,
+          "types": [
+            "rundown",
+            "rollback"
+          ],
+          "it": "Galoppo al lato opposto, rollback a destra, senza esitare"
+        },
+        {
+          "order": 3,
+          "types": [
+            "rundown",
+            "stop",
+            "backup",
+            "hesitate"
+          ],
+          "it": "Galoppo dal centro, sliding stop, back al centro (>=3m), esitare"
+        },
+        {
+          "order": 4,
+          "types": [
+            "spin",
+            "hesitate"
+          ],
+          "it": "4 spin a destra, esitare"
+        },
+        {
+          "order": 5,
+          "types": [
+            "spin",
+            "hesitate"
+          ],
+          "it": "4 spin e 1/4 a sinistra (muso al lato sinistro), esitare"
+        },
+        {
+          "order": 6,
+          "types": [
+            "circles",
+            "lead_change"
+          ],
+          "it": "3 cerchi a sinistra (largo-veloce, piccolo-lento, largo-veloce), cambio al centro"
+        },
+        {
+          "order": 7,
+          "types": [
+            "circles",
+            "lead_change"
+          ],
+          "it": "3 cerchi a destra (largo-veloce, piccolo-lento, largo-veloce), cambio al centro"
+        },
+        {
+          "order": 8,
+          "types": [
+            "circles",
+            "rundown",
+            "stop",
+            "hesitate"
+          ],
+          "it": "Iniziare cerchio largo-veloce a sinistra (non chiudere), galoppo dritto oltre il marker mediano, sliding stop >=6m dal muro, esitare"
+        }
+      ]
+    },
+    {
+      "code": "2",
+      "name": "Pattern 2",
+      "entry": {
+        "gait": "walk_in",
+        "trot_in_mandatable": true,
+        "start": "centro, rivolti al lato sinistro"
+      },
+      "maneuvers": [
+        {
+          "order": 1,
+          "types": [
+            "circles",
+            "lead_change"
+          ],
+          "it": "Galoppo destro, 3 cerchi a destra (piccolo-lento, largo-veloce, largo-veloce), cambio al centro"
+        },
+        {
+          "order": 2,
+          "types": [
+            "circles",
+            "lead_change"
+          ],
+          "it": "3 cerchi a sinistra (piccolo-lento, largo-veloce, largo-veloce), cambio al centro"
+        },
+        {
+          "order": 3,
+          "types": [
+            "circles",
+            "rundown",
+            "rollback"
+          ],
+          "it": "Continuare cerchio destro, a meta' lato corto tagliare e correre al lato opposto, rollback a destra, senza esitare"
+        },
+        {
+          "order": 4,
+          "types": [
+            "rundown",
+            "rollback"
+          ],
+          "it": "Correre dal centro al lato opposto, rollback a sinistra, senza esitare"
+        },
+        {
+          "order": 5,
+          "types": [
+            "rundown",
+            "stop",
+            "backup",
+            "hesitate"
+          ],
+          "it": "Correre dal centro, sliding stop, back al centro (>=3m), esitare"
+        },
+        {
+          "order": 6,
+          "types": [
+            "spin"
+          ],
+          "it": "4 spin a destra"
+        },
+        {
+          "order": 7,
+          "types": [
+            "spin",
+            "hesitate"
+          ],
+          "it": "4 spin a sinistra, esitare"
+        }
+      ]
+    },
+    {
+      "code": "3",
+      "name": "Pattern 3",
+      "entry": {
+        "gait": "walk_in",
+        "trot_in_mandatable": true
+      },
+      "maneuvers": [
+        {
+          "order": 1,
+          "types": [
+            "rundown",
+            "rollback"
+          ],
+          "it": "Galoppo destro >=6m dal lato sinistro, lato corto, correre al lato destro, rollback a sinistra, senza esitare"
+        },
+        {
+          "order": 2,
+          "types": [
+            "rundown",
+            "rollback"
+          ],
+          "it": "Lato destro galoppo sinistro >=6m, lato corto, correre al lato sinistro, rollback a destra, senza esitare"
+        },
+        {
+          "order": 3,
+          "types": [
+            "circles",
+            "lead_change"
+          ],
+          "it": "Al centro a mano destra, 3 cerchi a destra (largo-veloce, largo-veloce, piccolo-lento), cambio al centro"
+        },
+        {
+          "order": 4,
+          "types": [
+            "circles",
+            "lead_change"
+          ],
+          "it": "3 cerchi a sinistra (largo-veloce, largo-veloce, piccolo-lento), cambio al centro"
+        },
+        {
+          "order": 5,
+          "types": [
+            "circles",
+            "rundown",
+            "stop",
+            "backup",
+            "hesitate"
+          ],
+          "it": "Iniziare cerchio largo-veloce a destra (non chiudere), correre al lato sinistro >=6m, lato corto, lato destro, sliding stop, back >=3m, esitare"
+        },
+        {
+          "order": 6,
+          "types": [
+            "spin"
+          ],
+          "it": "4 spin a destra"
+        },
+        {
+          "order": 7,
+          "types": [
+            "spin",
+            "hesitate"
+          ],
+          "it": "4 spin a sinistra, esitare"
+        }
+      ]
+    },
+    {
+      "code": "4",
+      "name": "Pattern 4",
+      "entry": {
+        "gait": "walk_in",
+        "trot_in_mandatable": true,
+        "start": "centro, rivolti al lato sinistro"
+      },
+      "maneuvers": [
+        {
+          "order": 1,
+          "types": [
+            "circles",
+            "stop",
+            "hesitate"
+          ],
+          "it": "Galoppo destro, 3 cerchi a destra (largo-veloce, largo-veloce, piccolo-lento), stop al centro, esitare"
+        },
+        {
+          "order": 2,
+          "types": [
+            "spin",
+            "hesitate"
+          ],
+          "it": "4 spin a destra, esitare"
+        },
+        {
+          "order": 3,
+          "types": [
+            "circles",
+            "stop"
+          ],
+          "it": "Galoppo sinistro, 3 cerchi a sinistra (largo-veloce, largo-veloce, piccolo-lento), stop al centro"
+        },
+        {
+          "order": 4,
+          "types": [
+            "spin",
+            "hesitate"
+          ],
+          "it": "4 spin a sinistra, esitare"
+        },
+        {
+          "order": 5,
+          "types": [
+            "figure_8",
+            "circles",
+            "lead_change"
+          ],
+          "it": "Figura 8: cerchio largo-veloce a destra, cambio al centro, cerchio largo-veloce a sinistra, cambio al centro"
+        },
+        {
+          "order": 6,
+          "types": [
+            "circles"
+          ],
+          "it": "Continuare il cerchio destro precedente"
+        },
+        {
+          "order": 7,
+          "types": [
+            "rundown",
+            "rollback"
+          ],
+          "it": "A meta' lato corto tagliare e correre al lato opposto, rollback a destra, senza esitare"
+        },
+        {
+          "order": 8,
+          "types": [
+            "rundown",
+            "rollback"
+          ],
+          "it": "Correre dal centro al lato opposto, rollback a sinistra, senza esitare"
+        },
+        {
+          "order": 9,
+          "types": [
+            "rundown",
+            "stop",
+            "backup",
+            "hesitate"
+          ],
+          "it": "Correre oltre il marker mediano, sliding stop, back al centro (>=3m), esitare"
+        }
+      ]
+    },
+    {
+      "code": "5",
+      "name": "Pattern 5",
+      "entry": {
+        "gait": "walk_in",
+        "trot_in_mandatable": true,
+        "start": "centro, rivolti al lato sinistro"
+      },
+      "maneuvers": [
+        {
+          "order": 1,
+          "types": [
+            "circles",
+            "stop"
+          ],
+          "it": "Galoppo sinistro, 2 cerchi largo-veloce a sinistra + 1 piccolo-lento a sinistra, stop al centro"
+        },
+        {
+          "order": 2,
+          "types": [
+            "spin",
+            "hesitate"
+          ],
+          "it": "4 spin a sinistra, esitare"
+        },
+        {
+          "order": 3,
+          "types": [
+            "circles",
+            "stop"
+          ],
+          "it": "Galoppo destro, 3 cerchi a destra (2 largo-veloce, 1 piccolo-lento), stop al centro"
+        },
+        {
+          "order": 4,
+          "types": [
+            "spin",
+            "hesitate"
+          ],
+          "it": "4 spin a destra, esitare"
+        },
+        {
+          "order": 5,
+          "types": [
+            "figure_8",
+            "circles",
+            "lead_change"
+          ],
+          "it": "Figura 8: cerchio largo-veloce a sinistra, cambio al centro, cerchio largo-veloce a destra, cambio al centro"
+        },
+        {
+          "order": 6,
+          "types": [
+            "circles",
+            "rundown",
+            "rollback"
+          ],
+          "it": "Continuare la linea del cerchio (non chiudere), verso il lato destro, oltre il marker mediano rollback a destra >=6m, senza esitare"
+        },
+        {
+          "order": 7,
+          "types": [
+            "rundown",
+            "rollback"
+          ],
+          "it": "Verso il lato sinistro, oltre il marker mediano rollback a sinistra >=6m, senza esitare"
+        },
+        {
+          "order": 8,
+          "types": [
+            "rundown",
+            "stop",
+            "backup",
+            "hesitate"
+          ],
+          "it": "Verso il lato destro, oltre il marker mediano sliding stop >=6m, back >=3m, esitare"
+        }
+      ]
+    },
+    {
+      "code": "6",
+      "name": "Pattern 6",
+      "entry": {
+        "gait": "walk_in",
+        "trot_in_mandatable": true,
+        "start": "centro, rivolti al lato sinistro"
+      },
+      "maneuvers": [
+        {
+          "order": 1,
+          "types": [
+            "spin",
+            "hesitate"
+          ],
+          "it": "4 spin a destra, esitare"
+        },
+        {
+          "order": 2,
+          "types": [
+            "spin",
+            "hesitate"
+          ],
+          "it": "4 spin a sinistra, esitare"
+        },
+        {
+          "order": 3,
+          "types": [
+            "circles",
+            "lead_change"
+          ],
+          "it": "Galoppo sinistro, 3 cerchi a sinistra (2 largo-veloce, 1 piccolo-lento), cambio al centro"
+        },
+        {
+          "order": 4,
+          "types": [
+            "circles",
+            "lead_change"
+          ],
+          "it": "3 cerchi a destra (2 largo-veloce, 1 piccolo-lento), cambio al centro"
+        },
+        {
+          "order": 5,
+          "types": [
+            "circles",
+            "rundown",
+            "rollback"
+          ],
+          "it": "Iniziare cerchio largo-veloce a sinistra (non chiudere), galoppo dritto al lato opposto, oltre il marker mediano rollback a destra >=6m, senza esitare"
+        },
+        {
+          "order": 6,
+          "types": [
+            "rundown",
+            "rollback"
+          ],
+          "it": "Continuare la traccia (non chiudere), al lato opposto, oltre il marker mediano rollback a sinistra >=6m, senza esitare"
+        },
+        {
+          "order": 7,
+          "types": [
+            "rundown",
+            "stop",
+            "backup",
+            "hesitate"
+          ],
+          "it": "Continuare la traccia (non chiudere), lato lungo al lato opposto, oltre il marker mediano sliding stop >=6m, back verso il centro >=3m, esitare"
+        }
+      ]
+    },
+    {
+      "code": "7",
+      "name": "Pattern 7",
+      "entry": {
+        "gait": "walk_in",
+        "trot_in_mandatable": true
+      },
+      "maneuvers": [
+        {
+          "order": 1,
+          "types": [
+            "rundown",
+            "rollback"
+          ],
+          "it": "Galoppo al lato opposto, rollback a sinistra, senza esitare"
+        },
+        {
+          "order": 2,
+          "types": [
+            "rundown",
+            "rollback"
+          ],
+          "it": "Galoppo al lato opposto, rollback a destra, senza esitare"
+        },
+        {
+          "order": 3,
+          "types": [
+            "rundown",
+            "stop",
+            "backup",
+            "hesitate"
+          ],
+          "it": "Galoppo al lato opposto, oltre il marker mediano sliding stop, back al centro (>=3m), esitare"
+        },
+        {
+          "order": 4,
+          "types": [
+            "spin"
+          ],
+          "it": "4 spin a destra"
+        },
+        {
+          "order": 5,
+          "types": [
+            "spin",
+            "hesitate"
+          ],
+          "it": "4 spin e 1/4 a sinistra (muso al lato sinistro), esitare"
+        },
+        {
+          "order": 6,
+          "types": [
+            "circles",
+            "lead_change"
+          ],
+          "it": "Galoppo destro, 3 cerchi a destra (2 largo-veloce, 1 piccolo-lento), cambio al centro"
+        },
+        {
+          "order": 7,
+          "types": [
+            "circles",
+            "lead_change"
+          ],
+          "it": "3 cerchi a sinistra (2 largo-veloce, 1 piccolo-lento), cambio al centro"
+        },
+        {
+          "order": 8,
+          "types": [
+            "circles",
+            "rundown",
+            "stop",
+            "hesitate"
+          ],
+          "it": "Iniziare cerchio veloce-largo a destra (non chiudere), lato lungo, oltre il marker mediano sliding stop >=6m, esitare"
+        }
+      ]
+    },
+    {
+      "code": "8",
+      "name": "Pattern 8",
+      "entry": {
+        "gait": "walk_in",
+        "trot_in_mandatable": true,
+        "start": "centro, rivolti al lato sinistro"
+      },
+      "maneuvers": [
+        {
+          "order": 1,
+          "types": [
+            "spin",
+            "hesitate"
+          ],
+          "it": "4 spin a sinistra, esitare"
+        },
+        {
+          "order": 2,
+          "types": [
+            "spin",
+            "hesitate"
+          ],
+          "it": "4 spin a destra, esitare"
+        },
+        {
+          "order": 3,
+          "types": [
+            "circles",
+            "lead_change"
+          ],
+          "it": "Galoppo destro, 3 cerchi a destra (largo-veloce, piccolo-lento, largo-veloce), cambio al centro"
+        },
+        {
+          "order": 4,
+          "types": [
+            "circles",
+            "lead_change"
+          ],
+          "it": "3 cerchi a sinistra (largo-veloce, piccolo-lento, largo-veloce), cambio al centro"
+        },
+        {
+          "order": 5,
+          "types": [
+            "circles",
+            "rundown",
+            "rollback"
+          ],
+          "it": "Iniziare cerchio largo-veloce a destra (non chiudere), al lato opposto oltre il marker mediano, >=6m rollback a sinistra, senza esitare"
+        },
+        {
+          "order": 6,
+          "types": [
+            "rundown",
+            "rollback"
+          ],
+          "it": "Continuare il semicerchio (non chiudere), lato lungo, oltre il marker mediano >=6m rollback a destra, senza esitare"
+        },
+        {
+          "order": 7,
+          "types": [
+            "rundown",
+            "stop",
+            "backup",
+            "hesitate"
+          ],
+          "it": "Continuare (non chiudere), lato destro lungo oltre il marker mediano >=6m, sliding stop, back >=3m, esitare"
+        }
+      ]
+    },
+    {
+      "code": "9",
+      "name": "Pattern 9",
+      "entry": {
+        "gait": "walk_in",
+        "trot_in_mandatable": true
+      },
+      "maneuvers": [
+        {
+          "order": 1,
+          "types": [
+            "rundown",
+            "stop",
+            "backup",
+            "hesitate"
+          ],
+          "it": "Galoppo oltre il centro, sliding stop, back al centro (>=3m), esitare"
+        },
+        {
+          "order": 2,
+          "types": [
+            "spin",
+            "hesitate"
+          ],
+          "it": "4 spin a destra, esitare"
+        },
+        {
+          "order": 3,
+          "types": [
+            "spin",
+            "hesitate"
+          ],
+          "it": "4 spin e 1/4 a sinistra (testa al lato sinistro), esitare"
+        },
+        {
+          "order": 4,
+          "types": [
+            "circles",
+            "lead_change"
+          ],
+          "it": "Galoppo sinistro, 3 cerchi a sinistra (piccolo-lento, poi 2 largo-veloce), cambio al centro"
+        },
+        {
+          "order": 5,
+          "types": [
+            "circles",
+            "lead_change"
+          ],
+          "it": "3 cerchi a destra (piccolo-lento, poi 2 largo-veloce), cambio al centro"
+        },
+        {
+          "order": 6,
+          "types": [
+            "circles",
+            "rundown",
+            "rollback"
+          ],
+          "it": "Iniziare cerchio largo-veloce a sinistra (non chiudere), lato lungo, oltre il marker mediano >=6m rollback a destra, senza esitare"
+        },
+        {
+          "order": 7,
+          "types": [
+            "rundown",
+            "rollback"
+          ],
+          "it": "Continuare la linea (non chiudere), lato lungo, oltre il marker mediano >=6m rollback a sinistra, senza esitare"
+        },
+        {
+          "order": 8,
+          "types": [
+            "rundown",
+            "stop",
+            "hesitate"
+          ],
+          "it": "Continuare (non chiudere), lato lungo, oltre il marker mediano >=6m sliding stop, esitare"
+        }
+      ]
+    },
+    {
+      "code": "10",
+      "name": "Pattern 10",
+      "entry": {
+        "gait": "walk_in",
+        "trot_in_mandatable": true
+      },
+      "maneuvers": [
+        {
+          "order": 1,
+          "types": [
+            "rundown",
+            "stop",
+            "backup",
+            "hesitate"
+          ],
+          "it": "Galoppo oltre il marker centrale, sliding stop, back al centro (>=3m), esitare"
+        },
+        {
+          "order": 2,
+          "types": [
+            "spin"
+          ],
+          "it": "4 spin a destra"
+        },
+        {
+          "order": 3,
+          "types": [
+            "spin",
+            "hesitate"
+          ],
+          "it": "4 spin e 1/4 a sinistra (testa al lato sinistro), esitare"
+        },
+        {
+          "order": 4,
+          "types": [
+            "circles",
+            "lead_change"
+          ],
+          "it": "Galoppo destro, 3 cerchi a destra (2 largo-veloce, 1 piccolo-lento), cambio al centro"
+        },
+        {
+          "order": 5,
+          "types": [
+            "circles",
+            "lead_change"
+          ],
+          "it": "3 cerchi a sinistra (piccolo-lento, 2 largo-veloce), cambio al centro"
+        },
+        {
+          "order": 6,
+          "types": [
+            "circles",
+            "rundown",
+            "rollback"
+          ],
+          "it": "Iniziare cerchio grande-veloce a destra (non chiudere), lato destro lungo, oltre il marker centrale rollback a sinistra >=6m, senza esitare"
+        },
+        {
+          "order": 7,
+          "types": [
+            "rundown",
+            "rollback"
+          ],
+          "it": "Continuare (non chiudere), lato sinistro lungo, oltre il marker centrale rollback a destra >=6m, senza esitare"
+        },
+        {
+          "order": 8,
+          "types": [
+            "rundown",
+            "stop",
+            "hesitate"
+          ],
+          "it": "Continuare (non chiudere), lato destro lungo, oltre il marker centrale >=6m sliding stop, esitare"
+        }
+      ]
+    },
+    {
+      "code": "11",
+      "name": "Pattern 11",
+      "entry": {
+        "gait": "trot_in",
+        "start": "centro, rivolti al lato sinistro",
+        "note": "Pattern a ingresso al trotto obbligatorio"
+      },
+      "maneuvers": [
+        {
+          "order": 1,
+          "types": [
+            "spin",
+            "hesitate"
+          ],
+          "it": "4 spin a sinistra, esitare"
+        },
+        {
+          "order": 2,
+          "types": [
+            "spin",
+            "hesitate"
+          ],
+          "it": "4 spin a destra, esitare"
+        },
+        {
+          "order": 3,
+          "types": [
+            "circles",
+            "lead_change"
+          ],
+          "it": "Galoppo destro, 3 cerchi a destra (piccolo-lento, 2 grande-veloce), cambio al centro"
+        },
+        {
+          "order": 4,
+          "types": [
+            "circles",
+            "lead_change"
+          ],
+          "it": "3 cerchi a sinistra (piccolo-lento, 2 grande-veloce), cambio al centro"
+        },
+        {
+          "order": 5,
+          "types": [
+            "circles",
+            "rundown",
+            "rollback"
+          ],
+          "it": "Iniziare cerchio grande a destra (non chiudere), dritto lungo il centro, oltre il marker finale rollback a destra, senza esitare"
+        },
+        {
+          "order": 6,
+          "types": [
+            "rundown",
+            "rollback"
+          ],
+          "it": "Galoppo al centro dal lato opposto, oltre l'ultimo marker rollback a sinistra, senza esitare"
+        },
+        {
+          "order": 7,
+          "types": [
+            "rundown",
+            "stop",
+            "backup",
+            "hesitate"
+          ],
+          "it": "Galoppo oltre il marker centrale, sliding stop, back al centro (>=3m), esitare"
+        }
+      ]
+    },
+    {
+      "code": "12",
+      "name": "Pattern 12",
+      "entry": {
+        "gait": "walk_in",
+        "trot_in_mandatable": true
+      },
+      "maneuvers": [
+        {
+          "order": 1,
+          "types": [
+            "rundown",
+            "stop",
+            "backup",
+            "hesitate"
+          ],
+          "it": "Galoppo oltre il marker centrale, sliding stop, back al centro (>=3m), esitare"
+        },
+        {
+          "order": 2,
+          "types": [
+            "spin"
+          ],
+          "it": "4 spin a destra"
+        },
+        {
+          "order": 3,
+          "types": [
+            "spin",
+            "hesitate"
+          ],
+          "it": "4 spin e 1/4 a sinistra (muso al lato sinistro), esitare"
+        },
+        {
+          "order": 4,
+          "types": [
+            "circles",
+            "lead_change"
+          ],
+          "it": "Galoppo sinistro, 3 cerchi a sinistra (2 grande-veloce, 1 piccolo-lento), cambio al centro"
+        },
+        {
+          "order": 5,
+          "types": [
+            "circles",
+            "lead_change"
+          ],
+          "it": "3 cerchi a destra (2 largo-veloce, 1 piccolo-lento), cambio al centro"
+        },
+        {
+          "order": 6,
+          "types": [
+            "circles",
+            "rundown",
+            "rollback"
+          ],
+          "it": "Iniziare cerchio a sinistra (non chiudere), lato destro, oltre il marker centrale rollback a destra >=6m, senza esitare"
+        },
+        {
+          "order": 7,
+          "types": [
+            "rundown",
+            "rollback"
+          ],
+          "it": "Continuare (non chiudere), lato sinistro, oltre il marker centrale rollback a sinistra >=6m, senza esitare"
+        },
+        {
+          "order": 8,
+          "types": [
+            "rundown",
+            "stop",
+            "hesitate"
+          ],
+          "it": "Continuare (non chiudere), lato destro, oltre il marker centrale sliding stop >=6m, esitare"
+        }
+      ]
+    },
+    {
+      "code": "13",
+      "name": "Pattern 13",
+      "entry": {
+        "gait": "walk_in",
+        "trot_in_mandatable": true,
+        "start": "centro, rivolti al lato sinistro"
+      },
+      "maneuvers": [
+        {
+          "order": 1,
+          "types": [
+            "circles",
+            "stop"
+          ],
+          "it": "Galoppo sinistro, 2 cerchi a sinistra (grande-veloce, piccolo-lento), stop al centro"
+        },
+        {
+          "order": 2,
+          "types": [
+            "spin",
+            "hesitate"
+          ],
+          "it": "4 spin a sinistra, esitare"
+        },
+        {
+          "order": 3,
+          "types": [
+            "circles",
+            "stop"
+          ],
+          "it": "Galoppo destro, 2 cerchi (grande-veloce, piccolo-lento), stop al centro"
+        },
+        {
+          "order": 4,
+          "types": [
+            "spin",
+            "hesitate"
+          ],
+          "it": "4 spin a destra, esitare"
+        },
+        {
+          "order": 5,
+          "types": [
+            "figure_8",
+            "circles",
+            "lead_change"
+          ],
+          "it": "Figura 8: cerchio largo-veloce a sinistra, cambio al centro, cerchio largo-veloce a destra, cambio al centro"
+        },
+        {
+          "order": 6,
+          "types": [
+            "circles",
+            "rundown",
+            "rollback"
+          ],
+          "it": "Continuare la linea del cerchio sinistro (non chiudere), dritto alla fine, oltre il marker mediano rollback a destra >=6m, senza esitare"
+        },
+        {
+          "order": 7,
+          "types": [
+            "rundown",
+            "rollback"
+          ],
+          "it": "Continuare (non chiudere), al lato opposto, oltre il marker mediano rollback a sinistra >=6m, senza esitare"
+        },
+        {
+          "order": 8,
+          "types": [
+            "rundown",
+            "stop",
+            "backup",
+            "hesitate"
+          ],
+          "it": "Continuare (non chiudere), al lato opposto, oltre il marker mediano sliding stop >=6m, back >=3m, esitare"
+        }
+      ]
+    },
+    {
+      "code": "14",
+      "name": "Pattern 14",
+      "entry": {
+        "gait": "walk_in",
+        "trot_in_mandatable": true,
+        "start": "centro, rivolti al lato sinistro"
+      },
+      "maneuvers": [
+        {
+          "order": 1,
+          "types": [
+            "spin",
+            "hesitate"
+          ],
+          "it": "4 spin a sinistra, esitare"
+        },
+        {
+          "order": 2,
+          "types": [
+            "spin",
+            "hesitate"
+          ],
+          "it": "4 spin a destra, esitare"
+        },
+        {
+          "order": 3,
+          "types": [
+            "circles",
+            "lead_change"
+          ],
+          "it": "Galoppo destro, 3 cerchi a destra (2 largo-veloce, 1 piccolo-lento), cambio al centro"
+        },
+        {
+          "order": 4,
+          "types": [
+            "circles",
+            "lead_change"
+          ],
+          "it": "3 cerchi a sinistra (2 largo-veloce, 1 piccolo-lento), cambio al centro"
+        },
+        {
+          "order": 5,
+          "types": [
+            "circles",
+            "rundown",
+            "rollback"
+          ],
+          "it": "Continuare la linea del cerchio (non chiudere), lato destro, oltre il marker centrale rollback a sinistra >=6m, senza esitare"
+        },
+        {
+          "order": 6,
+          "types": [
+            "rundown",
+            "rollback"
+          ],
+          "it": "Continuare (non chiudere), lato sinistro, oltre il marker centrale rollback a destra >=6m, senza esitare"
+        },
+        {
+          "order": 7,
+          "types": [
+            "rundown",
+            "stop",
+            "backup",
+            "hesitate"
+          ],
+          "it": "Continuare (non chiudere), lato destro, oltre il marker centrale sliding stop >=6m, back >=3m, esitare. [Refuso del patternbook corretto: il testo fonte diceva 'rollback', confermato sliding stop + back]"
+        }
+      ]
+    },
+    {
+      "code": "15",
+      "name": "Pattern 15",
+      "entry": {
+        "gait": "walk_in",
+        "trot_in_mandatable": true,
+        "start": "centro, rivolti al lato sinistro"
+      },
+      "maneuvers": [
+        {
+          "order": 1,
+          "types": [
+            "spin",
+            "hesitate"
+          ],
+          "it": "4 spin a destra, esitare"
+        },
+        {
+          "order": 2,
+          "types": [
+            "spin",
+            "hesitate"
+          ],
+          "it": "4 spin a sinistra, esitare"
+        },
+        {
+          "order": 3,
+          "types": [
+            "circles",
+            "lead_change"
+          ],
+          "it": "Galoppo sinistro, 3 cerchi a sinistra (largo-veloce, piccolo-lento, grande-veloce), cambio al centro"
+        },
+        {
+          "order": 4,
+          "types": [
+            "circles",
+            "lead_change"
+          ],
+          "it": "3 cerchi a destra (largo-veloce, piccolo-lento, grande-veloce), cambio al centro"
+        },
+        {
+          "order": 5,
+          "types": [
+            "circles",
+            "rundown",
+            "rollback"
+          ],
+          "it": "Iniziare cerchio a sinistra (non chiudere), lato destro, oltre il marker centrale rollback a destra >=6m, senza esitare"
+        },
+        {
+          "order": 6,
+          "types": [
+            "rundown",
+            "rollback"
+          ],
+          "it": "Continuare (non chiudere), lato sinistro, oltre il marker centrale rollback a sinistra >=6m, senza esitare"
+        },
+        {
+          "order": 7,
+          "types": [
+            "rundown",
+            "stop",
+            "backup",
+            "hesitate"
+          ],
+          "it": "Continuare (non chiudere), lato destro, oltre il marker centrale sliding stop >=6m, back >=3m, esitare"
+        }
+      ]
+    },
+    {
+      "code": "16",
+      "name": "Pattern 16",
+      "entry": {
+        "gait": "walk_in",
+        "trot_in_mandatable": true
+      },
+      "maneuvers": [
+        {
+          "order": 1,
+          "types": [
+            "rundown",
+            "stop",
+            "backup",
+            "hesitate"
+          ],
+          "it": "Galoppo oltre il marker centrale, sliding stop, back al centro (>=3m), esitare"
+        },
+        {
+          "order": 2,
+          "types": [
+            "spin"
+          ],
+          "it": "4 spin a sinistra"
+        },
+        {
+          "order": 3,
+          "types": [
+            "spin",
+            "hesitate"
+          ],
+          "it": "4 spin e 1/4 a destra (muso al lato destro), esitare"
+        },
+        {
+          "order": 4,
+          "types": [
+            "circles",
+            "lead_change"
+          ],
+          "it": "Galoppo destro, 3 cerchi a destra (2 grande-veloce, 1 piccolo-lento), cambio al centro"
+        },
+        {
+          "order": 5,
+          "types": [
+            "circles",
+            "lead_change"
+          ],
+          "it": "3 cerchi a sinistra (2 largo-veloce, 1 piccolo-lento), cambio al centro"
+        },
+        {
+          "order": 6,
+          "types": [
+            "circles",
+            "rundown",
+            "rollback"
+          ],
+          "it": "Iniziare cerchio grande a destra (non chiudere), lato sinistro, oltre il marker centrale rollback a sinistra >=6m, senza esitare"
+        },
+        {
+          "order": 7,
+          "types": [
+            "rundown",
+            "rollback"
+          ],
+          "it": "Continuare (non chiudere), lato destro, oltre il marker centrale rollback a destra >=6m, senza esitare"
+        },
+        {
+          "order": 8,
+          "types": [
+            "rundown",
+            "stop",
+            "hesitate"
+          ],
+          "it": "Continuare (non chiudere), lato sinistro, oltre il marker centrale sliding stop >=6m, esitare"
+        }
+      ]
+    },
+    {
+      "code": "17",
+      "name": "Pattern 17",
+      "entry": {
+        "gait": "lope_in",
+        "start": "galoppo sinistro fino al centro, rivolti al lato sinistro, senza fermarsi o cambiare andatura"
+      },
+      "maneuvers": [
+        {
+          "order": 1,
+          "types": [
+            "circles",
+            "stop",
+            "hesitate"
+          ],
+          "it": "Continuare galoppo sinistro, 2 cerchi a sinistra (grande-veloce, piccolo-lento), stop al centro, esitare"
+        },
+        {
+          "order": 2,
+          "types": [
+            "spin",
+            "hesitate"
+          ],
+          "it": "4 spin a sinistra, esitare"
+        },
+        {
+          "order": 3,
+          "types": [
+            "circles",
+            "stop",
+            "hesitate"
+          ],
+          "it": "Galoppo destro, 2 cerchi a destra (grande-veloce, piccolo-lento), stop al centro, esitare"
+        },
+        {
+          "order": 4,
+          "types": [
+            "spin",
+            "hesitate"
+          ],
+          "it": "4 spin a destra, esitare"
+        },
+        {
+          "order": 5,
+          "types": [
+            "figure_8",
+            "circles",
+            "lead_change"
+          ],
+          "it": "Figura 8: cerchio grande-veloce a sinistra, cambio al centro, cerchio grande-veloce a destra, cambio al centro"
+        },
+        {
+          "order": 6,
+          "types": [
+            "circles",
+            "rundown",
+            "rollback"
+          ],
+          "it": "Continuare cerchio sinistro (non chiudere), lato destro, oltre il marker centrale rollback a destra >=6m, senza esitare"
+        },
+        {
+          "order": 7,
+          "types": [
+            "rundown",
+            "rollback"
+          ],
+          "it": "Continuare (non chiudere), lato sinistro, oltre il marker centrale rollback a sinistra >=6m, senza esitare"
+        },
+        {
+          "order": 8,
+          "types": [
+            "rundown",
+            "stop",
+            "backup",
+            "hesitate"
+          ],
+          "it": "Continuare (non chiudere), lato lungo, oltre il marker mediano sliding stop >=6m, back >=3m, esitare"
+        }
+      ]
+    },
+    {
+      "code": "18",
+      "name": "Pattern 18",
+      "entry": {
+        "gait": "lope_in",
+        "start": "galoppo sinistro fino al centro, rivolti al lato sinistro, senza fermarsi o cambiare andatura"
+      },
+      "maneuvers": [
+        {
+          "order": 1,
+          "types": [
+            "circles",
+            "stop",
+            "hesitate"
+          ],
+          "it": "Continuare galoppo sinistro, 3 cerchi a sinistra (2 grande-veloce, 1 piccolo-lento), stop al centro, esitare"
+        },
+        {
+          "order": 2,
+          "types": [
+            "spin",
+            "hesitate"
+          ],
+          "it": "4 spin a sinistra, esitare"
+        },
+        {
+          "order": 3,
+          "types": [
+            "circles",
+            "stop",
+            "hesitate"
+          ],
+          "it": "Galoppo destro, 3 cerchi a destra (2 grande-veloce, 1 piccolo-lento), stop al centro, esitare"
+        },
+        {
+          "order": 4,
+          "types": [
+            "spin",
+            "hesitate"
+          ],
+          "it": "4 spin a destra, esitare"
+        },
+        {
+          "order": 5,
+          "types": [
+            "figure_8",
+            "circles",
+            "lead_change"
+          ],
+          "it": "Figura 8: cerchio ampio-veloce a sinistra, cambio al centro, cerchio veloce a destra, cambio al centro"
+        },
+        {
+          "order": 6,
+          "types": [
+            "circles",
+            "rundown",
+            "rollback"
+          ],
+          "it": "Continuare cerchio sinistro (non chiudere), lato destro, oltre il marker centrale rollback a destra >=6m, senza esitare"
+        },
+        {
+          "order": 7,
+          "types": [
+            "rundown",
+            "rollback"
+          ],
+          "it": "Continuare (non chiudere), lato sinistro, oltre il marker centrale rollback a sinistra >=6m, senza esitare"
+        },
+        {
+          "order": 8,
+          "types": [
+            "rundown",
+            "stop",
+            "backup",
+            "hesitate"
+          ],
+          "it": "Continuare (non chiudere), lato lungo, oltre il marker mediano sliding stop >=6m, back >=3m, esitare"
+        }
+      ]
+    },
+    {
+      "code": "A",
+      "name": "Pattern A",
+      "restricted_to": [
+        "Youth 10&Under",
+        "Short Stirrup"
+      ],
+      "entry": {
+        "gait": "walk_in",
+        "trot_in_mandatable": true,
+        "start": "centro, rivolti al lato sinistro"
+      },
+      "maneuvers": [
+        {
+          "order": 1,
+          "types": [
+            "circles",
+            "stop",
+            "hesitate"
+          ],
+          "it": "Galoppo sinistro, 2 cerchi a sinistra, stop al centro, esitare"
+        },
+        {
+          "order": 2,
+          "types": [
+            "spin",
+            "hesitate"
+          ],
+          "it": "2 spin a sinistra, esitare"
+        },
+        {
+          "order": 3,
+          "types": [
+            "circles",
+            "stop",
+            "hesitate"
+          ],
+          "it": "Galoppo destro, 2 cerchi a destra, stop al centro, esitare"
+        },
+        {
+          "order": 4,
+          "types": [
+            "spin",
+            "hesitate"
+          ],
+          "it": "2 spin a destra, esitare"
+        },
+        {
+          "order": 5,
+          "types": [
+            "circles",
+            "rundown",
+            "stop",
+            "rollback"
+          ],
+          "it": "Galoppo sinistro (non chiudere il cerchio), verso il lato destro opposto, oltre il marker mediano stop e rollback a destra"
+        },
+        {
+          "order": 6,
+          "types": [
+            "rundown",
+            "stop",
+            "backup"
+          ],
+          "it": "Galoppo al lato corto, avanzare sul lato sinistro, oltre il marker mediano stop e back up"
+        }
+      ]
+    },
+    {
+      "code": "B",
+      "name": "Pattern B",
+      "restricted_to": [
+        "Youth 10&Under",
+        "Short Stirrup"
+      ],
+      "entry": {
+        "gait": "walk_in",
+        "trot_in_mandatable": true
+      },
+      "maneuvers": [
+        {
+          "order": 1,
+          "types": [
+            "rundown",
+            "rollback"
+          ],
+          "it": "Galoppo dritto sul lato destro, lato corto, correre al lato sinistro, oltre il marker mediano rollback a destra, senza esitare"
+        },
+        {
+          "order": 2,
+          "types": [
+            "rundown",
+            "rollback"
+          ],
+          "it": "Continuare sul lato sinistro, lato corto a destra, lato destro, oltre il marker centrale rollback a sinistra, senza esitare"
+        },
+        {
+          "order": 3,
+          "types": [
+            "circles",
+            "stop"
+          ],
+          "it": "Continuare sul lato destro al marker centrale; a mano sinistra, 2 cerchi a sinistra (largo-veloce, piccolo-lento), stop al centro"
+        },
+        {
+          "order": 4,
+          "types": [
+            "spin",
+            "hesitate"
+          ],
+          "it": "3 spin a sinistra, esitare"
+        },
+        {
+          "order": 5,
+          "types": [
+            "circles",
+            "stop"
+          ],
+          "it": "2 cerchi a destra (grande-veloce, piccolo-lento), stop al centro"
+        },
+        {
+          "order": 6,
+          "types": [
+            "spin",
+            "hesitate"
+          ],
+          "it": "3 spin a destra, esitare"
+        },
+        {
+          "order": 7,
+          "types": [
+            "circles",
+            "rundown",
+            "stop"
+          ],
+          "it": "Iniziare cerchio largo-veloce a sinistra (non chiudere), verso il centro, oltre il marker centrale sliding stop"
+        },
+        {
+          "order": 8,
+          "types": [
+            "backup",
+            "hesitate"
+          ],
+          "it": "Back di almeno 3m, esitare"
+        }
+      ]
+    }
+  ]
+}

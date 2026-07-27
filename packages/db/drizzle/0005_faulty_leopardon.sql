@@ -1,0 +1,1 @@
+ALTER TABLE "entries" ADD COLUMN "eligibility_warnings" jsonb;
