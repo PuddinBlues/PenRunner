@@ -16,6 +16,10 @@ RUN pnpm install --frozen-lockfile --filter @penrunner/api...
 COPY packages/core packages/core
 COPY packages/db packages/db
 COPY apps/api apps/api
+# Dati normativi letti a RUNTIME (payback.ts, seed): senza, l'avvio fallisce.
+# Il test "contratto dell'immagine" (hardening.test.ts) lega questo elenco
+# all'inventario delle letture da filesystem.
+COPY reference reference
 
 ENV NODE_ENV=production
 EXPOSE 3001
