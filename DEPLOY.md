@@ -63,6 +63,8 @@ PUBLIC_INDEXING     = false      ← al LANCIO: true (via il noindex, SEO pulita
 
 Il `wrangler.jsonc` di ciascuna app viene trovato da solo grazie alla root directory (niente `--config`); `wrangler@^4` è devDependency di root del repo, quindi `npx` usa la versione lockata. L'install lo rileva Workers Builds dal lockfile pnpm; se il form espone "Install command": `pnpm install --frozen-lockfile`.
 
+*(BR-83: lo stamp di versione nelle SPA usa `WORKERS_CI_COMMIT_SHA`, fornita da Workers Builds da sola — niente da configurare. In assenza, fallback a `git rev-parse` o "dev".)*
+
 **Build variables** (per progetto — sono BUILD-time di Vite, mai nel wrangler config):
 ```
 organizer:  VITE_API_URL=https://api.penrunner.com  VITE_SCRIBE_URL=https://scribe.penrunner.com

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { VersionStamp } from "@penrunner/ui";
 import { makeClient } from "./lib/api.js";
 import {
   detectLocale,
@@ -114,6 +115,7 @@ export function App() {
           {localeToggle}
         </header>
         <Auth t={t} client={client} onSession={saveSession} />
+        <VersionStamp version={__APP_VERSION__} />
       </>
     );
   }
@@ -152,6 +154,7 @@ export function App() {
             }}
           />
         )}
+        <VersionStamp version={__APP_VERSION__} />
       </>
     );
   }
@@ -191,6 +194,7 @@ export function App() {
           />
         )}
       </main>
+      <VersionStamp version={__APP_VERSION__} />
     </>
   );
 }

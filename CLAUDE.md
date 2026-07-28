@@ -81,7 +81,8 @@ Queste derivano dal regolamento di reining e da decisioni di design prese con cu
 
 ### Autonomia d'uso — self-serve (BR-80, BR-81)
 - Ogni organizzazione impara a usare PenRunner DA SOLA, senza formazione né supporto: è condizione del modello self-serve. Requisito trasversale a ogni UI (scribe, organizzatore, scuderia): wizard guidati, stati vuoti che indicano il passo dopo, aiuto contestuale nello schermo (non manuali esterni), nessun flusso critico che richieda sapere cose non presenti a video.
-- App = PWA: funzionano da solo browser (offline incluso per lo scribe), nessuno store, nessuna installazione obbligatoria. "Aggiungi a Home" è comodità opzionale (schermo intero in arena), mai imposta. iOS (Safari) + Android (Chrome). Aggiornamenti immediati come un sito.
+- App = PWA: funzionano da solo browser (offline incluso per lo scribe), nessuno store, nessuna installazione obbligatoria. "Aggiungi a Home" è comodità opzionale (schermo intero in arena), mai imposta. iOS (Safari) + Android (Chrome).
+- Aggiornamenti PWA (BR-83): service worker in modalità "prompt" — check al ritorno in primo piano e ogni ora, banner "Nuova versione — Aggiorna", MAI auto-reload, l'aggiornamento non tocca mai IndexedDB. Scribe: copy "aggiorna tra una run e l'altra" + nota se la coda di sync non è vuota. Stamp di versione (SHA di build) in un angolo di ogni SPA; organizer resta senza SW finché non serve offline. Guardie: test di contratto sui config Vite e sull'hook.
 
 ### Principio "the show must go on" (BR-18)
 - Sull'eleggibilità il sistema SEGNALA, mai blocca: nessun avviso (BR-10, 13..16) impedisce iscrizione, check-in o partenza. L'organizzatore vede e decide; gli avvisi restano registrati come traccia. Bloccanti solo i vincoli di integrità dei dati (BR-11, scale punteggio) — stati privi di senso, non giudizi sportivi.
