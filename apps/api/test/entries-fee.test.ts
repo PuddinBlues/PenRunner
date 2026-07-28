@@ -261,7 +261,7 @@ describe("iscrizione massiva e fee derivate", () => {
     const codes = (greenEntry!.eligibilityWarnings as Array<{ code: string }>).map(
       (w) => w.code,
     );
-    expect(codes).toContain("BR-16");
+    expect(codes).toContain("tecnico_required");
     expect(greenEntry!.status).toBe("confermata");
   });
 
@@ -298,8 +298,8 @@ describe("iscrizione massiva e fee derivate", () => {
     expect(row.status).toBe("check_in");
     expect(
       (row.eligibilityWarnings as Array<{ code: string }>).map((w) => w.code),
-    ).toContain("BR-16");
-    expect(row.liveWarnings.map((w) => w.code)).toContain("BR-16");
+    ).toContain("tecnico_required");
+    expect(row.liveWarnings.map((w) => w.code)).toContain("tecnico_required");
   });
 
   it("scratch self-serve (BR-17 on): ritirata, ma la fee resta dovuta (BR-03)", async () => {
@@ -383,7 +383,7 @@ describe("iscrizione individuale e capienza", () => {
     });
     expect(res.status).toBe("bozza");
     // cat. 70: tessera assente + tecnico mancante → avvisi, non blocchi
-    expect(res.warnings.map((w) => w.code)).toContain("BR-16");
+    expect(res.warnings.map((w) => w.code)).toContain("tecnico_required");
   });
 
   it("non si iscrive un binomio altrui", async () => {

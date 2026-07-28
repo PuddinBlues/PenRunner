@@ -3,6 +3,7 @@ import { Badge, Banner, Confirm, Empty, errorMessage } from "@penrunner/ui";
 import { PORTAL_URL } from "../lib/api.js";
 import type { Client } from "../lib/api.js";
 import type { MessageKey, T } from "../lib/i18n.js";
+import { warningView } from "../lib/warnings.js";
 
 type MyEntry = Awaited<ReturnType<Client["entries"]["byStable"]["query"]>>[number];
 type Ranking = Awaited<ReturnType<Client["live"]["classRanking"]["query"]>>;
@@ -103,6 +104,7 @@ export function MyEntries({
                   const warnings = (e.eligibilityWarnings ?? []) as {
                     code: string;
                     message: string;
+                    params?: Record<string, string>;
                   }[];
                   const score = scores[e.entryId];
                   return (
@@ -111,12 +113,20 @@ export function MyEntries({
                         <strong>{e.horseName}</strong> · {e.riderName}
                         <div className="muted">{e.className}</div>
                         {warnings.length > 0 && (
-                          <div>
-                            {warnings.map((w, i) => (
-                              <span key={i}>
-                                <Badge tone="warn">{w.code}</Badge>{" "}
-                              </span>
-                            ))}
+                          <div style={{ marginTop: 4 }}>
+                            {warnings.map((w, i) => {
+                              const v = warningView(w, t);
+                              return (
+                                <div key={i} style={{ marginTop: 4 }}>
+                                  <Badge tone="warn">{v.title}</Badge>
+                                  {v.body && (
+                                    <div className="muted" style={{ fontSize: 12 }}>
+                                      {v.body}
+                                    </div>
+                                  )}
+                                </div>
+                              );
+                            })}
                           </div>
                         )}
                       </td>

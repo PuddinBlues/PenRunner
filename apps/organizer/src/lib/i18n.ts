@@ -59,7 +59,7 @@ const it = {
   "events.title": "I tuoi eventi",
   "events.empty": "Ancora nessun evento. Crea il primo: il wizard ti guida in tre passi.",
   "events.new": "Nuovo evento",
-  "events.classes": "{n} classi",
+  "events.classes": "{n} {n:classe|classi}",
 
   // Stati evento
   "status.bozza": "Bozza",
@@ -115,7 +115,7 @@ const it = {
   "classes.maxEntries": "Tetto iscritti (vuoto = nessun limite)",
   "classes.add": "Aggiungi classe",
   "classes.remove": "Rimuovi",
-  "classes.entries": "{n} iscritti",
+  "classes.entries": "{n} {n:iscritto|iscritti}",
   "classes.open": "Gestisci",
   "classes.maneuvers": "{n} manovre",
 
@@ -167,7 +167,7 @@ const it = {
   // Check-in
   "checkin.title": "Iscrizioni e check-in",
   "checkin.empty": "Nessuna iscrizione ancora. Le iscrizioni arrivano da concorrenti e scuderie ad iscrizioni aperte.",
-  "checkin.note": "Gli avvisi di eleggibilità segnalano, non bloccano mai (BR-18): tu vedi e decidi, la traccia resta.",
+  "checkin.note": "Gli avvisi di eleggibilità segnalano, non bloccano mai: tu vedi e decidi, la traccia resta.",
   "checkin.horse": "Cavallo",
   "checkin.rider": "Cavaliere",
   "checkin.status": "Stato",
@@ -209,7 +209,7 @@ const it = {
 
   // Risultati
   "results.title": "Risultati",
-  "results.explain": "La chiusura dello scribe annuncia il provvisorio; la firma del giudice ufficializza; qui validi e pubblichi (BR-27).",
+  "results.explain": "La chiusura dello scribe annuncia il provvisorio; la firma del giudice ufficializza; qui validi e pubblichi.",
   "results.run": "Run",
   "results.cards": "Carte",
   "results.validate": "Valida",
@@ -223,7 +223,7 @@ const it = {
   "results.publishOutcome": "Pubblicate {n} run. {w} avvisi.",
   "results.provisional": "PROVVISORIO",
   "results.official": "UFFICIALE",
-  "results.officialNote": "Ufficiale a +30 minuti dall'ultima run (BR-42).",
+  "results.officialNote": "Ufficiale a +30 minuti dall'ultima run.",
   "results.ranking": "Classifica",
   "results.score": "Score",
   "results.place": "Pos.",
@@ -263,6 +263,29 @@ const it = {
   "common.confirm": "Conferma",
   "common.cancel": "Annulla",
   "common.draw": "Draw",
+
+  // Avvisi di eleggibilità (confine dei codici: titolo umano + spiegazione,
+  // mai il codice interno; l'AZIONE per attore arriva con la fase b)
+  "warn.fise_license_missing.title": "Patente FISE mancante",
+  "warn.fise_license_missing.body": "La categoria richiede la patente \"{required}\", non presente sul profilo del cavaliere. Verifica documentale al check-in con l'organizzazione.",
+  "warn.irha_membership_missing.title": "Tessera IRHA mancante",
+  "warn.irha_membership_missing.body": "La categoria richiede la tessera \"{required}\", non presente sul profilo del cavaliere. Verifica documentale al check-in con l'organizzazione.",
+  "warn.age_birthdate_missing.title": "Data di nascita mancante",
+  "warn.age_birthdate_missing.body": "La categoria ha un limite d'età ({limits}) ma la data di nascita del cavaliere non è a profilo. Si verifica al check-in.",
+  "warn.age_out_of_limit.title": "Età fuori dal limite",
+  "warn.age_out_of_limit.body": "Età nell'anno: {years}, limite della categoria: {limits}. Possibile permanenza da regolamento — decide l'organizzazione al check-in.",
+  "warn.horse_ownership.title": "Proprietà del cavallo da verificare",
+  "warn.horse_ownership.body": "Il cavallo non risulta di proprietà del cavaliere: ammesso se di famiglia stretta o con lease registrato. Verifica al check-in.",
+  "warn.horse_ownership_conditional.title": "Vincolo di proprietà da verificare",
+  "warn.horse_ownership_conditional.body": "Il vincolo dipende dalla qualifica del cavaliere (per i non professionisti il cavallo deve essere di proprietà; famiglia stretta e lease ammessi). Verifica al check-in.",
+  "warn.rider_earnings_cap.title": "Tetto vincite della categoria",
+  "warn.rider_earnings_cap.body": "La categoria richiede vincite {cap} — dato dichiarato dall'atleta, verifica al check-in.",
+  "warn.horse_earnings_cap.title": "Tetto vincite del cavallo",
+  "warn.horse_earnings_cap.body": "La categoria ha un tetto di vincite del cavallo {cap} — dato dichiarato, verifica al check-in.",
+  "warn.tecnico_required.title": "Serve un Tecnico Federale",
+  "warn.tecnico_required.body": "La categoria richiede l'accompagnamento di un Tecnico Federale: va indicato sull'iscrizione.",
+  "warn.generic.title": "Avviso di eleggibilità",
+
   "common.firstName": "Nome",
   "common.lastName": "Cognome",
 } as const;
@@ -318,7 +341,7 @@ const en = {
   "events.title": "Your events",
   "events.empty": "No events yet. Create the first one: the wizard guides you in three steps.",
   "events.new": "New event",
-  "events.classes": "{n} classes",
+  "events.classes": "{n} {n:class|classes}",
 
   "status.bozza": "Draft",
   "status.annunciato": "Announced",
@@ -370,7 +393,7 @@ const en = {
   "classes.maxEntries": "Entry cap (empty = no limit)",
   "classes.add": "Add class",
   "classes.remove": "Remove",
-  "classes.entries": "{n} entries",
+  "classes.entries": "{n} {n:entry|entries}",
   "classes.open": "Manage",
   "classes.maneuvers": "{n} maneuvers",
 
@@ -418,7 +441,7 @@ const en = {
 
   "checkin.title": "Entries and check-in",
   "checkin.empty": "No entries yet. Entries come from riders and stables once entries are open.",
-  "checkin.note": "Eligibility warnings flag, they never block (BR-18): you see and decide, the trace remains.",
+  "checkin.note": "Eligibility warnings flag, they never block: you see and decide, the trace remains.",
   "checkin.horse": "Horse",
   "checkin.rider": "Rider",
   "checkin.status": "Status",
@@ -458,7 +481,7 @@ const en = {
   "draw.lateNoRegistry": "The registry fills up with entries from the event's classes.",
 
   "results.title": "Results",
-  "results.explain": "The scribe's close announces the provisional score; the judge's signature makes it official; here you validate and publish (BR-27).",
+  "results.explain": "The scribe's close announces the provisional score; the judge's signature makes it official; here you validate and publish.",
   "results.run": "Run",
   "results.cards": "Cards",
   "results.validate": "Validate",
@@ -472,7 +495,7 @@ const en = {
   "results.publishOutcome": "Published {n} runs. {w} warnings.",
   "results.provisional": "PROVISIONAL",
   "results.official": "OFFICIAL",
-  "results.officialNote": "Official 30 minutes after the last run (BR-42).",
+  "results.officialNote": "Official 30 minutes after the last run.",
   "results.ranking": "Ranking",
   "results.score": "Score",
   "results.place": "Pl.",
@@ -509,6 +532,27 @@ const en = {
   "common.confirm": "Confirm",
   "common.cancel": "Cancel",
   "common.draw": "Draw",
+
+  "warn.fise_license_missing.title": "FISE license missing",
+  "warn.fise_license_missing.body": "The category requires the \"{required}\" license, not on the rider's profile. Documents are checked at check-in with the organization.",
+  "warn.irha_membership_missing.title": "IRHA membership missing",
+  "warn.irha_membership_missing.body": "The category requires the \"{required}\" membership, not on the rider's profile. Documents are checked at check-in with the organization.",
+  "warn.age_birthdate_missing.title": "Birth date missing",
+  "warn.age_birthdate_missing.body": "The category has an age limit ({limits}) but the rider's birth date is not on file. Verified at check-in.",
+  "warn.age_out_of_limit.title": "Age outside the limit",
+  "warn.age_out_of_limit.body": "Age in the year: {years}, category limit: {limits}. Rulebook grandfathering may apply — the organization decides at check-in.",
+  "warn.horse_ownership.title": "Horse ownership to verify",
+  "warn.horse_ownership.body": "The horse is not owned by the rider: allowed if owned by immediate family or under a registered lease. Verified at check-in.",
+  "warn.horse_ownership_conditional.title": "Ownership rule to verify",
+  "warn.horse_ownership_conditional.body": "The rule depends on the rider's status (non pros must own the horse; immediate family and leases allowed). Verified at check-in.",
+  "warn.rider_earnings_cap.title": "Category earnings cap",
+  "warn.rider_earnings_cap.body": "The category requires earnings {cap} — declared by the athlete, verified at check-in.",
+  "warn.horse_earnings_cap.title": "Horse earnings cap",
+  "warn.horse_earnings_cap.body": "The category caps horse earnings {cap} — declared, verified at check-in.",
+  "warn.tecnico_required.title": "Federal Technician required",
+  "warn.tecnico_required.body": "The category requires a Federal Technician: name them on the entry.",
+  "warn.generic.title": "Eligibility notice",
+
   "common.firstName": "First name",
   "common.lastName": "Last name",
 } as const;
@@ -525,8 +569,14 @@ export function detectLocale(): Locale {
 export function translator(locale: Locale) {
   return (key: MessageKey, vars?: Record<string, string | number>) => {
     let s: string = MESSAGES[locale][key];
-    if (vars)
-      for (const [k, v] of Object.entries(vars)) s = s.replace(`{${k}}`, String(v));
+    if (vars) {
+      // plurale minimale: {chiave:singolare|plurale} sceglie in base al valore
+      s = s.replace(/\{(\w+):([^|{}]*)\|([^{}]*)\}/g, (_m, k, one, many) =>
+        Number(vars[k]) === 1 ? one : many,
+      );
+      for (const [k, v] of Object.entries(vars))
+        s = s.replace(`{${k}}`, String(v));
+    }
     return s;
   };
 }

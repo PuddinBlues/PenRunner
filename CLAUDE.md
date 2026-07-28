@@ -134,6 +134,8 @@ Dettaglio completo in `docs/data-model.md`. Entità principali:
 
 In `prototypes/` ci sono 4 prototipi React funzionanti, già validati. Usali come specifica viva di UI e interazioni — riproduci comportamento e look, non necessariamente il codice (è prototipale, stato locale, dati mock in cima a ogni file).
 
+**I prototipi sono VINCOLANTI, non ispirazionali** (decisione del titolare, programma qualità): una superficie con prototipo di riferimento (Home/portale, PaginaEvento, IscrizioneMassiva, ScoringGiudice) si chiude solo con confronto side-by-side prototipo vs build; le UI nuove nascono già conformi a prototipo + `design/styleguide.html` (griglia, gerarchia, token), mai come layout di servizio da ristilizzare dopo. **Le superfici nuove senza prototipo si progettano prima col titolare, poi si implementano.**
+
 1. `Home.jsx` — home pubblica. Hero scuro + corpo chiaro, calendario con tema/tier, ricerca e filtri regione.
 2. `PaginaEvento.jsx` — pagina evento pubblica, registro scuro. Live results, classifica che si riordina all'arrivo di uno score, binomio "in campo".
 3. `IscrizioneMassiva.jsx` — iscrizione scuderia, desktop. Griglia binomi, assegnazione classi multiple, calcolo costi+fee live, checkout.

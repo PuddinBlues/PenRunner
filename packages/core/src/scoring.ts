@@ -53,7 +53,8 @@ export function validateQuality(quality: number, position: number): void {
   const halves = toHalves(quality, `manovra ${position}: quality`);
   if (halves < -3 || halves > 3) {
     throw new ScoringError(
-      `manovra ${position}: quality ${quality} fuori da [−1.5, +1.5] (BR-21)`,
+      // BR-21: scala qualità — il codice resta nel commento, mai a video
+      `manovra ${position}: quality ${quality} fuori da [−1.5, +1.5]`,
     );
   }
 }
@@ -61,7 +62,8 @@ export function validateQuality(quality: number, position: number): void {
 export function validatePenalty(penalty: number, what: string): void {
   toHalves(penalty, what);
   if (penalty < 0) {
-    throw new ScoringError(`${what}: ${penalty} negativa (BR-22)`);
+    // BR-22: penalità mai negative
+    throw new ScoringError(`${what}: ${penalty} negativa`);
   }
 }
 

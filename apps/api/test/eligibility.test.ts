@@ -53,7 +53,7 @@ describe("valutatore di eleggibilità (avvisi, mai blocchi — BR-18)", () => {
 
   it("BR-10: tessere o patenti mancanti a profilo", () => {
     const w = run({}, { membershipFise: null, membershipIrha: null });
-    expect(w.map((x) => x.code)).toEqual(["BR-10", "BR-10"]);
+    expect(w.map((x) => x.code)).toEqual(["fise_license_missing", "irha_membership_missing"]);
     for (const x of w) expect(x.message).toMatch(/check-in/);
   });
 
@@ -63,14 +63,14 @@ describe("valutatore di eleggibilità (avvisi, mai blocchi — BR-18)", () => {
       { birthDate: "2010-03-01" }, // 16 anni nel 2026
     );
     expect(w).toHaveLength(1);
-    expect(w[0]!.code).toBe("BR-15");
+    expect(w[0]!.code).toBe("age_out_of_limit");
     expect(w[0]!.message).toMatch(/possibile permanenza/);
     expect(w[0]!.message).toMatch(/Chi compie 11/);
   });
 
   it("BR-15: data di nascita mancante con limite d'età → avviso, non blocco", () => {
     const w = run({ riderAge: { min: 60 } }, { birthDate: null });
-    expect(w[0]!.code).toBe("BR-15");
+    expect(w[0]!.code).toBe("age_birthdate_missing");
     expect(w[0]!.message).toMatch(/data di nascita/);
   });
 
@@ -83,7 +83,7 @@ describe("valutatore di eleggibilità (avvisi, mai blocchi — BR-18)", () => {
   it("BR-14 di_proprieta, owner ≠ rider: contempla il caso legittimo", () => {
     const w = run({ horseOwnership: "di_proprieta" }, {}, OTHER);
     expect(w).toHaveLength(1);
-    expect(w[0]!.code).toBe("BR-14");
+    expect(w[0]!.code).toBe("horse_ownership");
     // Non deve suonare come errore: famiglia stretta e lease sono ammessi.
     expect(w[0]!.message).toMatch(/famiglia stretta/);
     expect(w[0]!.message).toMatch(/lease/);
@@ -110,14 +110,14 @@ describe("valutatore di eleggibilità (avvisi, mai blocchi — BR-18)", () => {
       earningsCap: { amount: 350, currency: "EUR", scope: "carriera", ref: "IRHA" },
     });
     expect(w).toHaveLength(1);
-    expect(w[0]!.code).toBe("BR-13");
+    expect(w[0]!.code).toBe("rider_earnings_cap");
     expect(w[0]!.message).toMatch(/350 EUR/);
     expect(w[0]!.message).toMatch(/dichiarato/);
   });
 
   it("BR-16: tecnico federale richiesto e non indicato", () => {
     const w = run({ tecnicoFederaleRequired: true });
-    expect(w[0]!.code).toBe("BR-16");
+    expect(w[0]!.code).toBe("tecnico_required");
     expect(run({ tecnicoFederaleRequired: true }, {}, RIDER, "M° Rossi")).toEqual([]);
   });
 
@@ -134,7 +134,14 @@ describe("valutatore di eleggibilità (avvisi, mai blocchi — BR-18)", () => {
     );
     expect(w.length).toBeGreaterThanOrEqual(5);
     expect(new Set(w.map((x) => x.code))).toEqual(
-      new Set(["BR-10", "BR-13", "BR-14", "BR-15", "BR-16"]),
+      new Set([
+        "fise_license_missing",
+        "irha_membership_missing",
+        "rider_earnings_cap",
+        "horse_ownership",
+        "age_birthdate_missing",
+        "tecnico_required",
+      ]),
     );
   });
 });
