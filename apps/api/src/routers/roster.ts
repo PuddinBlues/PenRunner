@@ -140,23 +140,26 @@ export const rosterRouter = router({
     }),
 
   /**
-   * BR-84: correzione del nome dal roster (badge "Controlla il nome" dei
-   * profili migrati con euristica incerta). Il salvataggio spegne il flag.
-   * Le carte firmate referenziano la Person: la correzione non le tocca.
+   * Aggiornamento del profilo dal roster: nome (BR-84, spegne il flag di
+   * revisione) E i campi che risolvono gli avvisi di eleggibilità — chi VEDE
+   * l'avviso può sistemarlo (fase b del programma qualità): tesseramenti e
+   * data di nascita. Si aggiorna solo chi è nel PROPRIO roster; le carte
+   * firmate referenziano la Person e non vengono toccate.
    */
-  renameRider: verifiedProcedure
+  updateRider: verifiedProcedure
     .input(
       z.object({
         stableId: z.string().uuid(),
         personId: z.string().uuid(),
         firstName: z.string().min(1).max(100),
         lastName: z.string().min(1).max(100),
+        membershipIrha: z.string().max(50).nullable().optional(),
+        membershipFise: z.string().max(50).nullable().optional(),
+        birthDate: z.string().date().nullable().optional(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
       requireRosterAccess(ctx.actor, input.stableId);
-      // Si corregge solo chi è nel PROPRIO roster: il nome è dell'anagrafica,
-      // ma la porta è la membership.
       const [membership] = await ctx.db
         .select()
         .from(schema.stableMembers)
@@ -173,6 +176,15 @@ export const rosterRouter = router({
           firstName: input.firstName,
           lastName: input.lastName,
           nameNeedsReview: false,
+          ...(input.membershipIrha !== undefined
+            ? { membershipIrha: input.membershipIrha || null }
+            : {}),
+          ...(input.membershipFise !== undefined
+            ? { membershipFise: input.membershipFise || null }
+            : {}),
+          ...(input.birthDate !== undefined
+            ? { birthDate: input.birthDate || null }
+            : {}),
         })
         .where(eq(schema.persons.id, input.personId));
       return { ok: true };
@@ -201,6 +213,9 @@ export const rosterRouter = router({
           lastName: schema.persons.lastName,
           nameNeedsReview: schema.persons.nameNeedsReview,
           email: schema.persons.email,
+          membershipIrha: schema.persons.membershipIrha,
+          membershipFise: schema.persons.membershipFise,
+          birthDate: schema.persons.birthDate,
         })
         .from(schema.stableMembers)
         .innerJoin(

@@ -194,6 +194,40 @@ describe("le mie iscrizioni (byStable)", () => {
     });
   });
 
+  it("FASE B: l'avviso si risolve dove si vede — updateRider completa il profilo", async () => {
+    const caller = await api.as(stableToken);
+    // Prima: il profilo è senza tesseramenti → un'iscrizione produce avvisi.
+    await caller.roster.updateRider({
+      stableId,
+      personId: riderId,
+      firstName: "Anna",
+      lastName: "Verdi",
+      membershipIrha: "IRHA-12345",
+      membershipFise: "1GR/2GR",
+      birthDate: "1990-05-01",
+    });
+    const roster = await caller.roster.list({ stableId });
+    const me = roster.members.find((m) => m.personId === riderId)!;
+    expect(me.membershipIrha).toBe("IRHA-12345");
+    expect(me.membershipFise).toBe("1GR/2GR");
+    expect(me.birthDate).toBe("1990-05-01");
+
+    // Dopo: una nuova iscrizione NON produce più gli avvisi di tesseramento.
+    const horse3 = await caller.roster.addHorse({
+      stableId,
+      name: "Chic Olena Star",
+      microchip: "380271000000779",
+      ownerPersonId: riderId,
+    });
+    const { entries } = await caller.entries.bulkCreate({
+      stableId,
+      items: [{ classId, horseId: horse3.horseId, riderId }],
+    });
+    const codes = entries[0]!.warnings.map((w) => w.code);
+    expect(codes).not.toContain("fise_license_missing");
+    expect(codes).not.toContain("irha_membership_missing");
+  });
+
   it("chi non è referente non vede il roster altrui", async () => {
     const other = await registerUserWithProfile(
       api,

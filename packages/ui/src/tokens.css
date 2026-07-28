@@ -39,6 +39,8 @@ body {
 }
 .num {
   font-variant-numeric: tabular-nums;
+  /* un importo non si spezza mai tra numero e simbolo (censimento, top-8) */
+  white-space: nowrap;
 }
 a {
   color: var(--accent);

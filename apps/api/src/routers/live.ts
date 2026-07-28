@@ -397,6 +397,14 @@ export const liveRouter = router({
         .where(eq(schema.classes.eventId, input.eventId))
         .orderBy(asc(schema.classes.scheduledOrder), asc(schema.classes.createdAt));
 
+      // Programma pubblico: le classi dell'evento (punto 9 del censimento —
+      // la pagina evento dice ALMENO cosa si corre, con link a start list).
+      const program = classes.map((c) => ({
+        id: c.id,
+        name: c.name,
+        drawStatus: c.drawStatus,
+      }));
+
       // classe a fuoco: quella con run in campo o la prima non completata
       let focus: (typeof classes)[number] | null = null;
       let focusData: Awaited<ReturnType<typeof buildEta>> | null = null;
@@ -413,7 +421,7 @@ export const liveRouter = router({
         if (hasOpenRuns) break;
       }
       if (!focus || !focusData) {
-        return { event: publicEvent(event), focus: null };
+        return { event: publicEvent(event), classes: program, focus: null };
       }
       const { data, eta } = focusData;
 
@@ -485,6 +493,7 @@ export const liveRouter = router({
 
       return {
         event: publicEvent(event),
+        classes: program,
         focus: {
           classId: focus.id,
           className: focus.name,

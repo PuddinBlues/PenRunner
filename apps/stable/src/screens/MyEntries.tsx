@@ -13,14 +13,23 @@ type Ranking = Awaited<ReturnType<Client["live"]["classRanking"]["query"]>>;
  * in traccia, score dalla classifica pubblica, scratch self-serve (BR-17) con
  * conferma a tre conseguenze e messaggi umani su gate/cutoff.
  */
+const FIXABLE_IN_ROSTER = new Set([
+  "fise_license_missing",
+  "irha_membership_missing",
+  "age_birthdate_missing",
+]);
+
 export function MyEntries({
   t,
   client,
   stableId,
+  onGoRoster,
 }: {
   t: T;
   client: Client;
   stableId: string;
+  /** fase b: l'avviso risolvibile porta DOVE si risolve (roster) */
+  onGoRoster: () => void;
 }) {
   const [rows, setRows] = useState<MyEntry[] | null>(null);
   const [scores, setScores] = useState<Record<string, string>>({});
@@ -119,6 +128,21 @@ export function MyEntries({
                               return (
                                 <div key={i} style={{ marginTop: 4 }}>
                                   <Badge tone="warn">{v.title}</Badge>
+                                  {FIXABLE_IN_ROSTER.has(w.code) && (
+                                    <>
+                                      {" "}
+                                      <a
+                                        href="#"
+                                        style={{ fontSize: 12 }}
+                                        onClick={(ev) => {
+                                          ev.preventDefault();
+                                          onGoRoster();
+                                        }}
+                                      >
+                                        {t("warn.fixInRoster" as MessageKey)}
+                                      </a>
+                                    </>
+                                  )}
                                   {v.body && (
                                     <div className="muted" style={{ fontSize: 12 }}>
                                       {v.body}
