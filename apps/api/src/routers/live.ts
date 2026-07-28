@@ -2,6 +2,7 @@ import { TRPCError } from "@trpc/server";
 import { and, asc, eq, inArray, isNull } from "drizzle-orm";
 import { z } from "zod";
 import { schema, type Db } from "@penrunner/db";
+import { personDisplayNameSql, personOfficialNameSql } from "../services/names.js";
 import {
   combineCards,
   computeCardScore,
@@ -25,6 +26,8 @@ export interface ClassRankingRow {
   drawNumber: number | null;
   horseName: string;
   riderName: string;
+  /** BR-84: resa "Cognome Nome" per i documenti ufficiali */
+  riderOfficialName: string;
   riderId: string;
   position: number | null;
   sharedPosition: boolean;
@@ -68,7 +71,10 @@ export async function buildClassRanking(
     .select({
       entry: schema.entries,
       horseName: schema.horses.name,
-      riderName: schema.persons.fullName,
+      riderName: personDisplayNameSql,
+      // BR-84: i documenti ufficiali rendono "Cognome Nome" — il ranking
+      // porta entrambe le rese, la scelta sta nel builder del documento.
+      riderOfficialName: personOfficialNameSql,
     })
     .from(schema.entries)
     .innerJoin(schema.horses, eq(schema.horses.id, schema.entries.horseId))
@@ -223,6 +229,7 @@ export async function buildClassRanking(
         drawNumber: e.entry.drawNumber,
         horseName: e.horseName,
         riderName: e.riderName,
+        riderOfficialName: e.riderOfficialName,
         riderId: e.entry.riderId,
         position: r.position,
         sharedPosition: r.sharedPosition,
@@ -519,7 +526,7 @@ async function entrySummary(db: DbOrTx, entryId: string) {
       entryId: schema.entries.id,
       drawNumber: schema.entries.drawNumber,
       horseName: schema.horses.name,
-      riderName: schema.persons.fullName,
+      riderName: personDisplayNameSql,
     })
     .from(schema.entries)
     .innerJoin(schema.horses, eq(schema.horses.id, schema.entries.horseId))

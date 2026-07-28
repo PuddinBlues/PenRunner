@@ -20,7 +20,8 @@ Principio: tema e colore sono dati dell'evento, ma **le regole di scoring sono d
 **Person** — rider e/o owner (un individuo può essere entrambi).
 | Campo | Tipo | Note |
 |-------|------|------|
-| full_name | string | |
+| first_name / last_name | string | BR-84: nome strutturato; la resa è DERIVATA (mai memorizzata): UI "Nome Cognome", documenti ufficiali "Cognome Nome" (convenzione FISE), ordinamenti alfabetici per (cognome, nome) — helper unico `services/names.ts` |
+| name_needs_review | bool | true dove il backfill euristico (migrazione 0012: split al primo spazio, particelle nel cognome) era incerto — badge "Controlla il nome" nel roster, si spegne al primo salvataggio |
 | membership_irha | string? | tessera IRHA |
 | membership_fise | string? | patente FISE |
 | category | enum | open · non_pro · youth · rookie |

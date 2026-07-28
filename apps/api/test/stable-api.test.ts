@@ -105,7 +105,7 @@ describe("roster: il dedup è esplicito", () => {
     const caller = await api.as(stableToken);
     const first = await caller.roster.addRider({
       stableId,
-      fullName: "Anna Verdi",
+      firstName: "Anna", lastName: "Verdi",
       email: "anna.verdi@example.com",
       birthDate: "1990-01-15",
     });
@@ -119,7 +119,7 @@ describe("roster: il dedup è esplicito", () => {
     const fresh = await api.as(stableToken);
     const again = await fresh.roster.addRider({
       stableId: otherStable,
-      fullName: "Anna V.",
+      firstName: "Anna", lastName: "V.",
       email: "ANNA.VERDI@example.com", // case-insensitive
     });
     expect(again.linked).toBe(true);

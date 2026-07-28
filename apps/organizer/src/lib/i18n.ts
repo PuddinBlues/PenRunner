@@ -18,7 +18,6 @@ const it = {
   "auth.registerTitle": "Crea un account",
   "auth.email": "Email",
   "auth.password": "Password",
-  "auth.fullName": "Nome e cognome",
   "auth.login": "Entra",
   "auth.register": "Registrati",
   "auth.haveAccount": "Ho già un account",
@@ -151,7 +150,6 @@ const it = {
   "invite.giudice": "Giudice",
   "invite.scribe": "Scribe",
   "invite.segreteria": "Segreteria",
-  "invite.fullName": "Nome e cognome",
   "invite.email": "Email",
   "invite.create": "Crea invito",
   "invite.linkReady": "Invito creato. Consegna questo link (vale anche via WhatsApp o QR):",
@@ -265,6 +263,8 @@ const it = {
   "common.confirm": "Conferma",
   "common.cancel": "Annulla",
   "common.draw": "Draw",
+  "common.firstName": "Nome",
+  "common.lastName": "Cognome",
 } as const;
 
 const en = {
@@ -279,7 +279,6 @@ const en = {
   "auth.registerTitle": "Create an account",
   "auth.email": "Email",
   "auth.password": "Password",
-  "auth.fullName": "Full name",
   "auth.login": "Sign in",
   "auth.register": "Sign up",
   "auth.haveAccount": "I already have an account",
@@ -403,7 +402,6 @@ const en = {
   "invite.giudice": "Judge",
   "invite.scribe": "Scribe",
   "invite.segreteria": "Show office",
-  "invite.fullName": "Full name",
   "invite.email": "Email",
   "invite.create": "Create invite",
   "invite.linkReady": "Invite created. Hand over this link (WhatsApp or QR work too):",
@@ -511,6 +509,8 @@ const en = {
   "common.confirm": "Confirm",
   "common.cancel": "Cancel",
   "common.draw": "Draw",
+  "common.firstName": "First name",
+  "common.lastName": "Last name",
 } as const;
 
 export type MessageKey = keyof typeof it;

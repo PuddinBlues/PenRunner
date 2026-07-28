@@ -50,13 +50,13 @@ const { stableId } = await api.roster.createStable.mutate({
 });
 const r1 = await api.roster.addRider.mutate({
   stableId,
-  fullName: "Martina Rossi",
+  firstName: "Martina", lastName: "Rossi",
   email: "martina.rossi@demo.example",
   birthDate: "1994-05-12",
 });
 const r2 = await api.roster.addRider.mutate({
   stableId,
-  fullName: "Luca Bianchi",
+  firstName: "Luca", lastName: "Bianchi",
   email: "luca.bianchi@demo.example",
   birthDate: "1988-11-03",
 });

@@ -1,5 +1,6 @@
 import { sql } from "drizzle-orm";
 import {
+  boolean,
   date,
   pgTable,
   text,
@@ -29,7 +30,15 @@ export const persons = pgTable(
   "persons",
   {
     ...baseColumns,
-    fullName: text("full_name").notNull(),
+    // BR-84: nome strutturato. firstName può essere vuoto SOLO per i profili
+    // migrati dal backfill a token singolo (sempre flaggati in revisione);
+    // i form richiedono entrambi. La resa è DERIVATA (displayName /
+    // officialName), mai memorizzata: full_name non esiste più.
+    firstName: text("first_name").notNull(),
+    lastName: text("last_name").notNull(),
+    // true dove lo split euristico del backfill era incerto (1 o ≥3 token):
+    // badge "Controlla il nome" nel roster, si spegne al primo salvataggio.
+    nameNeedsReview: boolean("name_needs_review").notNull().default(false),
     email: text("email"), // chiave di identità quando presente (claim account)
     membershipIrha: text("membership_irha"),
     membershipFise: text("membership_fise"),

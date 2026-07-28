@@ -84,7 +84,8 @@ function CreateOrg({
   client: Client;
   onDone: () => Promise<void>;
 }) {
-  const [fullName, setFullName] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [orgName, setOrgName] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -93,9 +94,14 @@ function CreateOrg({
     <div className="card" style={{ maxWidth: 480 }}>
       <h1>{t("org.createTitle")}</h1>
       <p className="hint">{t("org.createBody")}</p>
+      {/* BR-84: nome e cognome separati */}
       <label className="field">
-        <span>{t("auth.fullName")}</span>
-        <input value={fullName} onChange={(e) => setFullName(e.target.value)} />
+        <span>{t("common.firstName")}</span>
+        <input value={firstName} onChange={(e) => setFirstName(e.target.value)} autoComplete="given-name" />
+      </label>
+      <label className="field">
+        <span>{t("common.lastName")}</span>
+        <input value={lastName} onChange={(e) => setLastName(e.target.value)} autoComplete="family-name" />
       </label>
       <label className="field">
         <span>{t("org.name")}</span>
@@ -104,7 +110,7 @@ function CreateOrg({
       {error && <div className="error-inline">{error}</div>}
       <button
         className="btn primary"
-        disabled={busy || !fullName || !orgName}
+        disabled={busy || !firstName || !lastName || !orgName}
         onClick={async () => {
           setBusy(true);
           setError(null);
@@ -115,7 +121,7 @@ function CreateOrg({
             try {
               const { claimable } = await client.profile.claimStatus.query();
               if (claimable) await client.profile.claimAccept.mutate();
-              else await client.profile.create.mutate({ fullName });
+              else await client.profile.create.mutate({ firstName, lastName });
             } catch {
               /* profilo già collegato */
             }

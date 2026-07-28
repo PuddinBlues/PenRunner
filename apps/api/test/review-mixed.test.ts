@@ -43,10 +43,11 @@ let maneuverCount: number;
 
 async function inviteJudge(email: string, fullName: string) {
   const caller = await api.as(organizerToken);
+  const [first, ...rest] = fullName.split(" ");
   const { token } = await caller.invite.create({
     eventId: eventIdGlobal,
     role: "giudice",
-    person: { fullName, email },
+    person: { firstName: first!, lastName: rest.join(" ") || first!, email },
   });
   const anon = await api.as();
   const accepted = await anon.invite.accept({ token: token! });
@@ -134,7 +135,7 @@ beforeAll(async () => {
   for (let i = 0; i < 2; i++) {
     const [p] = await api.db
       .insert(schema.persons)
-      .values({ fullName: `Rider R${i}` })
+      .values({ firstName: "Rider", lastName: `R${i}` })
       .returning();
     const [h] = await api.db
       .insert(schema.horses)

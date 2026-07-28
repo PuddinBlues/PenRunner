@@ -79,9 +79,9 @@ beforeAll(async () => {
   const inserted = await db
     .insert(persons)
     .values([
-      { fullName: "Rider Test" },
-      { fullName: "Owner Test" },
-      { fullName: "Giudice Test" },
+      { firstName: "Rider", lastName: "Test" },
+      { firstName: "Owner", lastName: "Test" },
+      { firstName: "Giudice", lastName: "Test" },
     ])
     .returning();
   riderId = inserted[0]!.id;
@@ -211,7 +211,7 @@ describe("vincoli di dominio nel database", () => {
   it("il draw non ammette doppioni nella stessa classe, ma ammette buchi (null)", async () => {
     const [otherOwner] = await ctx.db
       .insert(persons)
-      .values({ fullName: "Owner 2" })
+      .values({ firstName: "Owner", lastName: "2" })
       .returning();
     const [horse2] = await ctx.db
       .insert(horses)
@@ -245,11 +245,11 @@ describe("vincoli di dominio nel database", () => {
   it("l'email delle persone è unica senza distinzione di maiuscole", async () => {
     await ctx.db
       .insert(persons)
-      .values({ fullName: "Mail Test", email: "Mail@Test.it" });
+      .values({ firstName: "Mail", lastName: "Test", email: "Mail@Test.it" });
     await expectConstraintViolation(
       ctx.db
         .insert(persons)
-        .values({ fullName: "Mail Doppia", email: "mail@test.it" }),
+        .values({ firstName: "Mail", lastName: "Doppia", email: "mail@test.it" }),
       "persons_email_unique",
     );
   });

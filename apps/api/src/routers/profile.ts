@@ -2,6 +2,7 @@ import { TRPCError } from "@trpc/server";
 import { and, eq, isNull, sql } from "drizzle-orm";
 import { z } from "zod";
 import { schema, type Db } from "@penrunner/db";
+import { displayName } from "../services/names.js";
 import { router, verifiedProcedure } from "../trpc.js";
 
 // ---------------------------------------------------------------------------
@@ -35,7 +36,7 @@ export const profileRouter = router({
       .where(eq(schema.users.id, ctx.actor.userId));
     const person = await findClaimablePerson(ctx.db, user!.email);
     return person
-      ? { claimable: { personId: person.id, fullName: person.fullName } }
+      ? { claimable: { personId: person.id, fullName: displayName(person) } }
       : { claimable: null };
   }),
 
@@ -69,7 +70,9 @@ export const profileRouter = router({
   create: verifiedProcedure
     .input(
       z.object({
-        fullName: z.string().min(1).max(200),
+        // BR-84: nome strutturato dai form, sempre entrambi i campi.
+        firstName: z.string().min(1).max(100),
+        lastName: z.string().min(1).max(100),
         locale: z.enum(["it", "en"]).optional(),
       }),
     )
@@ -88,7 +91,8 @@ export const profileRouter = router({
         const [person] = await tx
           .insert(schema.persons)
           .values({
-            fullName: input.fullName,
+            firstName: input.firstName,
+            lastName: input.lastName,
             email: user!.email,
             ...(input.locale ? { locale: input.locale } : {}),
           })

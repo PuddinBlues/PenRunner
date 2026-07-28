@@ -1,5 +1,6 @@
 import { and, asc, eq } from "drizzle-orm";
 import { schema, type Db } from "@penrunner/db";
+import { officialName, personOfficialNameSql } from "../services/names.js";
 import { computeCardScore } from "@penrunner/core";
 import { buildClassRanking } from "../routers/live.js";
 import { buildClassPayout } from "../routers/payout.js";
@@ -132,7 +133,7 @@ export async function buildStartListDoc(
       drawNumber: schema.entries.drawNumber,
       status: schema.entries.status,
       horseName: schema.horses.name,
-      riderName: schema.persons.fullName,
+      riderName: personOfficialNameSql,
     })
     .from(schema.entries)
     .innerJoin(schema.horses, eq(schema.horses.id, schema.entries.horseId))
@@ -169,7 +170,7 @@ export async function buildResultsDoc(
   const rows = data.ranking.map((r) => [
     r.position === null ? "" : String(r.position),
     r.horseName,
-    r.riderName,
+    r.riderOfficialName,
     r.label ??
       (r.outcome === "score_0"
         ? "0"
@@ -177,7 +178,7 @@ export async function buildResultsDoc(
           ? "—"
           : r.total.toFixed(1)),
   ]);
-  for (const r of data.excluded) rows.push(["—", r.horseName, r.riderName, "no score"]);
+  for (const r of data.excluded) rows.push(["—", r.horseName, r.riderOfficialName, "no score"]);
   return {
     kind: "table",
     title: `${t.results} · ${data.cls.name}`,
@@ -207,7 +208,7 @@ export async function buildPayoutDoc(
   const rows: string[][] = [];
   for (const p of data.payout.placements) {
     for (const b of p.binomi) {
-      rows.push([String(p.rank), b.horseName, b.riderName, `€ ${euro(b.amountCents)}`]);
+      rows.push([String(p.rank), b.horseName, b.riderOfficialName, `€ ${euro(b.amountCents)}`]);
     }
   }
   return {
@@ -314,7 +315,7 @@ export async function buildScoreCardDoc(
       event: row.event.name,
       class: row.cls.name,
       pattern: `${t.pattern} ${row.pattern.code}`,
-      judge: judge?.fullName ?? "—",
+      judge: judge ? officialName(judge) : "—",
     },
     maneuvers: maneuverDefs.map((m) => {
       const s = scoreByPos.get(m.position);
