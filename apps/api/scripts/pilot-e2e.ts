@@ -48,7 +48,7 @@ const orgEmail = "organizer@pilot.example";
 const orgPassword = "password-pilota";
 let orgToken = await registerVerified(orgEmail, orgPassword);
 let organizer = client(orgToken);
-await organizer.profile.create.mutate({ fullName: "Referente Pilota" });
+await organizer.profile.create.mutate({ firstName: "Referente", lastName: "Pilota" });
 const { organizationId } = await organizer.org.create.mutate({
   name: "Reining Club Pilota",
 });
@@ -116,19 +116,19 @@ const scuderiaToken = await registerVerified(
   orgPassword,
 );
 const scuderia = client(scuderiaToken);
-await scuderia.profile.create.mutate({ fullName: "Referente Scuderia" });
+await scuderia.profile.create.mutate({ firstName: "Referente", lastName: "Scuderia" });
 const { stableId } = await scuderia.roster.createStable.mutate({
   name: "Quarter Team Pilota",
 });
 const r1 = await scuderia.roster.addRider.mutate({
   stableId,
-  fullName: "Martina Rossi",
+  firstName: "Martina", lastName: "Rossi",
   email: "martina.rossi@pilot.example",
   birthDate: "1994-05-12",
 });
 const r2 = await scuderia.roster.addRider.mutate({
   stableId,
-  fullName: "Luca Bianchi",
+  firstName: "Luca", lastName: "Bianchi",
   email: "luca.bianchi@pilot.example",
   birthDate: "1988-11-03",
 });
@@ -199,7 +199,7 @@ step("8. Invito giudice con link visibile");
 const invite = await organizer.invite.create.mutate({
   eventId,
   role: "giudice",
-  person: { fullName: "Judge Pilota", email: "judge@pilot.example" },
+  person: { firstName: "Judge", lastName: "Pilota", email: "judge@pilot.example" },
 });
 console.log(`  link scribe: http://localhost:5173/?token=${invite.token!.slice(0, 8)}…`);
 

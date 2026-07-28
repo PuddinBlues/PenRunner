@@ -63,9 +63,16 @@ export async function buildClassPayout(db: DbOrTx, classId: string) {
   const band = selectPaybackBand(PAYBACK_A, confirmedEntries);
   const payout = computePayout({ purseCents: purse.purseCents, band, placements });
 
-  // arricchimento con i nomi per il report/PDF
+  // arricchimento con i nomi per il report/PDF (BR-84: resa ufficiale)
   const entryName = new Map(
-    ranking.ranking.map((r) => [r.entryId, { horseName: r.horseName, riderName: r.riderName }]),
+    ranking.ranking.map((r) => [
+      r.entryId,
+      {
+        horseName: r.horseName,
+        riderName: r.riderName,
+        riderOfficialName: r.riderOfficialName,
+      },
+    ]),
   );
 
   return {
@@ -82,7 +89,11 @@ export async function buildClassPayout(db: DbOrTx, classId: string) {
         ...p,
         binomi: p.refs.map((ref, i) => ({
           entryId: ref,
-          ...(entryName.get(ref) ?? { horseName: "?", riderName: "?" }),
+          ...(entryName.get(ref) ?? {
+            horseName: "?",
+            riderName: "?",
+            riderOfficialName: "?",
+          }),
           amountCents: p.perRefCents[i] ?? 0,
         })),
       })),

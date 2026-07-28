@@ -115,7 +115,7 @@ beforeAll(async () => {
     const [p] = await api.db
       .insert(schema.persons)
       .values({
-        fullName: `Rider L${i}`,
+        firstName: "Rider", lastName: `L${i}`,
         email: `riderl${i}@example.com`,
         locale: locales[i]!,
       })
@@ -143,7 +143,7 @@ beforeAll(async () => {
   await caller.invite.create({
     eventId,
     role: "giudice",
-    person: { fullName: "Live Judge", email: "livejudge@example.com" },
+    person: { firstName: "Live", lastName: "Judge", email: "livejudge@example.com" },
   });
   const inviteToken = extractToken(api.mailer.lastTo("livejudge@example.com")!);
   const accepted = await (await api.as()).invite.accept({ token: inviteToken });

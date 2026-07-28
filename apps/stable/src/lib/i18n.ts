@@ -47,7 +47,6 @@ const it = {
 
   "onboarding.title": "La tua scuderia",
   "onboarding.body": "Crea la scuderia: sarai il referente. Poi aggiungi cavalieri e cavalli al roster e iscrivi i binomi in pochi tocchi.",
-  "onboarding.fullName": "Il tuo nome e cognome",
   "onboarding.stableName": "Nome della scuderia",
   "onboarding.create": "Crea la scuderia",
 
@@ -62,7 +61,7 @@ const it = {
   "roster.horsesEmpty": "Nessun cavallo: aggiungi il primo. Il microchip evita i doppioni.",
   "roster.addRider": "Aggiungi cavaliere",
   "roster.addHorse": "Aggiungi cavallo",
-  "roster.fullName": "Nome e cognome",
+  "roster.nameReview": "Controlla il nome",
   "roster.email": "Email (facoltativa)",
   "roster.birthDate": "Data di nascita",
   "roster.horseName": "Nome del cavallo",
@@ -120,6 +119,8 @@ const it = {
   "common.confirm": "Conferma",
   "common.cancel": "Annulla",
   "common.draw": "Draw",
+  "common.firstName": "Nome",
+  "common.lastName": "Cognome",
 
   "update.available": "Nuova versione disponibile.",
   "update.do": "Aggiorna",
@@ -168,7 +169,6 @@ const en = {
 
   "onboarding.title": "Your stable",
   "onboarding.body": "Create the stable: you'll be the referent. Then add riders and horses to the roster and enter pairs in a few taps.",
-  "onboarding.fullName": "Your full name",
   "onboarding.stableName": "Stable name",
   "onboarding.create": "Create the stable",
 
@@ -183,7 +183,7 @@ const en = {
   "roster.horsesEmpty": "No horses yet: add the first one. The microchip prevents duplicates.",
   "roster.addRider": "Add rider",
   "roster.addHorse": "Add horse",
-  "roster.fullName": "Full name",
+  "roster.nameReview": "Check the name",
   "roster.email": "Email (optional)",
   "roster.birthDate": "Birth date",
   "roster.horseName": "Horse name",
@@ -241,6 +241,8 @@ const en = {
   "common.confirm": "Confirm",
   "common.cancel": "Cancel",
   "common.draw": "Draw",
+  "common.firstName": "First name",
+  "common.lastName": "Last name",
 
   "update.available": "A new version is available.",
   "update.do": "Update",

@@ -83,7 +83,7 @@ describe("claim del profilo (modello identità + integrazione A)", () => {
       .returning();
     const [person] = await api.db
       .insert(schema.persons)
-      .values({ fullName: "Laura Bianchi", email: "laura@example.com" })
+      .values({ firstName: "Laura", lastName: "Bianchi", email: "laura@example.com" })
       .returning();
     await api.db
       .insert(schema.stableMembers)
@@ -110,7 +110,7 @@ describe("claim del profilo (modello identità + integrazione A)", () => {
 
   it("SICUREZZA: senza email verificata il claim è negato", async () => {
     await api.db.insert(schema.persons).values({
-      fullName: "Vittima Attacco",
+      firstName: "Vittima", lastName: "Attacco",
       email: "vittima@example.com",
     });
 
@@ -152,7 +152,7 @@ describe("claim del profilo (modello identità + integrazione A)", () => {
     const { claimable } = await caller.profile.claimStatus();
     expect(claimable).toBeNull();
     const { personId } = await caller.profile.create({
-      fullName: "Laura Doppia",
+      firstName: "Laura", lastName: "Doppia",
     });
     expect(personId).toBeTruthy();
   });
@@ -161,7 +161,7 @@ describe("claim del profilo (modello identità + integrazione A)", () => {
     const { sessionToken } = await registerVerifiedUser(api, "en@example.com");
     const caller = await api.as(sessionToken);
     const { personId } = await caller.profile.create({
-      fullName: "English Rider",
+      firstName: "English", lastName: "Rider",
       locale: "en",
     });
     const [person] = await api.db

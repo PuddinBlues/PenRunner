@@ -6,6 +6,7 @@ import { scribeUrl } from "../config/urls.js";
 import { can } from "../policy/policy.js";
 import { generateToken, hashToken } from "../services/crypto.js";
 import { renderMail } from "../services/mailtemplate.js";
+import { personDisplayNameSql } from "../services/names.js";
 import { createInviteSession } from "../services/sessions.js";
 import { publicProcedure, router, verifiedProcedure } from "../trpc.js";
 import { loadEventOrganization } from "./org.js";
@@ -29,7 +30,9 @@ export const inviteRouter = router({
         person: z.union([
           z.object({ personId: z.string().uuid() }),
           z.object({
-            fullName: z.string().min(1).max(200),
+            // BR-84: nome strutturato anche per gli inviti (giudice/scribe).
+            firstName: z.string().min(1).max(100),
+            lastName: z.string().min(1).max(100),
             email: z.string().email(),
           }),
         ]),
@@ -71,7 +74,8 @@ export const inviteRouter = router({
             const [created] = await tx
               .insert(schema.persons)
               .values({
-                fullName: input.person.fullName,
+                firstName: input.person.firstName,
+                lastName: input.person.lastName,
                 email: normalized,
               })
               .returning();
@@ -166,7 +170,7 @@ export const inviteRouter = router({
           classId: schema.eventRoleAssignments.classId,
           deactivatedAt: schema.eventRoleAssignments.deactivatedAt,
           personId: schema.persons.id,
-          fullName: schema.persons.fullName,
+          fullName: personDisplayNameSql,
           email: schema.persons.email,
           inviteId: schema.eventInvites.id,
           acceptedAt: schema.eventInvites.acceptedAt,

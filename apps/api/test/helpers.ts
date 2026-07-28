@@ -86,8 +86,12 @@ export async function registerUserWithProfile(
   const { userId, sessionToken } = await registerVerifiedUser(api, email);
   const caller = await api.as(sessionToken);
   const { claimable } = await caller.profile.claimStatus();
+  const [first, ...rest] = fullName.split(" ");
   const { personId } = claimable
     ? await caller.profile.claimAccept()
-    : await caller.profile.create({ fullName });
+    : await caller.profile.create({
+        firstName: first!,
+        lastName: rest.join(" ") || first!,
+      });
   return { userId, personId, sessionToken };
 }

@@ -75,7 +75,7 @@ beforeAll(async () => {
     .values({ eventId, categoryId: category!.id, name: "Open", patternId: pattern6!.id })
     .returning();
   classId = cls!.id;
-  const [p] = await api.db.insert(schema.persons).values({ fullName: "Rider" }).returning();
+  const [p] = await api.db.insert(schema.persons).values({ firstName: "Rider", lastName: "Prova" }).returning();
   const [h] = await api.db
     .insert(schema.horses)
     .values({ name: "Horse", microchip: "380-BND-1", ownerId: p!.id })
@@ -97,7 +97,7 @@ beforeAll(async () => {
     ["Judge A", "ja@example.com"],
     ["Judge B", "jb@example.com"],
   ]) {
-    await caller.invite.create({ eventId, role: "giudice", person: { fullName: name!, email: email! } });
+    await caller.invite.create({ eventId, role: "giudice", person: { firstName: "Judge", lastName: name!.split(" ")[1]!, email: email! } });
   }
   judgeAId = (await api.db.select().from(schema.persons).where(eq(schema.persons.email, "ja@example.com")))[0]!.id;
   judgeBId = (await api.db.select().from(schema.persons).where(eq(schema.persons.email, "jb@example.com")))[0]!.id;
@@ -105,7 +105,7 @@ beforeAll(async () => {
   await caller.invite.create({
     eventId,
     role: "scribe",
-    person: { fullName: "Scribe", email: "scr@example.com" },
+    person: { firstName: "Scribe", lastName: "Prova", email: "scr@example.com" },
   });
   const scribeInvite = extractToken(api.mailer.lastTo("scr@example.com")!);
   const accepted = await (await api.as()).invite.accept({ token: scribeInvite });

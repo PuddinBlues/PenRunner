@@ -95,7 +95,7 @@ beforeAll(async () => {
   for (let i = 0; i < 10; i++) {
     const [p] = await api.db
       .insert(schema.persons)
-      .values({ fullName: `Rider ${i}`, email: `rider${i}@example.com` })
+      .values({ firstName: "Rider", lastName: `${i}`, email: `rider${i}@example.com` })
       .returning();
     riderIds.push(p!.id);
   }
@@ -255,7 +255,7 @@ describe("chirurgia del draw = capacità concessa (BR-43)", () => {
 
     const [p] = await api.db
       .insert(schema.persons)
-      .values({ fullName: "Late Rider" })
+      .values({ firstName: "Late", lastName: "Rider" })
       .returning();
     const [h] = await api.db
       .insert(schema.horses)

@@ -1,8 +1,9 @@
 import { TRPCError } from "@trpc/server";
-import { eq, sql } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { z } from "zod";
 import { schema } from "@penrunner/db";
 import { can } from "../policy/policy.js";
+import { personDisplayNameSql } from "../services/names.js";
 import { router, verifiedProcedure } from "../trpc.js";
 
 // ---------------------------------------------------------------------------
@@ -89,7 +90,9 @@ export const rosterRouter = router({
     .input(
       z.object({
         stableId: z.string().uuid(),
-        fullName: z.string().min(1).max(200),
+        // BR-84: nome strutturato — dai form entrambi i campi, sempre.
+        firstName: z.string().min(1).max(100),
+        lastName: z.string().min(1).max(100),
         email: z.string().email().optional(),
         birthDate: z.string().date().optional(),
         membershipIrha: z.string().max(50).optional(),
@@ -115,7 +118,8 @@ export const rosterRouter = router({
           const [created] = await tx
             .insert(schema.persons)
             .values({
-              fullName: input.fullName,
+              firstName: input.firstName,
+              lastName: input.lastName,
               email: input.email?.toLowerCase() ?? null,
               birthDate: input.birthDate ?? null,
               membershipIrha: input.membershipIrha ?? null,
@@ -135,6 +139,45 @@ export const rosterRouter = router({
       return result;
     }),
 
+  /**
+   * BR-84: correzione del nome dal roster (badge "Controlla il nome" dei
+   * profili migrati con euristica incerta). Il salvataggio spegne il flag.
+   * Le carte firmate referenziano la Person: la correzione non le tocca.
+   */
+  renameRider: verifiedProcedure
+    .input(
+      z.object({
+        stableId: z.string().uuid(),
+        personId: z.string().uuid(),
+        firstName: z.string().min(1).max(100),
+        lastName: z.string().min(1).max(100),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      requireRosterAccess(ctx.actor, input.stableId);
+      // Si corregge solo chi è nel PROPRIO roster: il nome è dell'anagrafica,
+      // ma la porta è la membership.
+      const [membership] = await ctx.db
+        .select()
+        .from(schema.stableMembers)
+        .where(
+          and(
+            eq(schema.stableMembers.stableId, input.stableId),
+            eq(schema.stableMembers.personId, input.personId),
+          ),
+        );
+      if (!membership) throw new TRPCError({ code: "NOT_FOUND" });
+      await ctx.db
+        .update(schema.persons)
+        .set({
+          firstName: input.firstName,
+          lastName: input.lastName,
+          nameNeedsReview: false,
+        })
+        .where(eq(schema.persons.id, input.personId));
+      return { ok: true };
+    }),
+
   /** Le scuderie di cui l'utente è referente (gate d'ingresso dell'app). */
   myStables: verifiedProcedure.query(async ({ ctx }) => {
     if (!ctx.actor.personId) return [];
@@ -152,7 +195,11 @@ export const rosterRouter = router({
       const members = await ctx.db
         .select({
           personId: schema.persons.id,
-          fullName: schema.persons.fullName,
+          // fullName resta nel contratto: composto server-side (BR-84).
+          fullName: personDisplayNameSql,
+          firstName: schema.persons.firstName,
+          lastName: schema.persons.lastName,
+          nameNeedsReview: schema.persons.nameNeedsReview,
           email: schema.persons.email,
         })
         .from(schema.stableMembers)
@@ -160,7 +207,12 @@ export const rosterRouter = router({
           schema.persons,
           eq(schema.persons.id, schema.stableMembers.personId),
         )
-        .where(eq(schema.stableMembers.stableId, input.stableId));
+        .where(eq(schema.stableMembers.stableId, input.stableId))
+        // BR-84: gli elenchi alfabetici ordinano per (cognome, nome).
+        .orderBy(
+          sql`lower(${schema.persons.lastName})`,
+          sql`lower(${schema.persons.firstName})`,
+        );
       const horses = await ctx.db
         .select()
         .from(schema.horses)

@@ -140,7 +140,7 @@ beforeAll(async () => {
   for (let i = 0; i < 3; i++) {
     const [p] = await api.db
       .insert(schema.persons)
-      .values({ fullName: `Rider S${i}` })
+      .values({ firstName: "Rider", lastName: `S${i}` })
       .returning();
     const [h] = await api.db
       .insert(schema.horses)
@@ -160,7 +160,7 @@ beforeAll(async () => {
   await caller.invite.create({
     eventId,
     role: "giudice",
-    person: { fullName: "Judge One", email: "judge1@example.com" },
+    person: { firstName: "Judge", lastName: "One", email: "judge1@example.com" },
   });
   const inviteToken = extractToken(api.mailer.lastTo("judge1@example.com")!);
   const anon = await api.as();
@@ -400,7 +400,7 @@ describe("conflitto two-device, mismatch e clock skew — run 3", () => {
     await org.invite.create({
       eventId,
       role: "giudice",
-      person: { fullName: "Judge Two", email: "judge2@example.com" },
+      person: { firstName: "Judge", lastName: "Two", email: "judge2@example.com" },
     });
     const [j2] = await api.db
       .select()
@@ -532,7 +532,7 @@ describe("backfill BR-28 e correzioni BR-40 — run 4 (late entry)", () => {
     const org = await api.as(organizerToken);
     const [p] = await api.db
       .insert(schema.persons)
-      .values({ fullName: "Late Rider" })
+      .values({ firstName: "Late", lastName: "Rider" })
       .returning();
     const [h] = await api.db
       .insert(schema.horses)

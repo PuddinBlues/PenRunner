@@ -2,6 +2,7 @@ import { TRPCError } from "@trpc/server";
 import { and, asc, eq, inArray, isNotNull, max, sql } from "drizzle-orm";
 import { z } from "zod";
 import { schema, type Db } from "@penrunner/db";
+import { personDisplayNameSql } from "../services/names.js";
 import { computeDragMarkers, generateDraw } from "../draw.js";
 import { can, type Actor } from "../policy/policy.js";
 import { recordAudit } from "../services/audit.js";
@@ -438,7 +439,7 @@ export const drawRouter = router({
           drawNumber: schema.entries.drawNumber,
           status: schema.entries.status,
           horseName: schema.horses.name,
-          riderName: schema.persons.fullName,
+          riderName: personDisplayNameSql,
         })
         .from(schema.entries)
         .innerJoin(schema.horses, eq(schema.horses.id, schema.entries.horseId))

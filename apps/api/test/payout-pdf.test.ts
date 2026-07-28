@@ -106,7 +106,7 @@ beforeAll(async () => {
   for (let i = 0; i < 6; i++) {
     const [p] = await api.db
       .insert(schema.persons)
-      .values({ fullName: `Rider P${i}`, email: `riderp${i}@example.com` })
+      .values({ firstName: "Rider", lastName: `P${i}`, email: `riderp${i}@example.com` })
       .returning();
     const [h] = await api.db
       .insert(schema.horses)
@@ -128,7 +128,7 @@ beforeAll(async () => {
   await caller.invite.create({
     eventId,
     role: "giudice",
-    person: { fullName: "Payout Judge", email: "pjudge@example.com" },
+    person: { firstName: "Payout", lastName: "Judge", email: "pjudge@example.com" },
   });
   const inviteToken = extractToken(api.mailer.lastTo("pjudge@example.com")!);
   const accepted = await (await api.as()).invite.accept({ token: inviteToken });
@@ -188,9 +188,29 @@ describe("documenti PDF (document-model esatto + smoke renderer)", () => {
   it("start list: modello coi binomi, PDF valido", async () => {
     const doc = await buildStartListDoc(api.db, classId, "it", new Date());
     expect(doc.rows).toHaveLength(6);
+    // BR-84: i documenti ufficiali rendono "Cognome Nome" (convenzione FISE).
+    // I cavalieri sono firstName="Rider" lastName="P<i>" → in PDF "P<i> Rider".
+    for (const row of doc.rows) {
+      expect(row[2]).toMatch(/^P\d Rider$/);
+    }
     const pdf = await renderTable(doc);
     expect(pdf.subarray(0, 5).toString()).toBe(PDF_MAGIC);
     expect(pdf.length).toBeGreaterThan(500);
+  });
+
+  it("GUARDIA BR-84: i documenti usano SOLO la resa ufficiale, mai quella conversazionale", async () => {
+    // Contratto sul sorgente: documents/model.ts compone i nomi via helper
+    // ufficiale — reintrodurre la resa "Nome Cognome" (o una concatenazione
+    // a mano) rompe questo test.
+    const { readFileSync } = await import("node:fs");
+    const src = readFileSync(
+      new URL("../src/documents/model.ts", import.meta.url),
+      "utf8",
+    );
+    expect(src).toContain("personOfficialNameSql");
+    expect(src).toContain("riderOfficialName");
+    expect(src).not.toContain("personDisplayNameSql");
+    expect(src).not.toMatch(/firstName\s*\+|\+\s*lastName/);
   });
 
   it("classifica: badge TESTUALE inequivocabile (provvisoria vs ufficiale)", async () => {
@@ -252,7 +272,7 @@ describe("documenti PDF (document-model esatto + smoke renderer)", () => {
     });
     const [j2] = await api.db
       .insert(schema.persons)
-      .values({ fullName: "Giudice Cartaceo" })
+      .values({ firstName: "Giudice", lastName: "Cartaceo" })
       .returning();
     // assegniamo j2 come giudice per far passare maybeAwaitSignature? non serve:
     // il backfill richiede solo score.backfill. Assegniamo j2 all'evento.

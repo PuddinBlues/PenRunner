@@ -2,6 +2,7 @@ import { TRPCError } from "@trpc/server";
 import { and, asc, eq, inArray, isNull } from "drizzle-orm";
 import { z } from "zod";
 import { schema, type Db } from "@penrunner/db";
+import { personDisplayNameSql } from "../services/names.js";
 import {
   computeCardScore,
   SCORING_ENGINE_VERSION,
@@ -200,7 +201,7 @@ async function maybeTriggerMixedReview(
   const cards = await tx
     .select({
       card: schema.scoreCards,
-      judgeName: schema.persons.fullName,
+      judgeName: personDisplayNameSql,
     })
     .from(schema.scoreCards)
     .innerJoin(schema.persons, eq(schema.persons.id, schema.scoreCards.judgeId))
@@ -353,7 +354,7 @@ export const scoringRouter = router({
           entryStatus: schema.entries.status,
           drawNumber: schema.entries.drawNumber,
           horseName: schema.horses.name,
-          riderName: schema.persons.fullName,
+          riderName: personDisplayNameSql,
         })
         .from(schema.runs)
         .innerJoin(schema.entries, eq(schema.entries.id, schema.runs.entryId))
@@ -432,7 +433,7 @@ export const scoringRouter = router({
       const judges = await ctx.db
         .select({
           personId: schema.eventRoleAssignments.personId,
-          fullName: schema.persons.fullName,
+          fullName: personDisplayNameSql,
           classId: schema.eventRoleAssignments.classId,
         })
         .from(schema.eventRoleAssignments)
@@ -458,7 +459,7 @@ export const scoringRouter = router({
         : [];
       const riderRows = riderIds.length
         ? await ctx.db
-            .select({ id: schema.persons.id, name: schema.persons.fullName })
+            .select({ id: schema.persons.id, name: personDisplayNameSql })
             .from(schema.persons)
             .where(inArray(schema.persons.id, riderIds))
         : [];

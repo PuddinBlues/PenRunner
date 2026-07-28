@@ -211,7 +211,7 @@ describe("CRUD classi: guard di integrità", () => {
     });
     const [owner] = await api.db
       .insert(schema.persons)
-      .values({ fullName: "Rider Uno" })
+      .values({ firstName: "Rider", lastName: "Uno" })
       .returning();
     const [horse] = await api.db
       .insert(schema.horses)
@@ -288,7 +288,7 @@ describe("inviti dal browser", () => {
     const { token, assignmentId } = await caller.invite.create({
       eventId,
       role: "giudice",
-      person: { fullName: "Judge Uno", email: "judge@example.com" },
+      person: { firstName: "Judge", lastName: "Uno", email: "judge@example.com" },
     });
     expect(token).toBeTruthy();
     const list = await caller.invite.list({ eventId });

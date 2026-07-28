@@ -2,6 +2,7 @@ import { TRPCError } from "@trpc/server";
 import { and, eq, inArray, ne, sql } from "drizzle-orm";
 import { z } from "zod";
 import { schema, type Db } from "@penrunner/db";
+import { personDisplayNameSql } from "../services/names.js";
 import { evaluateEligibility, type EligibilityWarning } from "../eligibility.js";
 import { can, type Actor } from "../policy/policy.js";
 import { liveBus } from "../services/livebus.js";
@@ -524,7 +525,7 @@ export const entriesRouter = router({
           drawNumber: schema.entries.drawNumber,
           eligibilityWarnings: schema.entries.eligibilityWarnings,
           horseName: schema.horses.name,
-          riderName: schema.persons.fullName,
+          riderName: personDisplayNameSql,
           classId: schema.classes.id,
           className: schema.classes.name,
           drawStatus: schema.classes.drawStatus,
@@ -586,7 +587,7 @@ export const entriesRouter = router({
       const riders = await ctx.db
         .selectDistinct({
           id: schema.persons.id,
-          fullName: schema.persons.fullName,
+          fullName: personDisplayNameSql,
         })
         .from(schema.entries)
         .innerJoin(schema.persons, eq(schema.persons.id, schema.entries.riderId))

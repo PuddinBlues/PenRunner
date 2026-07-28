@@ -80,7 +80,7 @@ describe("inviti event-scoped (giudice/scribe senza account pieno)", () => {
     await organizer.invite.create({
       eventId,
       role: "giudice",
-      person: { fullName: "Judge Smith", email: "judge@example.com" },
+      person: { firstName: "Judge", lastName: "Smith", email: "judge@example.com" },
     });
     const inviteToken = extractToken(api.mailer.lastTo("judge@example.com")!);
 
@@ -108,7 +108,7 @@ describe("inviti event-scoped (giudice/scribe senza account pieno)", () => {
     await organizer.invite.create({
       eventId,
       role: "scribe",
-      person: { fullName: "Scribe Uno", email: "scribe@example.com" },
+      person: { firstName: "Scribe", lastName: "Uno", email: "scribe@example.com" },
     });
     const token = extractToken(api.mailer.lastTo("scribe@example.com")!);
     const anon = await api.as();
@@ -121,13 +121,13 @@ describe("inviti event-scoped (giudice/scribe senza account pieno)", () => {
   it("modello identità: invito a email già nota → stessa person, non un doppione", async () => {
     const [existing] = await api.db
       .insert(schema.persons)
-      .values({ fullName: "Giudice Noto", email: "noto@example.com" })
+      .values({ firstName: "Giudice", lastName: "Noto", email: "noto@example.com" })
       .returning();
     const organizer = await api.as(organizerToken);
     const { assignmentId } = await organizer.invite.create({
       eventId,
       role: "giudice",
-      person: { fullName: "Giudice Noto Bis", email: "noto@example.com" },
+      person: { firstName: "Giudice", lastName: "Noto Bis", email: "noto@example.com" },
     });
     const [assignment] = await api.db
       .select()
@@ -141,7 +141,7 @@ describe("inviti event-scoped (giudice/scribe senza account pieno)", () => {
     const { inviteId } = await organizer.invite.create({
       eventId,
       role: "segreteria",
-      person: { fullName: "Aiuto Segreteria", email: "aiuto@example.com" },
+      person: { firstName: "Aiuto", lastName: "Segreteria", email: "aiuto@example.com" },
     });
     const token = extractToken(api.mailer.lastTo("aiuto@example.com")!);
     await organizer.invite.revoke({ inviteId });
@@ -156,7 +156,7 @@ describe("inviti event-scoped (giudice/scribe senza account pieno)", () => {
     const { inviteId } = await organizer.invite.create({
       eventId,
       role: "scribe",
-      person: { fullName: "Scribe Tardi", email: "tardi@example.com" },
+      person: { firstName: "Scribe", lastName: "Tardi", email: "tardi@example.com" },
     });
     const token = extractToken(api.mailer.lastTo("tardi@example.com")!);
     await api.db
@@ -174,7 +174,7 @@ describe("inviti event-scoped (giudice/scribe senza account pieno)", () => {
     const { assignmentId } = await organizer.invite.create({
       eventId,
       role: "giudice",
-      person: { fullName: "Giudice Uscente", email: "uscente@example.com" },
+      person: { firstName: "Giudice", lastName: "Uscente", email: "uscente@example.com" },
     });
     const token = extractToken(api.mailer.lastTo("uscente@example.com")!);
     const anon = await api.as();
@@ -200,7 +200,7 @@ describe("inviti event-scoped (giudice/scribe senza account pieno)", () => {
       .returning();
     const [owner] = await api.db
       .insert(schema.persons)
-      .values({ fullName: "Owner X" })
+      .values({ firstName: "Owner", lastName: "X" })
       .returning();
     const [horse] = await api.db
       .insert(schema.horses)
@@ -254,7 +254,7 @@ describe("inviti event-scoped (giudice/scribe senza account pieno)", () => {
       caller.invite.create({
         eventId,
         role: "giudice",
-        person: { fullName: "Chiunque", email: "x@example.com" },
+        person: { firstName: "Chiunque", lastName: "Estraneo", email: "x@example.com" },
       }),
     ).rejects.toThrow(/FORBIDDEN/);
   });

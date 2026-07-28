@@ -201,7 +201,8 @@ function Invites({
 }) {
   const [rows, setRows] = useState<InviteRow[] | null>(null);
   const [role, setRole] = useState<"giudice" | "scribe" | "segreteria">("giudice");
-  const [fullName, setFullName] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [link, setLink] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
@@ -278,9 +279,14 @@ function Invites({
             <option value="segreteria">{t("invite.segreteria")}</option>
           </select>
         </label>
+        {/* BR-84: nome e cognome separati */}
         <label className="field">
-          <span>{t("invite.fullName")}</span>
-          <input value={fullName} onChange={(e) => setFullName(e.target.value)} />
+          <span>{t("common.firstName")}</span>
+          <input value={firstName} onChange={(e) => setFirstName(e.target.value)} />
+        </label>
+        <label className="field">
+          <span>{t("common.lastName")}</span>
+          <input value={lastName} onChange={(e) => setLastName(e.target.value)} />
         </label>
         <label className="field">
           <span>{t("invite.email")}</span>
@@ -292,7 +298,7 @@ function Invites({
         </label>
         <button
           className="btn primary"
-          disabled={!vetted || !fullName || !email}
+          disabled={!vetted || !firstName || !lastName || !email}
           onClick={async () => {
             setError(null);
             setLink(null);
@@ -301,14 +307,15 @@ function Invites({
               const res = await client.invite.create.mutate({
                 eventId,
                 role,
-                person: { fullName, email },
+                person: { firstName, lastName, email },
               });
               // Link all'app scribe con il token: si consegna a mano.
               const scribeUrl =
                 (import.meta.env.VITE_SCRIBE_URL as string | undefined) ??
                 "http://localhost:5173";
               setLink(`${scribeUrl}/?token=${res.token}`);
-              setFullName("");
+              setFirstName("");
+              setLastName("");
               setEmail("");
               await reload();
             } catch (err) {

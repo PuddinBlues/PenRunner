@@ -23,10 +23,17 @@ export function Roster({
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
 
-  // form cavaliere
-  const [riderName, setRiderName] = useState("");
+  // form cavaliere (BR-84: nome e cognome separati)
+  const [riderFirst, setRiderFirst] = useState("");
+  const [riderLast, setRiderLast] = useState("");
   const [riderEmail, setRiderEmail] = useState("");
   const [riderBirth, setRiderBirth] = useState("");
+  // correzione inline (badge "Controlla il nome" dei profili migrati)
+  const [editing, setEditing] = useState<{
+    personId: string;
+    firstName: string;
+    lastName: string;
+  } | null>(null);
   // form cavallo
   const [horseName, setHorseName] = useState("");
   const [microchip, setMicrochip] = useState("");
@@ -64,11 +71,66 @@ export function Roster({
               {data.members.map((m) => (
                 <tr key={m.personId}>
                   <td>
-                    <strong>{m.fullName}</strong>
-                    {m.email && (
-                      <div className="muted">
-                        {m.email} · {t("roster.claimHint")}
+                    {editing?.personId === m.personId ? (
+                      <div className="row">
+                        <input
+                          value={editing.firstName}
+                          onChange={(e) => setEditing({ ...editing, firstName: e.target.value })}
+                          placeholder={t("common.firstName")}
+                        />
+                        <input
+                          value={editing.lastName}
+                          onChange={(e) => setEditing({ ...editing, lastName: e.target.value })}
+                          placeholder={t("common.lastName")}
+                        />
+                        <button
+                          className="btn small primary"
+                          disabled={!editing.firstName || !editing.lastName}
+                          onClick={async () => {
+                            try {
+                              await client.roster.renameRider.mutate({
+                                stableId,
+                                personId: m.personId,
+                                firstName: editing.firstName,
+                                lastName: editing.lastName,
+                              });
+                              setEditing(null);
+                              await reload();
+                            } catch (err) {
+                              setError(errorMessage(err));
+                            }
+                          }}
+                        >
+                          {t("common.confirm")}
+                        </button>
+                        <button className="btn small" onClick={() => setEditing(null)}>
+                          {t("common.cancel")}
+                        </button>
                       </div>
+                    ) : (
+                      <>
+                        <strong>{m.fullName}</strong>{" "}
+                        {m.nameNeedsReview && (
+                          <button
+                            className="btn small"
+                            style={{ color: "var(--amber, #B45309)" }}
+                            onClick={() =>
+                              setEditing({
+                                personId: m.personId,
+                                firstName: m.firstName,
+                                lastName: m.lastName,
+                              })
+                            }
+                          >
+                            {t("roster.nameReview")}
+                          </button>
+                        )}
+                        {m.email && (
+                          <div className="muted">
+                            {m.email} · {t("roster.claimHint")}
+                          </div>
+                        )}
+                      </>
                     )}
                   </td>
                 </tr>
@@ -78,8 +140,12 @@ export function Roster({
         )}
         <div className="row" style={{ marginTop: 12 }}>
           <label className="field">
-            <span>{t("roster.fullName")}</span>
-            <input value={riderName} onChange={(e) => setRiderName(e.target.value)} />
+            <span>{t("common.firstName")}</span>
+            <input value={riderFirst} onChange={(e) => setRiderFirst(e.target.value)} autoComplete="off" />
+          </label>
+          <label className="field">
+            <span>{t("common.lastName")}</span>
+            <input value={riderLast} onChange={(e) => setRiderLast(e.target.value)} autoComplete="off" />
           </label>
           <label className="field">
             <span>{t("roster.email")}</span>
@@ -99,21 +165,23 @@ export function Roster({
           </label>
           <button
             className="btn primary"
-            disabled={!riderName}
+            disabled={!riderFirst || !riderLast}
             onClick={async () => {
               setError(null);
               setNotice(null);
               try {
                 const res = await client.roster.addRider.mutate({
                   stableId,
-                  fullName: riderName,
+                  firstName: riderFirst,
+                  lastName: riderLast,
                   ...(riderEmail ? { email: riderEmail } : {}),
                   ...(riderBirth ? { birthDate: riderBirth } : {}),
                 });
                 setNotice(
                   res.linked ? t("roster.riderLinked") : t("roster.riderCreated"),
                 );
-                setRiderName("");
+                setRiderFirst("");
+                setRiderLast("");
                 setRiderEmail("");
                 setRiderBirth("");
                 await reload();

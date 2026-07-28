@@ -13,7 +13,8 @@ export function Onboarding({
   client: Client;
   onDone: () => Promise<void>;
 }) {
-  const [fullName, setFullName] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [stableName, setStableName] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -22,9 +23,14 @@ export function Onboarding({
     <div className="card" style={{ maxWidth: 480 }}>
       <h1>{t("onboarding.title")}</h1>
       <p className="hint">{t("onboarding.body")}</p>
+      {/* BR-84: nome e cognome separati (documenti ufficiali, ordinamenti) */}
       <label className="field">
-        <span>{t("onboarding.fullName")}</span>
-        <input value={fullName} onChange={(e) => setFullName(e.target.value)} />
+        <span>{t("common.firstName")}</span>
+        <input value={firstName} onChange={(e) => setFirstName(e.target.value)} autoComplete="given-name" />
+      </label>
+      <label className="field">
+        <span>{t("common.lastName")}</span>
+        <input value={lastName} onChange={(e) => setLastName(e.target.value)} autoComplete="family-name" />
       </label>
       <label className="field">
         <span>{t("onboarding.stableName")}</span>
@@ -33,7 +39,7 @@ export function Onboarding({
       {error && <div className="error-inline">{error}</div>}
       <button
         className="btn primary"
-        disabled={busy || !fullName || !stableName}
+        disabled={busy || !firstName || !lastName || !stableName}
         onClick={async () => {
           setBusy(true);
           setError(null);
@@ -43,7 +49,7 @@ export function Onboarding({
             try {
               const { claimable } = await client.profile.claimStatus.query();
               if (claimable) await client.profile.claimAccept.mutate();
-              else await client.profile.create.mutate({ fullName });
+              else await client.profile.create.mutate({ firstName, lastName });
             } catch {
               /* profilo già collegato */
             }

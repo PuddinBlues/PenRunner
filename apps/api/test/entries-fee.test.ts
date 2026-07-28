@@ -108,12 +108,12 @@ beforeAll(async () => {
   stableCaller = await api.as(stableOwner.sessionToken);
   const owner = await stableCaller.roster.addRider({
     stableId,
-    fullName: "Anna Proprietaria",
+    firstName: "Anna", lastName: "Proprietaria",
     email: "anna@example.com",
   });
   const rider = await stableCaller.roster.addRider({
     stableId,
-    fullName: "Marco Cavaliere",
+    firstName: "Marco", lastName: "Cavaliere",
     email: "marco.rider@example.com",
     membershipIrha: "IRHA-1",
     membershipFise: "FISE-1",
@@ -191,7 +191,7 @@ describe("roster: dedup e molti-a-molti", () => {
     otherCaller = await api.as(other.sessionToken);
     const res = await otherCaller.roster.addRider({
       stableId: thirdStableId,
-      fullName: "Marco Omonimo",
+      firstName: "Marco", lastName: "Omonimo",
       email: "MARCO.RIDER@example.com", // case diverso, stessa identità
     });
     expect(res.personId).toBe(riderPersonId);
