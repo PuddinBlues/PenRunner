@@ -12,16 +12,21 @@ import { Enroll } from "./screens/Enroll.js";
 import { MyEntries } from "./screens/MyEntries.js";
 import { Onboarding } from "./screens/Onboarding.js";
 import { Roster } from "./screens/Roster.js";
+import { VerifyGate } from "./screens/VerifyGate.js";
 
 // ---------------------------------------------------------------------------
 // Shell mobile-first: bottom-nav a tre aree (Iscrizioni · Iscrivi · Roster),
-// sessione in localStorage, locale persistito (BR-62). Il gate d'ingresso:
-// senza sessione → Auth; senza scuderia → Onboarding (BR-80).
+// sessione in localStorage, locale persistito (BR-62). Gate a tre stadi:
+// senza sessione → Auth; sessione morta → pulizia e ritorno al login;
+// loggato ma NON verificato → VerifyGate (mai un vicolo cieco); poi
+// senza scuderia → Onboarding (BR-80).
 // ---------------------------------------------------------------------------
 
 const SESSION_KEY = "penrunner_stable_session";
 
 type Tab = "entries" | "enroll" | "roster";
+
+type Me = { email: string; emailVerified: boolean };
 
 export function App() {
   const [locale, setLocale] = useState<Locale>(() => detectLocale());
@@ -29,6 +34,7 @@ export function App() {
     () => localStorage.getItem(SESSION_KEY),
   );
   const [tab, setTab] = useState<Tab>("entries");
+  const [me, setMe] = useState<Me | undefined>(undefined);
   const [stableId, setStableId] = useState<string | null | undefined>(undefined);
   const [error, setError] = useState<string | null>(null);
 
@@ -39,19 +45,43 @@ export function App() {
     if (token) localStorage.setItem(SESSION_KEY, token);
     else localStorage.removeItem(SESSION_KEY);
     setSession(token);
+    setMe(undefined);
     setStableId(undefined);
+    setError(null);
   };
 
-  // La scuderia del referente: prima di cui si è referenti (MVP: una).
-  const loadStable = useCallback(async () => {
+  // Stadio 1 del gate: chi sono? Sessione morta/revocata → pulizia graziosa
+  // e ritorno al login (niente toast grezzo sul Loading).
+  const loadMe = useCallback(async () => {
     if (!session) return;
     try {
-      const me = await client.roster.myStables.query();
-      setStableId(me[0]?.stableId ?? null);
+      setMe(await client.auth.me.query());
+    } catch (err) {
+      if (errorMessage(err) === "UNAUTHORIZED") {
+        localStorage.removeItem(SESSION_KEY);
+        setSession(null);
+        setMe(undefined);
+      } else {
+        setError(errorMessage(err));
+      }
+    }
+  }, [client, session]);
+
+  useEffect(() => {
+    void loadMe();
+  }, [loadMe]);
+
+  // La scuderia del referente: prima di cui si è referenti (MVP: una).
+  // Parte solo OLTRE il gate: mai un FORBIDDEN "Email non verificata" qui.
+  const loadStable = useCallback(async () => {
+    if (!session || !me?.emailVerified) return;
+    try {
+      const mine = await client.roster.myStables.query();
+      setStableId(mine[0]?.stableId ?? null);
     } catch (err) {
       setError(errorMessage(err));
     }
-  }, [client, session]);
+  }, [client, session, me]);
 
   useEffect(() => {
     void loadStable();
@@ -83,6 +113,44 @@ export function App() {
     );
   }
 
+  // Stadi 1-2 del gate: identità in carico, poi verifica email (interstitial:
+  // codice + resend + esci — mai un vicolo cieco, reperto staging).
+  if (me === undefined || !me.emailVerified) {
+    return (
+      <>
+        <header className="topbar">
+          <span className="brand">{t("app.name")}</span>
+          <span className="spacer" />
+          {localeToggle}
+        </header>
+        {error && (
+          <div className="banner danger">
+            {t("app.error", { msg: error })}{" "}
+            <button className="btn small" onClick={() => { setError(null); void loadMe(); }}>
+              {t("app.retry")}
+            </button>
+          </div>
+        )}
+        {me === undefined ? (
+          <main className="page">
+            <p className="muted">{t("app.loading")}</p>
+          </main>
+        ) : (
+          <VerifyGate
+            t={t}
+            client={client}
+            email={me.email}
+            onVerified={() => { setMe(undefined); void loadMe(); }}
+            onLogout={() => {
+              void client.auth.logout.mutate().catch(() => {});
+              saveSession(null);
+            }}
+          />
+        )}
+      </>
+    );
+  }
+
   return (
     <>
       <header className="topbar">
@@ -100,7 +168,14 @@ export function App() {
         </button>
       </header>
       <main className="page with-bottomnav">
-        {error && <div className="banner danger">{t("app.error", { msg: error })}</div>}
+        {error && (
+          <div className="banner danger">
+            {t("app.error", { msg: error })}{" "}
+            <button className="btn small" onClick={() => { setError(null); void loadMe(); void loadStable(); }}>
+              {t("app.retry")}
+            </button>
+          </div>
+        )}
         {stableId === undefined ? (
           <p className="muted">{t("app.loading")}</p>
         ) : stableId === null ? (
