@@ -22,6 +22,21 @@ const euro = (cents: number) =>
 
 export type Locale = "it" | "en";
 
+/** Data/ora leggibili (censimento: mai ISO nudo nei documenti). */
+export function fmtDateTime(d: Date, locale: Locale): string {
+  return new Intl.DateTimeFormat(locale === "it" ? "it-IT" : "en-GB", {
+    dateStyle: "medium",
+    timeStyle: "short",
+    timeZone: "Europe/Rome",
+  }).format(d);
+}
+function fmtDate(iso: string, locale: Locale): string {
+  return new Intl.DateTimeFormat(locale === "it" ? "it-IT" : "en-GB", {
+    dateStyle: "medium",
+    timeZone: "Europe/Rome",
+  }).format(new Date(iso));
+}
+
 const L = {
   it: {
     startList: "Start list",
@@ -56,6 +71,7 @@ const L = {
     notSigned: "Non firmata",
     backfill: "Backfill cartaceo",
     inReview: "Score in review",
+    noScoresYet: "Nessuno score ancora: la classifica si riempie con le run.",
   },
   en: {
     startList: "Start list",
@@ -90,6 +106,7 @@ const L = {
     notSigned: "Not signed",
     backfill: "Paper backfill",
     inReview: "Score in review",
+    noScoresYet: "No scores yet: the ranking fills up as runs are scored.",
   },
 } as const;
 
@@ -108,6 +125,8 @@ export interface TableDoc extends DocMeta {
   columns: string[];
   rows: string[][];
   footNotes: string[];
+  /** al posto della tabella vuota: spiega PERCHÉ non ci sono righe */
+  emptyNote?: string;
 }
 
 export interface ScoreCardDoc extends DocMeta {
@@ -128,6 +147,10 @@ export async function buildStartListDoc(
   const t = L[locale];
   const [cls] = await db.select().from(schema.classes).where(eq(schema.classes.id, classId));
   if (!cls) throw new Error("Classe inesistente");
+  const [event] = await db
+    .select()
+    .from(schema.events)
+    .where(eq(schema.events.id, cls.eventId));
   const rows = await db
     .select({
       drawNumber: schema.entries.drawNumber,
@@ -143,7 +166,9 @@ export async function buildStartListDoc(
   return {
     kind: "table",
     title: `${t.startList} · ${cls.name}`,
-    subtitle: "",
+    subtitle: event
+      ? `${event.name} · ${event.venue} · ${fmtDate(event.startDate, locale)}`
+      : "",
     statusBadge: null,
     official: false,
     generatedAtIso: now.toISOString(),
@@ -155,7 +180,7 @@ export async function buildStartListDoc(
       r.riderName,
       ["ritirata", "assente"].includes(r.status) ? t.scratched : "",
     ]),
-    footNotes: [`${t.generatedAt}: ${now.toISOString()}`],
+    footNotes: [`${t.generatedAt}: ${fmtDateTime(now, locale)}`],
   };
 }
 
@@ -167,7 +192,11 @@ export async function buildResultsDoc(
 ): Promise<TableDoc> {
   const t = L[locale];
   const data = await buildClassRanking(db, classId, now);
-  const rows = data.ranking.map((r) => [
+  // Nessuna run segnata: tabella vuota SPIEGATA, non una riga di trattini.
+  const nothingScored =
+    data.ranking.length > 0 &&
+    data.ranking.every((r) => r.state !== "scored" && r.total === null);
+  const rows = nothingScored ? [] : data.ranking.map((r) => [
     r.position === null ? "" : String(r.position),
     r.horseName,
     r.riderOfficialName,
@@ -178,11 +207,14 @@ export async function buildResultsDoc(
           ? "—"
           : r.total.toFixed(1)),
   ]);
-  for (const r of data.excluded) rows.push(["—", r.horseName, r.riderOfficialName, "no score"]);
+  if (!nothingScored) {
+    for (const r of data.excluded) rows.push(["—", r.horseName, r.riderOfficialName, "no score"]);
+  }
   return {
     kind: "table",
     title: `${t.results} · ${data.cls.name}`,
-    subtitle: "",
+    subtitle: `${data.event.name} · ${data.event.venue} · ${fmtDate(data.event.startDate, locale)}`,
+    ...(nothingScored ? { emptyNote: t.noScoresYet } : {}),
     // badge testuale: mai confondere una bozza con l'ufficiale, nemmeno in b/n
     statusBadge: data.official ? t.official : t.provisional,
     official: data.official,
@@ -192,7 +224,7 @@ export async function buildResultsDoc(
     rows,
     footNotes: [
       data.firstPlaceTie ? "* pari merito al 1° posto: run-off / co-champion" : "",
-      `${t.generatedAt}: ${now.toISOString()}`,
+      `${t.generatedAt}: ${fmtDateTime(now, locale)}`,
     ].filter(Boolean),
   };
 }
@@ -214,7 +246,7 @@ export async function buildPayoutDoc(
   return {
     kind: "table",
     title: `${t.payout} · ${data.cls.name}`,
-    subtitle: "",
+    subtitle: `${data.event.name} · ${data.event.venue} · ${fmtDate(data.event.startDate, locale)}`,
     statusBadge: data.official ? t.official : t.provisional,
     official: data.official,
     generatedAtIso: now.toISOString(),
@@ -228,8 +260,8 @@ export async function buildPayoutDoc(
       data.payout.undistributedCents > 0
         ? `${t.undistributed}: € ${euro(data.payout.undistributedCents)}`
         : "",
-      `⚠ ${t.formulaNote}`,
-      `${t.generatedAt}: ${now.toISOString()}`,
+      `${t.formulaNote}`,
+      `${t.generatedAt}: ${fmtDateTime(now, locale)}`,
     ].filter(Boolean),
   };
 }
@@ -298,7 +330,7 @@ export async function buildScoreCardDoc(
     row.card.source === "manual_backfill"
       ? `${t.backfill}: ${row.card.paperRef ?? ""}`
       : row.card.signedAt
-        ? `${t.signed}: ${row.card.signedAt.toISOString()}`
+        ? `${t.signed}: ${fmtDateTime(row.card.signedAt, locale)}`
         : t.notSigned;
 
   return {

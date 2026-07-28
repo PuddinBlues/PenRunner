@@ -13,6 +13,7 @@ import { extractToken } from "../src/services/mailer.js";
 import {
   registerUserWithProfile,
   setupApi,
+  TEST_DATABASE_URL,
   type TestApi,
 } from "./helpers.js";
 
@@ -298,5 +299,32 @@ describe("documenti PDF (document-model esatto + smoke renderer)", () => {
     expect(res.total).toBe(70);
     const doc = await buildScoreCardDoc(api.db, run2, j2!.id, "it", new Date());
     expect(doc.signatureLine).toMatch(/Backfill cartaceo: Carta n.7/);
+  });
+});
+
+describe("GUARDIA fase (d): nome file parlante, regola unica", () => {
+  // Censimento reperto 1: il telefono salvava "document" — la route serviva
+  // `inline; filename="start-list.pdf"` statico. Regola unica per i 4 doc:
+  // <DocType>_<Classe>_<Evento>_<YYYY-MM-DD>.pdf in `attachment`.
+  it('start list → attachment; filename="StartList_<Classe>_<Evento>_<data>.pdf"', async () => {
+    process.env.DATABASE_URL = TEST_DATABASE_URL;
+    const { buildServer } = await import("../src/server.js");
+    const server = await buildServer();
+    await server.ready();
+    try {
+      const res = await server.inject({
+        method: "GET",
+        url: `/documents/class/${classId}/start-list.pdf`,
+      });
+      expect(res.statusCode).toBe(200);
+      expect(res.headers["content-type"]).toBe("application/pdf");
+      // "Open payout" + "Payout Slide 2026" → slug PascalCase, data ISO
+      expect(res.headers["content-disposition"]).toMatch(
+        /^attachment; filename="StartList_OpenPayout_PayoutSlide2026_\d{4}-\d{2}-\d{2}\.pdf"$/,
+      );
+      expect(res.rawPayload.subarray(0, 5).toString()).toBe(PDF_MAGIC);
+    } finally {
+      await server.close();
+    }
   });
 });
