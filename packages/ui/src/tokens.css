@@ -425,3 +425,153 @@ table.tbl {
   align-items: center;
   gap: 12px;
 }
+
+/* ---- Desktop scuderia (fase c, da prototipo IscrizioneMassiva) ----
+   Sotto i 1024px resta il flusso mobile a card; da 1024px la griglia
+   binomi×classi diventa tabellare con riepilogo sticky a destra. */
+.topnav-desktop {
+  display: none;
+}
+@media (min-width: 1024px) {
+  .bottomnav {
+    display: none;
+  }
+  .page.with-bottomnav {
+    padding-bottom: 24px;
+  }
+  .topnav-desktop {
+    display: flex;
+    gap: 2px;
+    margin-left: 16px;
+  }
+  .topnav-desktop button {
+    font: inherit;
+    font-size: 13px;
+    border: none;
+    background: none;
+    color: var(--slate-500);
+    padding: 6px 10px;
+    border-radius: 7px;
+    cursor: pointer;
+  }
+  .topnav-desktop button.active {
+    color: var(--accent);
+    font-weight: 700;
+    background: var(--accent-dim, rgba(21, 128, 61, 0.08));
+  }
+}
+.enroll-desktop {
+  display: none;
+}
+@media (min-width: 1024px) {
+  .enroll-mobile {
+    display: none;
+  }
+  .enroll-desktop {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 20px;
+    align-items: start;
+  }
+}
+.egrid {
+  background: var(--white);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 12px;
+}
+.egrid-head,
+.egrid-row {
+  display: grid;
+  grid-template-columns: 1.5fr 1.2fr 1.7fr 90px 36px;
+  align-items: center;
+  padding: 10px 16px;
+}
+.egrid-head {
+  background: var(--slate-100);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--slate-500);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  border-radius: 12px 12px 0 0;
+}
+.egrid-row {
+  border-top: 1px solid rgba(15, 23, 42, 0.05);
+  padding: 12px 16px;
+}
+.egrid-row:nth-child(odd) {
+  background: #fafbfc;
+}
+.egrid-foot {
+  padding: 11px 16px;
+  border-top: 1px solid rgba(15, 23, 42, 0.05);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.class-badge {
+  font: inherit;
+  font-size: 10.5px;
+  font-weight: 600;
+  background: rgba(21, 128, 61, 0.1);
+  color: var(--accent);
+  border: none;
+  padding: 3px 8px;
+  border-radius: 5px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.class-add {
+  font: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--accent);
+  background: transparent;
+  border: 1px dashed rgba(21, 128, 61, 0.4);
+  border-radius: 5px;
+  padding: 3px 9px;
+  cursor: pointer;
+}
+.class-add.empty {
+  color: var(--warn, #b45309);
+  background: rgba(180, 83, 9, 0.1);
+  border: none;
+}
+.class-menu {
+  position: absolute;
+  z-index: 20;
+  margin-top: 6px;
+  background: var(--white);
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12);
+  padding: 6px;
+  min-width: 260px;
+}
+.class-menu button {
+  font: inherit;
+  display: flex;
+  width: 100%;
+  gap: 8px;
+  align-items: baseline;
+  border: none;
+  background: none;
+  padding: 7px 9px;
+  border-radius: 7px;
+  cursor: pointer;
+  font-size: 12.5px;
+  text-align: left;
+}
+.class-menu button:hover:not(:disabled) {
+  background: var(--slate-100);
+}
+.class-menu button:disabled {
+  color: var(--slate-400);
+  cursor: not-allowed;
+}
+.esummary {
+  position: sticky;
+  top: 24px;
+}
