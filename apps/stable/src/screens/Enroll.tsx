@@ -76,6 +76,14 @@ export function Enroll({
       ),
     [pairs],
   );
+
+  // Coppie (classe, cavallo) già iscritte: la chip lo dice PRIMA del
+  // checkout, col motivo — mai scoprire il duplicato alla conferma.
+  const enrolledBy = useMemo(() => {
+    const m = new Map<string, string>();
+    for (const e of info?.enrolled ?? []) m.set(`${e.classId}:${e.horseId}`, e.status);
+    return m;
+  }, [info]);
   const breakdown = useMemo(
     () =>
       computeFeeBreakdown(
@@ -209,11 +217,25 @@ export function Enroll({
               {info.classes.map((c) => {
                 const on = pair.classIds.includes(c.id);
                 const full = c.remaining !== null && c.remaining <= 0 && !on;
+                const enrolledStatus = enrolledBy.get(`${c.id}:${pair.horseId}`);
+                const scratched =
+                  enrolledStatus === "ritirata" || enrolledStatus === "assente";
+                // stesso cavallo, stessa classe in un'altra riga della griglia
+                const dupRow =
+                  !on &&
+                  !enrolledStatus &&
+                  pairs.some(
+                    (p, j) =>
+                      j !== i &&
+                      p.horseId === pair.horseId &&
+                      p.classIds.includes(c.id),
+                  );
+                const locked = Boolean(enrolledStatus) || dupRow;
                 return (
                   <button
                     key={c.id}
                     className={`chip ${on ? "on" : ""}`}
-                    disabled={full}
+                    disabled={full || locked}
                     onClick={() =>
                       setPairs((ps) =>
                         ps.map((p, j) =>
@@ -230,8 +252,12 @@ export function Enroll({
                     }
                   >
                     {c.name} · <span className="num">{Number(c.entryFee)} €</span>
-                    {full && <> · {t("enroll.full")}</>}
-                    {!full && c.remaining !== null && (
+                    {enrolledStatus && (
+                      <> · {scratched ? t("enroll.scratchedLock") : t("enroll.alreadyIn")}</>
+                    )}
+                    {dupRow && <> · {t("enroll.dupRow")}</>}
+                    {!locked && full && <> · {t("enroll.full")}</>}
+                    {!locked && !full && c.remaining !== null && (
                       <> · {t("enroll.left", { n: c.remaining })}</>
                     )}
                   </button>
@@ -344,10 +370,11 @@ export function Enroll({
                 setStep("done");
               } catch (err) {
                 const msg = errorMessage(err);
-                // BR-11 (unique cavallo+classe): il DB blocca il duplicato,
-                // qui diventa linguaggio umano.
+                // Il server ora NOMINA il binomio duplicato («cavallo» già
+                // iscritto a «classe»): passa così com'è. Il fallback resta
+                // solo per il backstop del vincolo (corsa concorrente).
                 setError(
-                  msg.includes("già iscritto") || msg.includes("entries_class_horse")
+                  msg.includes("entries_class_horse")
                     ? t("enroll.alreadyEntered")
                     : msg,
                 );
