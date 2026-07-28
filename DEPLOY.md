@@ -12,7 +12,7 @@ Obiettivo: la piattaforma provabile **da telefono e tablet, senza ambiente di sv
 | App scribe/giudice | `scribe.penrunner.com` | **Cloudflare Workers** (static assets, `apps/scribe/wrangler.jsonc`) |
 | App scuderia | `stable.penrunner.com` | **Cloudflare Workers** (static assets, `apps/stable/wrangler.jsonc`) |
 | Database | — | **Neon** (Postgres gestito, backup inclusi) |
-| Email | — | **Resend** via SMTP (`SmtpMailer`, `MAILER=smtp`) |
+| Email | — | **Resend** via API HTTP (`ResendMailer`, `MAILER=resend` — Railway blocca l'egress SMTP) |
 
 *(Nota: Cloudflare ha dismesso la creazione di nuovi progetti Pages — le SPA sono Worker con static assets: stesso risultato, config `wrangler.jsonc` per app con fallback `single-page-application` per il routing client-side.)*
 
@@ -38,7 +38,12 @@ MAILER          = resend
 RESEND_API_KEY  = <Resend API key>
 MAIL_FROM       = PenRunner <noreply@penrunner.com>
 PORT            = 3001
+ORGANIZER_URL   = https://organizer.penrunner.com
+STABLE_URL      = https://stable.penrunner.com
+SCRIBE_URL      = https://scribe.penrunner.com
+LOGO_URL        = (opzionale: URL pubblico del logo per le email; assente = wordmark testuale)
 ```
+*(ORGANIZER_URL/STABLE_URL/SCRIBE_URL: base dei link nelle email — verifica `?verify=`, reset `?reset=`, invito giudice `?token=`. Il client manda solo un enum `organizer|stable`: l'URL lo decide il server da queste env, niente open redirect. Senza di esse i link puntano a localhost.)*
 *(MAILER=resend usa l'API HTTP di Resend su porta 443 — reperto del collaudo staging: Railway blocca l'egress SMTP e l'invio si appendeva. Il modo `smtp` resta disponibile e provider-neutro per host che consentono l'egress: `SMTP_HOST/PORT/USER/PASS` + `MAIL_FROM`, ora con timeout 10 s ed errore parlante.)*
 
 **Vercel (portale):**
@@ -78,7 +83,7 @@ Le SPA sono **sempre noindex** (meta + robots.txt): sono strumenti di lavoro, no
 ## Sequenza di collaudo staging
 
 1. **Seed**: da locale, `DATABASE_URL=<neon> pnpm db:seed` (catalogo 2026). *(Le migrazioni le fa il boot dell'API.)*
-2. **Pilota sui domini veri**: `API_URL=https://api.penrunner.com pnpm --filter @penrunner/api pilot:e2e` — ciclo completo, MA il passo verifica-email ora passa da caselle vere: si usa un'email reale o il pannello Resend (in staging il log Railway non contiene più i token: `MAILER=smtp`).
+2. **Pilota sui domini veri**: `API_URL=https://api.penrunner.com pnpm --filter @penrunner/api pilot:e2e` — ciclo completo, MA il passo verifica-email ora passa da caselle vere: si usa un'email reale o il pannello Resend (in staging il log Railway non contiene più i token: `MAILER=resend`).
 3. **Playwright sui domini reali** (organizer + stable, preflight CORS di produzione).
 4. **Giro umano dal telefono**: la ricetta end-to-end su URL reali — registrazione con email vera, evento, iscrizioni, scribe dal tablet, risultati live.
 5. **Collaudi da sempre rimandati**: two-device scribe (conflitto), eviction iOS/PWA — lo staging è il posto giusto.

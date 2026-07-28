@@ -61,7 +61,7 @@ export function Empty({ children }: { children: ReactNode }) {
   return <div className="empty">{children}</div>;
 }
 
-export function errorMessage(err: unknown): string {
-  if (err instanceof Error) return err.message;
-  return String(err);
-}
+// Chokepoint condiviso: umanizza gli errori Zod di tRPC nella lingua
+// corrente (reperto staging). Le 9 schermate che importano da qui non
+// cambiano una riga.
+export { errorMessage } from "@penrunner/ui";

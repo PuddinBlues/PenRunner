@@ -39,6 +39,10 @@ export const AUTH_LIMITS = {
   login: { bucket: "auth.login", limit: 10, windowMs: 60_000 },
   register: { bucket: "auth.register", limit: 5, windowMs: 60_000 },
   passwordReset: { bucket: "auth.reset", limit: 5, windowMs: 60_000 },
+  // BR-82: il codice a 6 cifre è indovinabile per costruzione — oltre ai
+  // 5 tentativi per token, si frena anche per IP.
+  verify: { bucket: "auth.verify", limit: 15, windowMs: 60_000 },
+  resend: { bucket: "auth.resend", limit: 3, windowMs: 5 * 60_000 },
 } as const;
 
 /** Per i test: azzera lo stato del limiter. */

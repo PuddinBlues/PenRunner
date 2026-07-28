@@ -78,6 +78,13 @@
       "when": 1784910869666,
       "tag": "0010_large_richard_fisk",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1785196936827,
+      "tag": "0011_parched_thaddeus_ross",
+      "breakpoints": true
     }
   ]
 }
