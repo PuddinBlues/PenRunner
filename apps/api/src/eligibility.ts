@@ -8,7 +8,23 @@
 // ---------------------------------------------------------------------------
 
 export interface EligibilityWarning {
-  code: "BR-10" | "BR-13" | "BR-14" | "BR-15" | "BR-16";
+  /**
+   * Chiave SEMANTICA, non il numero BR: i codici interni non attraversano
+   * mai il confine verso l'utente (programma qualità, fase a). La UI traduce
+   * code+params nella lingua dell'utente; message resta il testo italiano di
+   * traccia (audit, snapshot storici, fallback per codici sconosciuti).
+   */
+  code:
+    | "fise_license_missing"
+    | "irha_membership_missing"
+    | "age_birthdate_missing"
+    | "age_out_of_limit"
+    | "horse_ownership"
+    | "horse_ownership_conditional"
+    | "rider_earnings_cap"
+    | "horse_earnings_cap"
+    | "tecnico_required";
+  params?: Record<string, string>;
   message: string;
 }
 
@@ -82,13 +98,15 @@ export function evaluateEligibility(
   // check-in, come ratificato).
   if (category.fiseLicense && !rider.membershipFise) {
     warnings.push({
-      code: "BR-10",
+      code: "fise_license_missing",
+      params: { required: category.fiseLicense },
       message: `Patente FISE richiesta ("${category.fiseLicense}") non presente a profilo — verifica documentale al check-in.`,
     });
   }
   if (category.membership && !rider.membershipIrha) {
     warnings.push({
-      code: "BR-10",
+      code: "irha_membership_missing",
+      params: { required: category.membership },
       message: `Tessera IRHA richiesta ("${category.membership}") non presente a profilo — verifica documentale al check-in.`,
     });
   }
@@ -104,7 +122,8 @@ export function evaluateEligibility(
       .join(", ");
     if (!rider.birthDate) {
       warnings.push({
-        code: "BR-15",
+        code: "age_birthdate_missing",
+        params: { limits, ...(age.rule ? { rule: age.rule } : {}) },
         message: `La categoria ha un limite d'età (${limits}) ma la data di nascita del cavaliere non è a profilo — verifica al check-in.${age.rule ? ` Regola: ${age.rule}` : ""}`,
       });
     } else {
@@ -114,7 +133,8 @@ export function evaluateEligibility(
         (age.max !== undefined && years > age.max);
       if (out) {
         warnings.push({
-          code: "BR-15",
+          code: "age_out_of_limit",
+          params: { years: String(years), limits, ...(age.rule ? { rule: age.rule } : {}) },
           message: `Età del cavaliere nell'anno (${years}) fuori dal limite della categoria (${limits}) — possibile permanenza da regolamento, verifica al check-in.${age.rule ? ` Regola: ${age.rule}` : ""}`,
         });
       }
@@ -126,7 +146,7 @@ export function evaluateEligibility(
   const ownerIsRider = horse.ownerId === rider.personId;
   if (category.horseOwnership === "di_proprieta" && !ownerIsRider) {
     warnings.push({
-      code: "BR-14",
+      code: "horse_ownership",
       message:
         "Il cavallo non risulta di proprietà del cavaliere: ammesso se di famiglia stretta o con lease registrato — verifica al check-in.",
     });
@@ -139,7 +159,7 @@ export function evaluateEligibility(
     // Regola condizionale sulla qualifica pro/non-pro: dato che il sistema
     // non ha, quindi enuncia la regola senza fingere di valutarla (come BR-13).
     warnings.push({
-      code: "BR-14",
+      code: "horse_ownership_conditional",
       message:
         "Il vincolo di proprietà di questa categoria dipende dalla qualifica del cavaliere (per i non professionisti il cavallo deve essere di proprietà; famiglia stretta e lease registrato sono ammessi) — verifica al check-in.",
     });
@@ -150,14 +170,16 @@ export function evaluateEligibility(
   const cap = category.earningsCap as CapRule | null;
   if (cap) {
     warnings.push({
-      code: "BR-13",
+      code: "rider_earnings_cap",
+      params: { cap: formatCap(cap) },
       message: `La categoria richiede vincite ${formatCap(cap)} — dato dichiarato dall'atleta, verifica al check-in.`,
     });
   }
   const horseCap = category.horseEarningsCap as CapRule | null;
   if (horseCap) {
     warnings.push({
-      code: "BR-13",
+      code: "horse_earnings_cap",
+      params: { cap: formatCap(horseCap) },
       message: `La categoria ha un tetto di vincite del cavallo ${formatCap(horseCap)} — dato dichiarato, verifica al check-in.`,
     });
   }
@@ -165,7 +187,7 @@ export function evaluateEligibility(
   // BR-16 — tecnico federale.
   if (category.tecnicoFederaleRequired && !entry.tecnicoName) {
     warnings.push({
-      code: "BR-16",
+      code: "tecnico_required",
       message:
         "La categoria richiede l'accompagnamento di un Tecnico Federale: indicalo sull'iscrizione — verifica al check-in.",
     });

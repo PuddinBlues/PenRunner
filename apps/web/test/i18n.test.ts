@@ -14,6 +14,14 @@ describe("cataloghi i18n (BR-60..62)", () => {
     }
   });
 
+  it("GUARDIA fase a: nessun codice interno BR-<n> nei testi visibili", () => {
+    for (const locale of LOCALES) {
+      for (const [key, value] of Object.entries(MESSAGES[locale])) {
+        expect(value, `${locale}:${key}`).not.toMatch(/BR-\d+/);
+      }
+    }
+  });
+
   it("BR-61: il gergo di gara resta inglese in entrambe le lingue", () => {
     expect(MESSAGES.it["common.scoreInReview"]).toBe("Score in review");
     expect(MESSAGES.en["common.scoreInReview"]).toBe("Score in review");

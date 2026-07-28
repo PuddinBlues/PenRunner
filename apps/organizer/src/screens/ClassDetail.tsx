@@ -4,6 +4,7 @@ import { Badge, Banner, Confirm, Empty, errorMessage } from "../components/Ui.js
 import { openPdf } from "../lib/api.js";
 import type { Client } from "../lib/api.js";
 import type { Locale, MessageKey, T } from "../lib/i18n.js";
+import { warningView } from "../lib/warnings.js";
 
 type EventDetailData = Awaited<ReturnType<Client["events"]["get"]["query"]>>;
 type ClassRow = Awaited<
@@ -166,6 +167,7 @@ function CheckIn({
               const warnings = (e.liveWarnings ?? []) as {
                 code: string;
                 message: string;
+                params?: Record<string, string>;
               }[];
               return (
                 <tr key={e.id}>
@@ -187,12 +189,15 @@ function CheckIn({
                     {warnings.length === 0 ? (
                       <span className="muted">{t("checkin.noWarnings")}</span>
                     ) : (
-                      warnings.map((w, i) => (
-                        <div key={i}>
-                          <Badge tone="warn">{w.code}</Badge>{" "}
-                          <span className="muted">{w.message}</span>
-                        </div>
-                      ))
+                      warnings.map((w, i) => {
+                        const v = warningView(w, t);
+                        return (
+                          <div key={i} style={{ marginBottom: 4 }}>
+                            <Badge tone="warn">{v.title}</Badge>{" "}
+                            <span className="muted">{v.body}</span>
+                          </div>
+                        );
+                      })
                     )}
                   </td>
                   <td style={{ textAlign: "right", whiteSpace: "nowrap" }}>

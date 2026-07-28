@@ -11,6 +11,28 @@ describe("i18n scuderia (BR-60..62)", () => {
         expect(v, `${l}:${k}`).toBeTruthy();
   });
 
+  it("plurale minimale: {n:singolare|plurale} sceglie in base al valore", () => {
+    const t = translator("it");
+    expect(t("enroll.fee", { n: 1 })).toBe("Fee PenRunner (1 cavallo distinto)");
+    expect(t("enroll.fee", { n: 3 })).toBe("Fee PenRunner (3 cavalli distinti)");
+    expect(t("enroll.classesCost", { n: 1 })).toBe("Quote classi (1 iscrizione)");
+  });
+
+  it("avvisi eleggibilità: catalogo completo per i codici semantici (confine dei codici)", () => {
+    const codes = [
+      "fise_license_missing", "irha_membership_missing", "age_birthdate_missing",
+      "age_out_of_limit", "horse_ownership", "horse_ownership_conditional",
+      "rider_earnings_cap", "horse_earnings_cap", "tecnico_required",
+    ];
+    for (const l of LOCALES) {
+      for (const c of codes) {
+        expect(MESSAGES[l][`warn.${c}.title` as keyof typeof MESSAGES.it], `${l}:${c}`).toBeTruthy();
+        expect(MESSAGES[l][`warn.${c}.body` as keyof typeof MESSAGES.it], `${l}:${c}`).toBeTruthy();
+      }
+      expect(MESSAGES[l]["warn.generic.title"]).toBeTruthy();
+    }
+  });
+
   it("gergo di gara inglese in entrambe (BR-61)", () => {
     expect(MESSAGES.it["common.draw"]).toBe("Draw");
     expect(MESSAGES.it["mine.scratch"]).toBe("Scratch");

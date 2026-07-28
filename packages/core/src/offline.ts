@@ -145,11 +145,11 @@ export class ScribeStore {
     const card = next.cards[clientCardId];
     if (!card) throw new ScribeStoreError("Carta inesistente");
     if (card.status === "firmata") {
-      throw new ScribeStoreError("Carta firmata: immutabile (BR-40)");
+      throw new ScribeStoreError("Carta firmata: immutabile");
     }
     if (card.status === "chiusa") {
       throw new ScribeStoreError(
-        "Carta chiusa: riaprila prima di modificarla (BR-27)",
+        "Carta chiusa: riaprila prima di modificarla",
       );
     }
     return card;
@@ -290,7 +290,7 @@ export class ScribeStore {
     const card = next.cards[clientCardId];
     if (!card) throw new ScribeStoreError("Carta inesistente");
     if (card.status === "firmata") {
-      throw new ScribeStoreError("Carta firmata: immutabile (BR-40)");
+      throw new ScribeStoreError("Carta firmata: immutabile");
     }
     if (card.status !== "chiusa") {
       throw new ScribeStoreError("Solo una carta chiusa si può riaprire");
@@ -323,7 +323,7 @@ export class ScribeStore {
       if (!card) throw new ScribeStoreError("Carta inesistente");
       if (card.status !== "chiusa") {
         throw new ScribeStoreError(
-          "Si firmano solo carte chiuse (BR-27): nessuna firma su bozze",
+          "Si firmano solo carte chiuse: nessuna firma su bozze",
         );
       }
     }

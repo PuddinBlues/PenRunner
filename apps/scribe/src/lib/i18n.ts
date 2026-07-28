@@ -20,7 +20,7 @@ const it = {
   "runlist.tapToScore": "Tocca un binomio per segnarlo",
   "block.drag": "— DRAG —",
   "block.sign": "Firma il blocco · {n} carte",
-  "block.missingClosed": "{n} non chiuse",
+  "block.missingClosed": "{n} non {n:chiusa|chiuse}",
   "block.inReview": "{n} in review",
   "block.signed": "Blocco firmato",
   "run.waiting": "In attesa",
@@ -157,7 +157,13 @@ export function detectLocale(): Locale {
 export function translator(locale: Locale) {
   return (key: MessageKey, vars?: Record<string, string | number>) => {
     let s: string = MESSAGES[locale][key];
-    if (vars) for (const [k, v] of Object.entries(vars)) s = s.replace(`{${k}}`, String(v));
+    if (vars) {
+      // plurale minimale: {chiave:singolare|plurale} sceglie in base al valore
+      s = s.replace(/\{(\w+):([^|{}]*)\|([^{}]*)\}/g, (_m, k, one, many) =>
+        Number(vars[k]) === 1 ? one : many,
+      );
+      for (const [k, v] of Object.entries(vars)) s = s.replace(`{${k}}`, String(v));
+    }
     return s;
   };
 }

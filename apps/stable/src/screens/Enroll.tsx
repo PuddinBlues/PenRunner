@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Badge, Empty, errorMessage } from "@penrunner/ui";
 import type { Client } from "../lib/api.js";
 import { computeFeeBreakdown, type FeeItem } from "../lib/fee.js";
+import { warningView } from "../lib/warnings.js";
 import type { MessageKey, T } from "../lib/i18n.js";
 
 type OpenEvents = Awaited<ReturnType<Client["entries"]["openEvents"]["query"]>>;
@@ -405,12 +406,17 @@ export function Enroll({
       ) : (
         <>
           <h2>{t("enroll.warnings", { n: allWarnings.length })}</h2>
-          {allWarnings.map((w, i) => (
-            <div key={i}>
-              <Badge tone="warn">{w.code}</Badge>{" "}
-              <span className="muted">{w.message}</span>
-            </div>
-          ))}
+          {allWarnings.map((w, i) => {
+            const v = warningView(w, t);
+            return (
+              <div key={i} style={{ marginTop: 6 }}>
+                <Badge tone="warn">{v.title}</Badge>
+                {v.body && (
+                  <div className="muted" style={{ fontSize: 12 }}>{v.body}</div>
+                )}
+              </div>
+            );
+          })}
         </>
       )}
       <button className="btn primary" style={{ marginTop: 16 }} onClick={onDone}>

@@ -25,9 +25,14 @@ export function makeTranslator<K extends string>(
   return (locale: Locale) =>
     (key: K, vars?: Record<string, string | number>) => {
       let s: string = messages[locale][key];
-      if (vars)
-        for (const [k, v] of Object.entries(vars))
-          s = s.replace(`{${k}}`, String(v));
+    if (vars) {
+      // plurale minimale: {chiave:singolare|plurale} sceglie in base al valore
+      s = s.replace(/\{(\w+):([^|{}]*)\|([^{}]*)\}/g, (_m, k, one, many) =>
+        Number(vars[k]) === 1 ? one : many,
+      );
+      for (const [k, v] of Object.entries(vars))
+        s = s.replace(`{${k}}`, String(v));
+    }
       return s;
     };
 }

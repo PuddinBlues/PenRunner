@@ -81,7 +81,28 @@ describe("errorMessage (chokepoint form)", () => {
     );
   });
 
+  it("PONTE EN: i messaggi di dominio del server si traducono per l'app in inglese", () => {
+    localStorage.setItem("penrunner_locale", "en");
+    expect(errorMessage(new Error("Credenziali non valide"))).toBe(
+      "Invalid credentials",
+    );
+    expect(
+      errorMessage(new Error("«Whiz Dream» è già iscritto a «Open»")),
+    ).toBe("\u201CWhiz Dream\u201D is already entered in \u201COpen\u201D");
+    // fuori mappa → intatto (mai peggio di prima)
+    expect(errorMessage(new Error("Qualcosa di mai visto"))).toBe(
+      "Qualcosa di mai visto",
+    );
+    // in italiano non si tocca nulla
+    localStorage.setItem("penrunner_locale", "it");
+    expect(errorMessage(new Error("Credenziali non valide"))).toBe(
+      "Credenziali non valide",
+    );
+  });
+
   it("FALLBACK: un messaggio non-Zod resta com'è (mai peggio di prima)", () => {
+    // in italiano il ponte EN non tocca nulla (jsdom di default è en-US)
+    localStorage.setItem("penrunner_locale", "it");
     expect(errorMessage(new Error("Credenziali non valide"))).toBe(
       "Credenziali non valide",
     );
