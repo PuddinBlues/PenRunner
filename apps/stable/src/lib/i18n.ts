@@ -120,6 +120,9 @@ const it = {
   "common.confirm": "Conferma",
   "common.cancel": "Annulla",
   "common.draw": "Draw",
+
+  "update.available": "Nuova versione disponibile.",
+  "update.do": "Aggiorna",
 } as const;
 
 const en = {
@@ -238,6 +241,9 @@ const en = {
   "common.confirm": "Confirm",
   "common.cancel": "Cancel",
   "common.draw": "Draw",
+
+  "update.available": "A new version is available.",
+  "update.do": "Update",
 } as const;
 
 export type MessageKey = keyof typeof it;

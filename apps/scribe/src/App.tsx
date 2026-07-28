@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
 import type { ScribeStore } from "@penrunner/core";
+import { VersionStamp } from "@penrunner/ui";
 import { StatusBar } from "./components/StatusBar.js";
+import { UpdatePrompt } from "./components/UpdatePrompt.js";
 import { Enter } from "./screens/Enter.js";
 import { RunList } from "./screens/RunList.js";
 import { Scoring } from "./screens/Scoring.js";
@@ -150,6 +152,10 @@ export function App() {
           }}
         />
       )}
+      {/* BR-83: banner aggiornamento (copy "tra una run e l'altra", nota
+          sulla coda) + stamp di versione. Mai auto-reload. */}
+      <UpdatePrompt t={t} pending={queue.cards + queue.events} />
+      <VersionStamp version={__APP_VERSION__} />
     </div>
   );
 }

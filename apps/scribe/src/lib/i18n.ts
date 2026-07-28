@@ -69,6 +69,10 @@ const it = {
   "common.close": "Chiudi",
   "common.back": "Indietro",
   "common.draw": "Draw",
+
+  "update.available": "Nuova versione disponibile — aggiorna tra una run e l'altra.",
+  "update.do": "Aggiorna",
+  "update.pendingNote": "{n} elementi in coda di sync: sono al sicuro sul dispositivo, l'aggiornamento non li tocca.",
 } as const;
 
 const en = {
@@ -135,6 +139,10 @@ const en = {
   "common.close": "Close",
   "common.back": "Back",
   "common.draw": "Draw",
+
+  "update.available": "A new version is available — update between runs.",
+  "update.do": "Update",
+  "update.pendingNote": "{n} items in the sync queue: they're safe on this device, the update won't touch them.",
 } as const;
 
 export type MessageKey = keyof typeof it;

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { errorMessage } from "@penrunner/ui";
+import { VersionStamp, errorMessage } from "@penrunner/ui";
+import { UpdatePrompt } from "./components/UpdatePrompt.js";
 import { makeClient } from "./lib/api.js";
 import {
   detectLocale,
@@ -100,6 +101,14 @@ export function App() {
     </button>
   );
 
+  // BR-83: banner aggiornamento + stamp di versione, su OGNI schermata.
+  const updateUi = (
+    <>
+      <UpdatePrompt t={t} />
+      <VersionStamp version={__APP_VERSION__} />
+    </>
+  );
+
   if (!session) {
     return (
       <>
@@ -109,6 +118,7 @@ export function App() {
           {localeToggle}
         </header>
         <Auth t={t} client={client} onSession={saveSession} />
+        {updateUi}
       </>
     );
   }
@@ -147,6 +157,7 @@ export function App() {
             }}
           />
         )}
+        {updateUi}
       </>
     );
   }
@@ -213,6 +224,7 @@ export function App() {
           ))}
         </nav>
       )}
+      {updateUi}
     </>
   );
 }
