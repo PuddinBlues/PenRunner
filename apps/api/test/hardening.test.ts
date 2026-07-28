@@ -105,7 +105,7 @@ describe("contratto dell'immagine Docker (letture runtime dal filesystem)", () =
     "reference", // payback.ts (Payback A), seed (patterns/categories)
     "packages/db", // migrazioni drizzle/ al boot
     "packages/core",
-    "apps/api",
+    "apps/api", // include assets/fonts (Inter embedded nei PDF, fase d)
   ];
 
   it("il Dockerfile copia ogni cartella dell'inventario", () => {

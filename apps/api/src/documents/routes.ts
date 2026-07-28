@@ -16,7 +16,36 @@ import { renderScoreCard, renderTable } from "./render.js";
 // Route PDF. Start list e classifica: pubbliche (info già pubblica). Payout e
 // score card: organizzatore/segreteria. Sempre rigenerate da dati derivati
 // live — mai cachate: un vecchio stampato è identificabile dal timestamp.
+// Nome file: regola UNICA per tutti i documenti (censimento: il telefono
+// salvava "document") — <DocType>_<Classe>_<Evento>_<YYYY-MM-DD>.pdf, in
+// `attachment`: i PDF sono deliverable da salvare/condividere, il nome deve
+// sopravvivere al download.
 // ---------------------------------------------------------------------------
+
+type DocType = "StartList" | "Results" | "Payout" | "ScoreCard";
+
+function slugPart(s: string): string {
+  const cleaned = s
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "") // diacritici via, il resto resta ASCII
+    .replace(/[^a-zA-Z0-9]+/g, " ")
+    .trim();
+  if (!cleaned) return "Documento";
+  return cleaned
+    .split(" ")
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join("");
+}
+
+function docFilename(
+  docType: DocType,
+  className: string,
+  eventName: string,
+  now: Date,
+): string {
+  const day = now.toISOString().slice(0, 10);
+  return `${docType}_${slugPart(className)}_${slugPart(eventName)}_${day}.pdf`;
+}
 
 function localeOf(query: unknown): Locale {
   return (query as { locale?: string })?.locale === "en" ? "en" : "it";
@@ -25,7 +54,7 @@ function localeOf(query: unknown): Locale {
 function sendPdf(reply: FastifyReply, buf: Buffer, name: string) {
   reply
     .header("content-type", "application/pdf")
-    .header("content-disposition", `inline; filename="${name}"`)
+    .header("content-disposition", `attachment; filename="${name}"`)
     .send(buf);
 }
 
@@ -34,12 +63,16 @@ function sessionOf(req: FastifyRequest): string | undefined {
   return req.cookies?.["penrunner_session"] ?? bearer ?? undefined;
 }
 
-async function classExists(db: Db, classId: string): Promise<boolean> {
+async function classHeader(db: Db, classId: string) {
   const [row] = await db
-    .select({ id: schema.classes.id })
+    .select({
+      className: schema.classes.name,
+      eventName: schema.events.name,
+    })
     .from(schema.classes)
+    .innerJoin(schema.events, eq(schema.events.id, schema.classes.eventId))
     .where(eq(schema.classes.id, classId));
-  return !!row;
+  return row;
 }
 
 async function eventForRun(db: Db, runId: string) {
@@ -47,6 +80,8 @@ async function eventForRun(db: Db, runId: string) {
     .select({
       organizationId: schema.events.organizationId,
       eventId: schema.events.id,
+      className: schema.classes.name,
+      eventName: schema.events.name,
     })
     .from(schema.runs)
     .innerJoin(schema.entries, eq(schema.entries.id, schema.runs.entryId))
@@ -62,20 +97,30 @@ export function registerDocumentRoutes(server: FastifyInstance) {
   server.get<{ Params: { classId: string }; Querystring: { locale?: string } }>(
     "/documents/class/:classId/start-list.pdf",
     async (req, reply) => {
-      if (!(await classExists(db, req.params.classId)))
-        return reply.code(404).send({ error: "not found" });
-      const doc = await buildStartListDoc(db, req.params.classId, localeOf(req.query), new Date());
-      sendPdf(reply, await renderTable(doc), "start-list.pdf");
+      const head = await classHeader(db, req.params.classId);
+      if (!head) return reply.code(404).send({ error: "not found" });
+      const now = new Date();
+      const doc = await buildStartListDoc(db, req.params.classId, localeOf(req.query), now);
+      sendPdf(
+        reply,
+        await renderTable(doc),
+        docFilename("StartList", head.className, head.eventName, now),
+      );
     },
   );
 
   server.get<{ Params: { classId: string }; Querystring: { locale?: string } }>(
     "/documents/class/:classId/results.pdf",
     async (req, reply) => {
-      if (!(await classExists(db, req.params.classId)))
-        return reply.code(404).send({ error: "not found" });
-      const doc = await buildResultsDoc(db, req.params.classId, localeOf(req.query), new Date());
-      sendPdf(reply, await renderTable(doc), "results.pdf");
+      const head = await classHeader(db, req.params.classId);
+      if (!head) return reply.code(404).send({ error: "not found" });
+      const now = new Date();
+      const doc = await buildResultsDoc(db, req.params.classId, localeOf(req.query), now);
+      sendPdf(
+        reply,
+        await renderTable(doc),
+        docFilename("Results", head.className, head.eventName, now),
+      );
     },
   );
 
@@ -100,8 +145,13 @@ export function registerDocumentRoutes(server: FastifyInstance) {
       ) {
         return reply.code(403).send({ error: "forbidden" });
       }
-      const doc = await buildPayoutDoc(db, req.params.classId, localeOf(req.query), new Date());
-      sendPdf(reply, await renderTable(doc), "payout.pdf");
+      const now = new Date();
+      const doc = await buildPayoutDoc(db, req.params.classId, localeOf(req.query), now);
+      sendPdf(
+        reply,
+        await renderTable(doc),
+        docFilename("Payout", cls.name, event!.name, now),
+      );
     },
   );
 
@@ -120,13 +170,18 @@ export function registerDocumentRoutes(server: FastifyInstance) {
     ) {
       return reply.code(403).send({ error: "forbidden" });
     }
+    const now = new Date();
     const doc = await buildScoreCardDoc(
       db,
       req.params.runId,
       req.params.judgeId,
       localeOf(req.query),
-      new Date(),
+      now,
     );
-    sendPdf(reply, await renderScoreCard(doc), "scorecard.pdf");
+    sendPdf(
+      reply,
+      await renderScoreCard(doc),
+      docFilename("ScoreCard", ev.className, ev.eventName, now),
+    );
   });
 }
