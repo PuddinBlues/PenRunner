@@ -28,11 +28,15 @@ export function Roster({
   const [riderLast, setRiderLast] = useState("");
   const [riderEmail, setRiderEmail] = useState("");
   const [riderBirth, setRiderBirth] = useState("");
-  // correzione inline (badge "Controlla il nome" dei profili migrati)
+  // editor inline del profilo: nome (badge BR-84) + i campi che risolvono
+  // gli avvisi di eleggibilità (fase b: chi vede l'avviso può sistemarlo)
   const [editing, setEditing] = useState<{
     personId: string;
     firstName: string;
     lastName: string;
+    membershipIrha: string;
+    membershipFise: string;
+    birthDate: string;
   } | null>(null);
   // form cavallo
   const [horseName, setHorseName] = useState("");
@@ -72,59 +76,91 @@ export function Roster({
                 <tr key={m.personId}>
                   <td>
                     {editing?.personId === m.personId ? (
-                      <div className="row">
-                        <input
-                          value={editing.firstName}
-                          onChange={(e) => setEditing({ ...editing, firstName: e.target.value })}
-                          placeholder={t("common.firstName")}
-                        />
-                        <input
-                          value={editing.lastName}
-                          onChange={(e) => setEditing({ ...editing, lastName: e.target.value })}
-                          placeholder={t("common.lastName")}
-                        />
-                        <button
-                          className="btn small primary"
-                          disabled={!editing.firstName || !editing.lastName}
-                          onClick={async () => {
-                            try {
-                              await client.roster.renameRider.mutate({
-                                stableId,
-                                personId: m.personId,
-                                firstName: editing.firstName,
-                                lastName: editing.lastName,
-                              });
-                              setEditing(null);
-                              await reload();
-                            } catch (err) {
-                              setError(errorMessage(err));
-                            }
-                          }}
-                        >
-                          {t("common.confirm")}
-                        </button>
-                        <button className="btn small" onClick={() => setEditing(null)}>
-                          {t("common.cancel")}
-                        </button>
+                      <div>
+                        <div className="row">
+                          <input
+                            value={editing.firstName}
+                            onChange={(e) => setEditing({ ...editing, firstName: e.target.value })}
+                            placeholder={t("common.firstName")}
+                          />
+                          <input
+                            value={editing.lastName}
+                            onChange={(e) => setEditing({ ...editing, lastName: e.target.value })}
+                            placeholder={t("common.lastName")}
+                          />
+                        </div>
+                        <div className="row" style={{ marginTop: 6 }}>
+                          <input
+                            value={editing.membershipIrha}
+                            onChange={(e) => setEditing({ ...editing, membershipIrha: e.target.value })}
+                            placeholder={t("roster.membershipIrha")}
+                          />
+                          <input
+                            value={editing.membershipFise}
+                            onChange={(e) => setEditing({ ...editing, membershipFise: e.target.value })}
+                            placeholder={t("roster.membershipFise")}
+                          />
+                          <input
+                            type="date"
+                            value={editing.birthDate}
+                            onChange={(e) => setEditing({ ...editing, birthDate: e.target.value })}
+                          />
+                        </div>
+                        <div className="row" style={{ marginTop: 6 }}>
+                          <button
+                            className="btn small primary"
+                            disabled={!editing.firstName || !editing.lastName}
+                            onClick={async () => {
+                              try {
+                                await client.roster.updateRider.mutate({
+                                  stableId,
+                                  personId: m.personId,
+                                  firstName: editing.firstName,
+                                  lastName: editing.lastName,
+                                  membershipIrha: editing.membershipIrha || null,
+                                  membershipFise: editing.membershipFise || null,
+                                  birthDate: editing.birthDate || null,
+                                });
+                                setEditing(null);
+                                await reload();
+                              } catch (err) {
+                                setError(errorMessage(err));
+                              }
+                            }}
+                          >
+                            {t("common.confirm")}
+                          </button>
+                          <button className="btn small" onClick={() => setEditing(null)}>
+                            {t("common.cancel")}
+                          </button>
+                        </div>
                       </div>
                     ) : (
                       <>
                         <strong>{m.fullName}</strong>{" "}
-                        {m.nameNeedsReview && (
-                          <button
-                            className="btn small"
-                            style={{ color: "var(--amber, #B45309)" }}
-                            onClick={() =>
-                              setEditing({
-                                personId: m.personId,
-                                firstName: m.firstName,
-                                lastName: m.lastName,
-                              })
-                            }
-                          >
-                            {t("roster.nameReview")}
-                          </button>
-                        )}
+                        <button
+                          className="btn small"
+                          style={m.nameNeedsReview ? { color: "var(--amber, #B45309)" } : {}}
+                          onClick={() =>
+                            setEditing({
+                              personId: m.personId,
+                              firstName: m.firstName,
+                              lastName: m.lastName,
+                              membershipIrha: m.membershipIrha ?? "",
+                              membershipFise: m.membershipFise ?? "",
+                              birthDate: m.birthDate ?? "",
+                            })
+                          }
+                        >
+                          {m.nameNeedsReview ? t("roster.nameReview") : t("roster.edit")}
+                        </button>
+                        <div className="muted" style={{ fontSize: 12 }}>
+                          {[
+                            m.membershipIrha ? `IRHA ${m.membershipIrha}` : t("roster.noIrha"),
+                            m.membershipFise ? `FISE ${m.membershipFise}` : t("roster.noFise"),
+                            m.birthDate ?? t("roster.noBirth"),
+                          ].join(" · ")}
+                        </div>
                         {m.email && (
                           <div className="muted">
                             {m.email} · {t("roster.claimHint")}

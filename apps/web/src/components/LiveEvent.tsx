@@ -29,11 +29,15 @@ interface LivePayload {
     id: string;
     name: string;
     venue: string;
+    startDate: string;
+    endDate: string;
     status: string;
     themePrimary: string | null;
     sponsorName: string | null;
     sponsorImageUrl: string | null;
   };
+  /** programma pubblico: le classi dell'evento, con link alla start list */
+  classes?: Array<{ id: string; name: string; drawStatus: string }>;
   focus: {
     className: string;
     goComplete: boolean;
@@ -81,8 +85,9 @@ export function LiveEvent({
   const tr = t(locale);
   const data = useEventLive<LivePayload>(eventId, "live.eventLive", { eventId });
   if (!data) return null;
-  const { event, focus } = data;
+  const { event, focus, classes } = data;
   const big = variant === "scoreboard";
+  const statusKey = `event.status.${event.status}`;
 
   return (
     <div className="dark" style={{ borderRadius: big ? 0 : 12, padding: big ? 32 : 20, minHeight: big ? "100vh" : undefined }}>
@@ -105,7 +110,34 @@ export function LiveEvent({
         )}
       </div>
 
+      {!big && (
+        <div style={{ color: "var(--slate-400)", fontSize: 13, marginTop: 4 }}>
+          {event.venue} · <span className="num">{event.startDate} → {event.endDate}</span> ·{" "}
+          {tr(statusKey as Parameters<typeof tr>[0])}
+        </div>
+      )}
+
       {!focus && <p style={{ color: "var(--slate-400)" }}>{tr("event.notStarted")}</p>}
+
+      {!big && (classes?.length ?? 0) > 0 && (
+        <div style={{ marginTop: 14 }}>
+          <h2 style={{ fontSize: 14, margin: "0 0 6px", textTransform: "uppercase", letterSpacing: "0.6px", color: "var(--slate-400)" }}>
+            {tr("event.program")}
+          </h2>
+          {classes!.map((c) => (
+            <div key={c.id} style={{ display: "flex", gap: 10, alignItems: "baseline", marginBottom: 4, fontSize: 14 }}>
+              <span style={{ flex: 1 }}>{c.name}</span>
+              {c.drawStatus === "pubblicato" ? (
+                <Link href={`/${locale}/classi/${c.id}/start-list`} style={{ color: "var(--slate-400)", fontSize: 12 }}>
+                  {tr("event.startList")} →
+                </Link>
+              ) : (
+                <span style={{ color: "var(--slate-500)", fontSize: 12 }}>{tr("event.drawPending")}</span>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
 
       {focus && !focus.goComplete && (
         <div style={{ display: "grid", gridTemplateColumns: big ? "1fr 1fr 1fr" : "1fr", gap: 16, marginTop: 18 }}>
