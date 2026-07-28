@@ -166,6 +166,26 @@ export function App() {
     <>
       <header className="topbar">
         <span className="brand">{t("app.name")}</span>
+        {/* fase c: da desktop la nav sta in alto, la bottom-nav sparisce */}
+        {stableId && (
+          <nav className="topnav-desktop">
+            {(
+              [
+                ["entries", "nav.entries"],
+                ["enroll", "nav.enroll"],
+                ["roster", "nav.roster"],
+              ] as const
+            ).map(([key, label]) => (
+              <button
+                key={key}
+                className={tab === key ? "active" : ""}
+                onClick={() => setTab(key)}
+              >
+                {t(label)}
+              </button>
+            ))}
+          </nav>
+        )}
         <span className="spacer" />
         {localeToggle}
         <button
