@@ -2,8 +2,10 @@ import { TRPCError } from "@trpc/server";
 import { and, eq, gt, isNull, sql } from "drizzle-orm";
 import { z } from "zod";
 import { schema } from "@penrunner/db";
+import { scribeUrl } from "../config/urls.js";
 import { can } from "../policy/policy.js";
 import { generateToken, hashToken } from "../services/crypto.js";
+import { renderMail } from "../services/mailtemplate.js";
 import { createInviteSession } from "../services/sessions.js";
 import { publicProcedure, router, verifiedProcedure } from "../trpc.js";
 import { loadEventOrganization } from "./org.js";
@@ -101,10 +103,38 @@ export const inviteRouter = router({
       });
 
       if (result.email) {
+        // Magic link diretto all'app scribe (il token nudo resta come
+        // fallback testuale). Locale del destinatario: BR-62.
+        const [person] = await ctx.db
+          .select({ locale: schema.persons.locale })
+          .from(schema.persons)
+          .where(sql`lower(${schema.persons.email}) = ${result.email}`);
+        const locale = person?.locale === "en" ? ("en" as const) : ("it" as const);
+        const url = `${scribeUrl()}/?token=${token}`;
+        const roleLabel = { giudice: locale === "it" ? "giudice" : "judge", scribe: "scribe", segreteria: locale === "it" ? "segreteria" : "show office" }[input.role];
+        const { text, html } = renderMail(locale, {
+          heading:
+            locale === "it"
+              ? `Sei stato assegnato come ${roleLabel}`
+              : `You have been assigned as ${roleLabel}`,
+          paragraphs:
+            locale === "it"
+              ? ["Apri il link sul tablet o sul telefono che userai in arena: l'app si aggancia all'evento e funziona anche senza rete."]
+              : ["Open the link on the tablet or phone you'll use in the arena: the app attaches to the event and works offline too."],
+          cta: {
+            label: locale === "it" ? "Entra nell'evento" : "Enter the event",
+            url,
+          },
+          fallbackLines: [`token: ${token}`],
+        });
         await ctx.mailer.send({
           to: result.email,
-          subject: `Sei stato assegnato come ${input.role}`,
-          body: `Entra nell'evento con questo token: ${token}`,
+          subject:
+            locale === "it"
+              ? `Sei stato assegnato come ${roleLabel}`
+              : `You have been assigned as ${roleLabel}`,
+          body: text,
+          html,
         });
       }
       // Il token torna anche a chi invita: in arena il link si passa spesso

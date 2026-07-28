@@ -2,6 +2,7 @@ import { sql } from "drizzle-orm";
 import {
   boolean,
   check,
+  integer,
   numeric,
   pgEnum,
   pgTable,
@@ -82,6 +83,12 @@ export const authTokens = pgTable(
     tokenHash: text("token_hash").notNull(),
     expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
     consumedAt: timestamp("consumed_at", { withTimezone: true }),
+    // BR-82 (verifica a doppia via): codice breve a 6 cifre per chi legge
+    // l'email su un altro dispositivo. Hashato come il token; TTL SUO
+    // (30', più corto del link 24h); max 5 tentativi poi si rigenera.
+    codeHash: text("code_hash"),
+    codeExpiresAt: timestamp("code_expires_at", { withTimezone: true }),
+    attempts: integer("attempts").notNull().default(0),
   },
   (t) => [uniqueIndex("auth_tokens_hash_unique").on(t.tokenHash)],
 );

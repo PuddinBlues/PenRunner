@@ -5,6 +5,7 @@ import { schema, type Db } from "@penrunner/db";
 import { computeDragMarkers, generateDraw } from "../draw.js";
 import { can, type Actor } from "../policy/policy.js";
 import { recordAudit } from "../services/audit.js";
+import { renderMail } from "../services/mailtemplate.js";
 import { router, publicProcedure, verifiedProcedure } from "../trpc.js";
 
 // ---------------------------------------------------------------------------
@@ -215,20 +216,39 @@ export const drawRouter = router({
           after: { entries: drawn.length },
         });
       });
-      // Notifica MVP agli iscritti con email (canale mailer).
+      // Notifica agli iscritti, nella LINGUA del destinatario (BR-62 — il
+      // censimento del giro UX ha trovato questa email hardcoded in
+      // italiano) e col template brand.
       const riders = await ctx.db
-        .selectDistinct({ email: schema.persons.email })
+        .selectDistinct({
+          email: schema.persons.email,
+          locale: schema.persons.locale,
+        })
         .from(schema.entries)
         .innerJoin(schema.persons, eq(schema.persons.id, schema.entries.riderId))
         .where(eq(schema.entries.classId, input.classId));
       for (const r of riders) {
-        if (r.email) {
-          await ctx.mailer.send({
-            to: r.email,
-            subject: `Draw pubblicato · ${cls.name}`,
-            body: "L'ordine di partenza della tua classe è stato pubblicato.",
-          });
-        }
+        if (!r.email) continue;
+        const locale = r.locale === "en" ? ("en" as const) : ("it" as const);
+        const { text, html } = renderMail(locale, {
+          heading:
+            locale === "it"
+              ? `Draw pubblicato · ${cls.name}`
+              : `Draw published · ${cls.name}`,
+          paragraphs:
+            locale === "it"
+              ? ["L'ordine di partenza della tua classe è stato pubblicato. Trovi la start list e il turno stimato sulla pagina dell'evento."]
+              : ["Your class's running order has been published. Find the start list and your estimated turn on the event page."],
+        });
+        await ctx.mailer.send({
+          to: r.email,
+          subject:
+            locale === "it"
+              ? `Draw pubblicato · ${cls.name}`
+              : `Draw published · ${cls.name}`,
+          body: text,
+          html,
+        });
       }
       return { published: drawn.length };
     }),

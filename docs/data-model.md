@@ -182,6 +182,8 @@ Principio: **account ≠ anagrafica**. `User` è l'identità con cui si entra; `
 
 **Session** — sessioni server-side revocabili (cookie httpOnly): appartengono a uno User **oppure** a un EventInvite, mai a entrambi (CHECK). **AuthToken** — token monouso per verifica email e reset password (hash, scadenza, consumo).
 
+**BR-82 — verifica email a doppia via.** La stessa riga AuthToken porta due credenziali con TTL sdoppiati: il **link firmato** (token lungo non indovinabile, 24h — chi apre l'email la sera non viene punito) e il **codice a 6 cifre** per chi legge l'email su un altro dispositivo (`code_hash`, `code_expires_at` = 30', `attempts`). Difese del codice, indovinabile per costruzione: vale SOLO in coppia con l'email (mai da solo), massimo 5 tentativi poi la riga si consuma (muore anche il link: niente porte lasciate socchiuse da un attaccante), rigenerazione self-serve rate-limited (`resendVerification`, che consuma i token precedenti — un solo codice attivo per volta), in banca dati solo hash. Il **reset password resta a solo link** (1h): è più sensibile della verifica, BR-82 non lo estende. I link nelle email (`?verify=`, `?reset=`) puntano all'app scelta dal client come **enum** `organizer|stable`; l'URL lo costruisce il server dalle env `ORGANIZER_URL`/`STABLE_URL` — mai da input libero (niente open redirect).
+
 **AuditLog** — BR-71: append-only, l'immutabilità è imposta da un trigger (no UPDATE/DELETE). Colonne: attore (User), azione, entità, `before`/`after` (jsonb), nota, timestamp. Registra le azioni admin (vetting, sospensioni) ed è la stessa struttura che traccerà le correzioni score BR-40/41.
 
 ## Relazioni (ER)
@@ -207,7 +209,7 @@ User 1──N AuthToken          AuditLog N──1 User (attore)
 **Iscrizione (Entry):** bozza → confermata → check-in → in campo → completata
 - Stati terminali alternativi: `ritirata` (scratch), `assente`.
 
-**Draw (per classe):** nessuno → generato (re-draw libero) → pubblicato (congela: crea le Run, poi solo chirurgia BR-43 auditata). I marker di drag sono a **POSIZIONI FISSE** del draw pubblicato (BR-51, validata col giudice: lo scratch accorcia il blocco, il trattore resta lì — il marker non si muove mai); l'intervallo è impostazione di gara (`drag_every_n`, default 5; regionali anche 7-10).
+**Draw (per classe):** nessuno → generato (re-draw libero) → pubblicato (congela: crea le Run, poi solo chirurgia BR-43 auditata). I marker di drag sono a **POSIZIONI FISSE** del draw pubblicato (BR-51, validata col giudice: lo scratch accorcia il blocco, il trattore resta lì — il marker non si muove mai); l'intervallo è impostazione di gara (`drag_every_n`, default 5; regionali anche 7-10). La notifica email di pubblicazione ai binomi è nella **lingua del destinatario** (persons.locale, BR-62 — il censimento del giro UX ha trovato e corretto un testo solo-italiano hardcoded).
 
 **Run:** attesa → in inserimento → in attesa firma → validata → pubblicata
 - `in inserimento` supporta l'offline: la ScoreCard si compila localmente. `started_at` (manda in campo) è l'àncora reale dell'ETA (BR-52); `review_held_at`/`review_note`/`review_position`/`review_source` portano lo stato "Score in review" (BR-29): origine `giudice` (hold dichiarata, con la manovra del dubbio) o `sistema` — **caso misto multi-giudice validato**: discordanza tra carte chiuse su score_0 o penalità ≥2 (2/5) → review SEMPRE, automatica, con nota che riporta i valori per giudice (al drag il confronto parte già informato). La run resta in review finché tutte le carte sono chiuse e firmate.

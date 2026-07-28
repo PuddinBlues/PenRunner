@@ -10,6 +10,7 @@ import {
 } from "@penrunner/core";
 import { can } from "../policy/policy.js";
 import { recordAudit } from "../services/audit.js";
+import { renderMail } from "../services/mailtemplate.js";
 import { liveBus } from "../services/livebus.js";
 import { publicProcedure, router, verifiedProcedure } from "../trpc.js";
 import { buildClassRanking } from "./live.js";
@@ -979,7 +980,16 @@ export const scoringRouter = router({
           .where(eq(schema.persons.id, r.riderId));
         if (!rider?.email) continue;
         const message = MESSAGES[rider.locale](r.position, runCtx.cls.name);
-        await ctx.mailer.send({ to: rider.email, ...message });
+        const { text, html } = renderMail(rider.locale, {
+          heading: message.subject,
+          paragraphs: [message.body],
+        });
+        await ctx.mailer.send({
+          to: rider.email,
+          subject: message.subject,
+          body: text,
+          html,
+        });
       }
       liveBus.tick(runCtx.event.id, "scorecard.corrected");
       return { corrected: true, positionsChanged: changed.length };

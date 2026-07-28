@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@penrunner/api": "workspace:*",
+    "@penrunner/ui": "workspace:*",
     "@trpc/client": "^11.4.0",
     "@trpc/server": "^11.4.0",
     "react": "^19.1.0",

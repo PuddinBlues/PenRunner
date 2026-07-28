@@ -54,6 +54,9 @@ importers:
         specifier: ^3.25.0
         version: 3.25.76
     devDependencies:
+      '@penrunner/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
       '@trpc/client':
         specifier: ^11.18.0
         version: 11.18.0(@trpc/server@11.18.0(typescript@5.9.3))(typescript@5.9.3)
@@ -81,6 +84,9 @@ importers:
       '@penrunner/api':
         specifier: workspace:*
         version: link:../api
+      '@penrunner/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
       '@trpc/client':
         specifier: ^11.4.0
         version: 11.18.0(@trpc/server@11.18.0(typescript@5.9.3))(typescript@5.9.3)

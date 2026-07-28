@@ -2,7 +2,10 @@
 export interface MailMessage {
   to: string;
   subject: string;
+  /** testo plain: SEMPRE presente (fallback leggibile a HTML spento) */
   body: string;
+  /** variante HTML brandizzata (services/mailtemplate.ts) */
+  html?: string;
 }
 
 export interface Mailer {
@@ -68,6 +71,7 @@ export class SmtpMailer implements Mailer {
         to: message.to,
         subject: message.subject,
         text: message.body,
+        ...(message.html ? { html: message.html } : {}),
       });
     } catch (err) {
       throw new Error(
@@ -102,6 +106,7 @@ export class ResendMailer implements Mailer {
         to: message.to,
         subject: message.subject,
         text: message.body,
+        ...(message.html ? { html: message.html } : {}),
       }),
       signal: AbortSignal.timeout(10_000),
     });
