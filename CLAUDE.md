@@ -11,6 +11,12 @@ Autonomia graduata, guadagnata sul campo. Vale per ogni sessione:
 
 Invarianti di sempre: test tutti verdi prima del merge, riepilogo con consuntivo rischi a fine giro, numerazione BR progressiva (prossimi liberi dopo l'ultima assegnata — vedi BR-82), mai segreti in chat (vivono nei pannelli dei servizi).
 
+**Addendum (autopsia del vicolo cieco loggato-non-verificato):**
+
+1. **Matrice degli stati** nei piani Classe B che toccano flussi utente (auth, iscrizioni, scoring, pagamenti): il piano DEVE enumerare le combinazioni di stato rilevanti (es. sessione presente/assente × email verificata/no × token in URL) e dire cosa vede l'utente in ciascuna cella. Una cella non enumerata è un bug futuro: il vicolo cieco era esattamente questo, e con la matrice sarebbe morto su carta.
+2. **Norma della guardia**: ogni bug chiuso genera una guardia che renda impossibile la sua CLASSE, non solo il caso singolo (esempi già a repo: test di contratto del Dockerfile, fail-fast sulle env del mailer, gate `auth.me` nelle shell). Nel riepilogo di ogni fix la voce "guardia" è obbligatoria: o c'è, o si spiega perché non serve.
+3. **Backlog**: smoke post-deploy scriptato (health, CORS, una query pubblica del catalogo) — Classe A quando si prende.
+
 ## Cos'è PenRunner
 
 Una piattaforma web per gestire le competizioni di reining dall'organizzazione dell'evento alla pubblicazione dei risultati. Alternativa moderna a ShowManager, con focus su iscrizione massiva per scuderie, scoring mobile per i giudici, e risultati live pubblici.
