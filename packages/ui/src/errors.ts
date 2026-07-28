@@ -98,4 +98,4 @@ export function errorMessage(err: unknown): string {
  * campo). Un test in apps/api pinna questa costante contro passwordSchema:
  * il drift rompe un test, non un utente.
  */
-export const PASSWORD_MIN_LENGTH = 10;
+export const PASSWORD_MIN_LENGTH = 8;

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { PASSWORD_MIN_LENGTH, errorMessage } from "@penrunner/ui";
+import { PASSWORD_MIN_LENGTH, PasswordInput, errorMessage } from "@penrunner/ui";
 import type { Client } from "../lib/api.js";
 import { detectLocale, type T } from "../lib/i18n.js";
 
@@ -133,11 +133,12 @@ export function Auth({
         {(mode === "login" || mode === "register") && (
           <label className="field">
             <span>{t("auth.password")}</span>
-            <input
-              type="password"
+            <PasswordInput
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={setPassword}
               autoComplete={mode === "login" ? "current-password" : "new-password"}
+              showLabel={t("auth.showPassword")}
+              hideLabel={t("auth.hidePassword")}
             />
             {mode === "register" && (
               <span className="hint">
@@ -150,11 +151,12 @@ export function Auth({
         {mode === "reset" && (
           <label className="field">
             <span>{t("auth.newPassword")}</span>
-            <input
-              type="password"
+            <PasswordInput
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={setPassword}
               autoComplete="new-password"
+              showLabel={t("auth.showPassword")}
+              hideLabel={t("auth.hidePassword")}
             />
             <span className="hint">
               {t("auth.passwordHint", { n: PASSWORD_MIN_LENGTH })}
@@ -165,11 +167,12 @@ export function Auth({
         {(mode === "register" || mode === "reset") && (
           <label className="field">
             <span>{t("auth.passwordConfirm")}</span>
-            <input
-              type="password"
+            <PasswordInput
               value={password2}
-              onChange={(e) => setPassword2(e.target.value)}
+              onChange={setPassword2}
               autoComplete="new-password"
+              showLabel={t("auth.showPassword")}
+              hideLabel={t("auth.hidePassword")}
             />
             {password2 !== "" && !passwordsMatch && (
               <span className="hint" style={{ color: "var(--danger, #B91C1C)" }}>

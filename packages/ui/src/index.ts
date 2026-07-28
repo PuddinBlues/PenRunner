@@ -1,4 +1,4 @@
-export { Badge, Banner, Confirm, Empty } from "./primitives.js";
+export { Badge, Banner, Confirm, Empty, PasswordInput } from "./primitives.js";
 export { PASSWORD_MIN_LENGTH, errorMessage } from "./errors.js";
 export {
   LOCALES,

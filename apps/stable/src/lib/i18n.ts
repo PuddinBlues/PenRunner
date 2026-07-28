@@ -9,6 +9,7 @@ const it = {
   "app.logout": "Esci",
   "app.loading": "Carico…",
   "app.error": "Qualcosa è andato storto: {msg}",
+  "app.retry": "Riprova",
   "app.back": "Indietro",
 
   "auth.loginTitle": "Entra",
@@ -39,6 +40,9 @@ const it = {
   "auth.newPassword": "Nuova password",
   "auth.resetDo": "Imposta la password",
   "auth.resetDone": "Password aggiornata. Ora entra con le nuove credenziali.",
+  "auth.gateBody": "L'account {email} non è ancora verificato. Apri il link nell'email che ti abbiamo inviato, oppure inserisci qui il codice a 6 cifre. Se l'email è vecchia o il codice è scaduto, inviala di nuovo.",
+  "auth.showPassword": "Mostra password",
+  "auth.hidePassword": "Nascondi password",
   "auth.welcome": "Il tuo team, le iscrizioni e i risultati — dal telefono, anche a bordo campo.",
 
   "onboarding.title": "La tua scuderia",
@@ -123,6 +127,7 @@ const en = {
   "app.logout": "Sign out",
   "app.loading": "Loading…",
   "app.error": "Something went wrong: {msg}",
+  "app.retry": "Retry",
   "app.back": "Back",
 
   "auth.loginTitle": "Sign in",
@@ -153,6 +158,9 @@ const en = {
   "auth.newPassword": "New password",
   "auth.resetDo": "Set the password",
   "auth.resetDone": "Password updated. Now sign in with your new credentials.",
+  "auth.gateBody": "The account {email} is not verified yet. Open the link in the email we sent you, or type the 6-digit code here. If the email is old or the code expired, send it again.",
+  "auth.showPassword": "Show password",
+  "auth.hidePassword": "Hide password",
   "auth.welcome": "Your team, entries and results — from your phone, even ringside.",
 
   "onboarding.title": "Your stable",

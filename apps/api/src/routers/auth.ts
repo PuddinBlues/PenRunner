@@ -29,7 +29,9 @@ const MAX_CODE_ATTEMPTS = 5;
 const PASSWORD_RESET_TTL_MS = 60 * 60 * 1000;
 
 const emailSchema = z.string().email().transform((v) => v.toLowerCase());
-const passwordSchema = z.string().min(10).max(200);
+// Minimo condiviso con le UI: PASSWORD_MIN_LENGTH (@penrunner/ui) è pinnata
+// a questo schema da un test — cambiare qui e là insieme.
+const passwordSchema = z.string().min(8).max(200);
 const clientSchema = z.enum(["organizer", "stable"]).default("organizer");
 const localeSchema = z.enum(["it", "en"]).default("it");
 
@@ -98,6 +100,24 @@ async function sendVerificationMail(
 }
 
 export const authRouter = router({
+  /**
+   * Stato della propria sessione — il gate delle shell. Serve a distinguere
+   * loggato-verificato / loggato-NON-verificato PRIMA di qualsiasi query di
+   * dominio: senza, la shell scopre la non-verifica sbattendo contro un
+   * FORBIDDEN e l'utente resta in un vicolo cieco (reperto collaudo staging).
+   */
+  me: userProcedure.query(async ({ ctx }) => {
+    const [user] = await ctx.db
+      .select({
+        email: schema.users.email,
+        emailVerifiedAt: schema.users.emailVerifiedAt,
+      })
+      .from(schema.users)
+      .where(eq(schema.users.id, ctx.actor.userId));
+    if (!user) throw new TRPCError({ code: "UNAUTHORIZED" });
+    return { email: user.email, emailVerified: user.emailVerifiedAt !== null };
+  }),
+
   register: publicProcedure
     .input(
       z.object({

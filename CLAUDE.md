@@ -2,6 +2,15 @@
 
 > Gestionale per le gare di reining (IRHA/FISE, Italia). Questo file orienta lo sviluppo: leggilo per primo, poi consulta i documenti in `docs/` quando servono dettagli.
 
+## Patto di autonomia (metodo di lavoro col titolare)
+
+Autonomia graduata, guadagnata sul campo. Vale per ogni sessione:
+
+- **CLASSE A — autonomia piena** (si fixa senza aspettare l'ok): bug con fix ovvio e reversibile, nessuna BR toccata, nessuna migrazione o cambio schema, nessuna decisione di prodotto, niente auth/sicurezza/denaro. Esempio storico: il `COPY reference` mancante nel Dockerfile. Restano obbligatori: PR piccola su main (ready + merge) e riepilogo con consuntivo rischi a valle.
+- **CLASSE B — rito invariato** (piano breve → ok esplicito del titolare → codice): tutto ciò che tocca BR o regole di dominio, schema e migrazioni, auth e sicurezza, denaro (fee, payout, quadrature), architettura di deploy, superficie di prodotto nuova. **In dubbio → Classe B.**
+
+Invarianti di sempre: test tutti verdi prima del merge, riepilogo con consuntivo rischi a fine giro, numerazione BR progressiva (prossimi liberi dopo l'ultima assegnata — vedi BR-82), mai segreti in chat (vivono nei pannelli dei servizi).
+
 ## Cos'è PenRunner
 
 Una piattaforma web per gestire le competizioni di reining dall'organizzazione dell'evento alla pubblicazione dei risultati. Alternativa moderna a ShowManager, con focus su iscrizione massiva per scuderie, scoring mobile per i giudici, e risultati live pubblici.

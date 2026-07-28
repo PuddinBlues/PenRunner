@@ -193,6 +193,37 @@ describe("BR-82: verifica con codice a 6 cifre", () => {
   });
 });
 
+describe("auth.me — il gate delle shell (fix vicolo cieco non-verificato)", () => {
+  it("senza sessione → UNAUTHORIZED", async () => {
+    const anon = await api.as();
+    await expect(anon.auth.me()).rejects.toThrow(/UNAUTHORIZED/);
+  });
+
+  it("loggato NON verificato → emailVerified false; dopo la verifica → true", async () => {
+    const anon = await api.as();
+    await anon.auth.register({
+      email: "gate@example.com",
+      password: "password-di-test",
+    });
+    // Il login NON richiede la verifica: è esattamente lo scenario che
+    // lasciava l'utente nel vicolo cieco.
+    const { sessionToken } = await anon.auth.login({
+      email: "gate@example.com",
+      password: "password-di-test",
+    });
+    const caller = await api.as(sessionToken);
+    expect(await caller.auth.me()).toEqual({
+      email: "gate@example.com",
+      emailVerified: false,
+    });
+
+    const code = extractCode(api.mailer.lastTo("gate@example.com")!);
+    await caller.auth.verifyEmail({ email: "gate@example.com", code });
+    const fresh = await api.as(sessionToken);
+    expect((await fresh.auth.me()).emailVerified).toBe(true);
+  });
+});
+
 describe("vincolo password condiviso UI/API", () => {
   it(`PASSWORD_MIN_LENGTH (${PASSWORD_MIN_LENGTH}) pinna passwordSchema: N-1 rifiutata, N accettata`, async () => {
     const anon = await api.as();
