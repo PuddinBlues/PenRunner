@@ -128,6 +128,43 @@ async function canManageEntry(
   );
 }
 
+/**
+ * PR-0 qualità (tocca denaro): il duplicato si intercetta PRIMA dell'insert,
+ * con un errore che NOMINA il binomio e la classe — "quale cavallo, dove".
+ * Dentro la stessa transazione vede anche gli insert del batch corrente
+ * (duplicato nella stessa griglia). Il catch sul vincolo resta come backstop
+ * per la corsa concorrente (dove la tx è ormai abortita e non si può fare
+ * la SELECT dei nomi).
+ */
+async function guardDuplicatePair(
+  tx: DbOrTx,
+  cls: { id: string; name: string },
+  horseId: string,
+): Promise<void> {
+  const [dup] = await tx
+    .select({ status: schema.entries.status })
+    .from(schema.entries)
+    .where(
+      and(
+        eq(schema.entries.classId, cls.id),
+        eq(schema.entries.horseId, horseId),
+      ),
+    );
+  if (!dup) return;
+  const [horse] = await tx
+    .select({ name: schema.horses.name })
+    .from(schema.horses)
+    .where(eq(schema.horses.id, horseId));
+  const name = horse?.name ?? "Il cavallo";
+  throw new TRPCError({
+    code: "BAD_REQUEST",
+    message:
+      dup.status === "ritirata" || dup.status === "assente"
+        ? `«${name}» risulta già iscritto a «${cls.name}» e poi ritirato: per rientrare parla con la segreteria dello show`
+        : `«${name}» è già iscritto a «${cls.name}»`,
+  });
+}
+
 async function insertEntry(
   tx: DbOrTx,
   input: z.infer<typeof entryInput>,
@@ -210,6 +247,7 @@ export const entriesRouter = router({
 
     guardRegistrationsOpen(event);
     await guardClassCapacity(ctx.db, cls);
+    await guardDuplicatePair(ctx.db, cls, input.horseId);
     const entry = await insertEntry(ctx.db, input);
     const warnings = await computeWarnings(
       ctx.db,
@@ -252,6 +290,7 @@ export const entriesRouter = router({
           }
           guardRegistrationsOpen(event);
           await guardClassCapacity(tx, cls);
+          await guardDuplicatePair(tx, cls, item.horseId);
           const entry = await insertEntry(tx, item);
           const warnings = await computeWarnings(
             tx,
@@ -477,6 +516,19 @@ export const entriesRouter = router({
           sql`${schema.classes.scheduledOrder} nulls last`,
           schema.classes.createdAt,
         );
+      // Coppie (classe, cavallo) già iscritte all'evento — TUTTI gli stati:
+      // il vincolo di unicità blocca il re-insert anche dopo uno scratch,
+      // quindi la griglia deve saperlo PRIMA del checkout (chip disabilitata),
+      // non scoprirlo alla conferma.
+      const enrolled = await ctx.db
+        .select({
+          classId: schema.entries.classId,
+          horseId: schema.entries.horseId,
+          status: schema.entries.status,
+        })
+        .from(schema.entries)
+        .innerJoin(schema.classes, eq(schema.classes.id, schema.entries.classId))
+        .where(eq(schema.classes.eventId, input.eventId));
       return {
         event: {
           id: event.id,
@@ -488,6 +540,7 @@ export const entriesRouter = router({
           feePerHorse: event.feePerHorse,
           selfScratchEnabled: event.selfScratchEnabled,
         },
+        enrolled,
         classes: classes.map((c) => ({
           ...c,
           // Capienza (vincolo, non eleggibilità): null = nessun limite.

@@ -154,6 +154,46 @@ describe("le mie iscrizioni (byStable)", () => {
     expect(info.classes[0]!.remaining).toBe(9);
   });
 
+  it("PR-0: il duplicato viene rifiutato NOMINANDO cavallo e classe, prima del checkout", async () => {
+    const caller = await api.as(stableToken);
+    // Whiz Dream è già confermato in questa classe dal test sopra.
+    await expect(
+      caller.entries.bulkCreate({
+        stableId,
+        items: [{ classId, horseId, riderId }],
+      }),
+    ).rejects.toThrow(/«Whiz Dream» è già iscritto a «/);
+    // Duplicato NELLA STESSA griglia (due righe, stessa coppia): stesso esito.
+    const horse2 = await caller.roster.addHorse({
+      stableId,
+      name: "Gun Smart",
+      microchip: "380271000000778",
+      ownerPersonId: riderId,
+    });
+    await expect(
+      caller.entries.bulkCreate({
+        stableId,
+        items: [
+          { classId, horseId: horse2.horseId, riderId },
+          { classId, horseId: horse2.horseId, riderId },
+        ],
+      }),
+    ).rejects.toThrow(/«Gun Smart» è già iscritto a «/);
+    // tutto-o-niente: il batch fallito non lascia iscrizioni orfane
+    const mine = await caller.entries.byStable({ stableId });
+    expect(mine).toHaveLength(1);
+  });
+
+  it("PR-0: enrollmentInfo espone le coppie già iscritte (chip disabilitate in griglia)", async () => {
+    const caller = await api.as(stableToken);
+    const info = await caller.entries.enrollmentInfo({ eventId });
+    expect(info.enrolled).toContainEqual({
+      classId,
+      horseId,
+      status: "confermata",
+    });
+  });
+
   it("chi non è referente non vede il roster altrui", async () => {
     const other = await registerUserWithProfile(
       api,

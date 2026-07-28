@@ -95,6 +95,9 @@ const it = {
   "enroll.noWarnings": "Nessun avviso di eleggibilità",
   "enroll.done": "Iscrizione confermata. La trovi in \"Iscrizioni\".",
   "enroll.alreadyEntered": "Questo cavallo è già iscritto a questa classe",
+  "enroll.alreadyIn": "già iscritto",
+  "enroll.scratchedLock": "ritirato — parla con la segreteria",
+  "enroll.dupRow": "già in un'altra riga",
   "enroll.needRoster": "Prima servono un cavallo e un cavaliere nel roster.",
   "enroll.goRoster": "Vai al roster",
 
@@ -217,6 +220,9 @@ const en = {
   "enroll.noWarnings": "No eligibility warnings",
   "enroll.done": "Entries confirmed. Find them under \"Entries\".",
   "enroll.alreadyEntered": "This horse is already entered in this class",
+  "enroll.alreadyIn": "already entered",
+  "enroll.scratchedLock": "scratched — talk to the show office",
+  "enroll.dupRow": "already in another row",
   "enroll.needRoster": "You need a horse and a rider in the roster first.",
   "enroll.goRoster": "Go to the roster",
 
