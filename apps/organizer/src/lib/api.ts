@@ -39,3 +39,22 @@ export async function openPdf(path: string, sessionToken: string | null) {
   // Il blob resta valido finché la pagina vive; revoca ritardata prudente.
   setTimeout(() => URL.revokeObjectURL(url), 60_000);
 }
+
+/**
+ * B4: download con il nome file del server (i CSV non si "guardano", si
+ * salvano — il nome parlante arriva dal Content-Disposition, esposto in CORS).
+ */
+export async function downloadDoc(path: string, sessionToken: string | null) {
+  const res = await fetch(`${API_URL}${path}`, {
+    headers: sessionToken ? { authorization: `Bearer ${sessionToken}` } : {},
+  });
+  if (!res.ok) throw new Error(`Documento non disponibile (${res.status})`);
+  const dispo = res.headers.get("content-disposition") ?? "";
+  const name = /filename="([^"]+)"/.exec(dispo)?.[1] ?? "documento.csv";
+  const url = URL.createObjectURL(await res.blob());
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = name;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 60_000);
+}

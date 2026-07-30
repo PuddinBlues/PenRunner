@@ -27,6 +27,9 @@ export async function buildServer() {
     origin: corsOrigins(),
     methods: ["GET", "POST", "OPTIONS"],
     allowedHeaders: ["authorization", "content-type"],
+    // B4: il browser legge il nome file dei documenti scaricati via fetch —
+    // senza expose il filename parlante muore in CORS e torna "document".
+    exposedHeaders: ["content-disposition"],
   });
   // L'API non è contenuto: mai indicizzata (a prescindere dal flag di lancio).
   server.addHook("onSend", async (_req, reply) => {
