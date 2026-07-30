@@ -61,6 +61,10 @@ describe("CORS unificato (browser cross-origin)", () => {
     expect(res.headers["access-control-allow-origin"]).toBe(
       "http://localhost:5175",
     );
+    // B4: il filename parlante dei download va esposto, o il browser non lo legge
+    expect(String(res.headers["access-control-expose-headers"])).toMatch(
+      /content-disposition/i,
+    );
   });
 
   it("l'API non è contenuto: X-Robots-Tag noindex su ogni risposta", async () => {

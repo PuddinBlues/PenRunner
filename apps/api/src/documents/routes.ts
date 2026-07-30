@@ -4,6 +4,13 @@ import { createDb, schema, type Db } from "@penrunner/db";
 import { resolveActor } from "../context.js";
 import { can } from "../policy/policy.js";
 import {
+  buildPayoutCsv,
+  buildResultsCsv,
+  buildStartListCsv,
+  csvSeparator,
+  csvString,
+} from "./csv.js";
+import {
   buildPayoutDoc,
   buildResultsDoc,
   buildScoreCardDoc,
@@ -42,9 +49,10 @@ function docFilename(
   className: string,
   eventName: string,
   now: Date,
+  ext: "pdf" | "csv" = "pdf",
 ): string {
   const day = now.toISOString().slice(0, 10);
-  return `${docType}_${slugPart(className)}_${slugPart(eventName)}_${day}.pdf`;
+  return `${docType}_${slugPart(className)}_${slugPart(eventName)}_${day}.${ext}`;
 }
 
 function localeOf(query: unknown): Locale {
@@ -56,6 +64,13 @@ function sendPdf(reply: FastifyReply, buf: Buffer, name: string) {
     .header("content-type", "application/pdf")
     .header("content-disposition", `attachment; filename="${name}"`)
     .send(buf);
+}
+
+function sendCsv(reply: FastifyReply, body: string, name: string) {
+  reply
+    .header("content-type", "text/csv; charset=utf-8")
+    .header("content-disposition", `attachment; filename="${name}"`)
+    .send(body);
 }
 
 function sessionOf(req: FastifyRequest): string | undefined {
@@ -151,6 +166,70 @@ export function registerDocumentRoutes(server: FastifyInstance) {
         reply,
         await renderTable(doc),
         docFilename("Payout", cls.name, event!.name, now),
+      );
+    },
+  );
+
+  // B4: CSV coi dati grezzi accanto a ogni PDF tabellare — stesse route,
+  // stessa visibilità (start list e classifica pubbliche, payout gated),
+  // stessa regola di naming con estensione .csv.
+  server.get<{ Params: { classId: string }; Querystring: { sep?: string } }>(
+    "/documents/class/:classId/start-list.csv",
+    async (req, reply) => {
+      const head = await classHeader(db, req.params.classId);
+      if (!head) return reply.code(404).send({ error: "not found" });
+      const now = new Date();
+      const doc = await buildStartListCsv(db, req.params.classId);
+      sendCsv(
+        reply,
+        csvString(doc, csvSeparator(req.query)),
+        docFilename("StartList", head.className, head.eventName, now, "csv"),
+      );
+    },
+  );
+
+  server.get<{ Params: { classId: string }; Querystring: { sep?: string } }>(
+    "/documents/class/:classId/results.csv",
+    async (req, reply) => {
+      const head = await classHeader(db, req.params.classId);
+      if (!head) return reply.code(404).send({ error: "not found" });
+      const now = new Date();
+      const doc = await buildResultsCsv(db, req.params.classId, now);
+      sendCsv(
+        reply,
+        csvString(doc, csvSeparator(req.query)),
+        docFilename("Results", head.className, head.eventName, now, "csv"),
+      );
+    },
+  );
+
+  server.get<{ Params: { classId: string }; Querystring: { sep?: string } }>(
+    "/documents/class/:classId/payout.csv",
+    async (req, reply) => {
+      const [cls] = await db
+        .select()
+        .from(schema.classes)
+        .where(eq(schema.classes.id, req.params.classId));
+      if (!cls) return reply.code(404).send({ error: "not found" });
+      const [event] = await db
+        .select()
+        .from(schema.events)
+        .where(eq(schema.events.id, cls.eventId));
+      const { actor } = await resolveActor(db, sessionOf(req));
+      if (
+        !can(actor, "payout.manage", {
+          organizationId: event!.organizationId,
+          eventId: event!.id,
+        })
+      ) {
+        return reply.code(403).send({ error: "forbidden" });
+      }
+      const now = new Date();
+      const doc = await buildPayoutCsv(db, req.params.classId);
+      sendCsv(
+        reply,
+        csvString(doc, csvSeparator(req.query)),
+        docFilename("Payout", cls.name, event!.name, now, "csv"),
       );
     },
   );

@@ -327,4 +327,50 @@ describe("GUARDIA fase (d): nome file parlante, regola unica", () => {
       await server.close();
     }
   });
+
+  it("B4: CSV coi dati grezzi — intestazioni stabili, BOM, stesso naming, payout gated", async () => {
+    process.env.DATABASE_URL = TEST_DATABASE_URL;
+    const { buildServer } = await import("../src/server.js");
+    const server = await buildServer();
+    await server.ready();
+    try {
+      const res = await server.inject({
+        method: "GET",
+        url: `/documents/class/${classId}/results.csv`,
+      });
+      expect(res.statusCode).toBe(200);
+      expect(res.headers["content-type"]).toMatch(/^text\/csv/);
+      expect(res.headers["content-disposition"]).toMatch(
+        /^attachment; filename="Results_OpenPayout_PayoutSlide2026_\d{4}-\d{2}-\d{2}\.csv"$/,
+      );
+      // BOM per Excel + intestazioni STABILI (contratto macchina, mai localizzate)
+      expect(res.body.startsWith("\uFEFF")).toBe(true);
+      const lines = res.body.replace("\uFEFF", "").trim().split("\r\n");
+      expect(lines[0]).toBe("position;horse;rider;score;outcome;state");
+      expect(lines).toHaveLength(1 + 6); // 6 binomi in classifica
+      // separatore alternativo a richiesta
+      const comma = await server.inject({
+        method: "GET",
+        url: `/documents/class/${classId}/results.csv?sep=,`,
+      });
+      expect(comma.body).toContain("position,horse,rider");
+      // stessa visibilità dei PDF: il payout resta gated
+      const anonPayout = await server.inject({
+        method: "GET",
+        url: `/documents/class/${classId}/payout.csv`,
+      });
+      expect(anonPayout.statusCode).toBe(403);
+    } finally {
+      await server.close();
+    }
+  });
+
+  it("B4: quoting RFC 4180 — separatori e virgolette nei nomi non rompono le colonne", async () => {
+    const { csvString } = await import("../src/documents/csv.js");
+    const out = csvString(
+      { headers: ["a", "b"], rows: [["x;y", 'Nome "Strano"'], [null, 3.5]] },
+      ";",
+    );
+    expect(out).toBe('\uFEFFa;b\r\n"x;y";"Nome ""Strano"""\r\n;3.5\r\n');
+  });
 });

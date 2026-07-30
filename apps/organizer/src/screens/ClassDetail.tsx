@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { navigate } from "../App.js";
 import { Badge, Banner, Confirm, Empty, errorMessage } from "../components/Ui.js";
-import { openPdf } from "../lib/api.js";
+import { downloadDoc, openPdf } from "../lib/api.js";
 import type { Client } from "../lib/api.js";
 import type { Locale, MessageKey, T } from "../lib/i18n.js";
 import { warningView } from "../lib/warnings.js";
@@ -863,6 +863,9 @@ function Docs({
     openPdf(`${path}?locale=${locale}`, session).catch((err) =>
       setError(errorMessage(err)),
     );
+  // B4: dati grezzi per i fogli della segreteria, accanto a ogni PDF
+  const csv = (path: string) =>
+    downloadDoc(path, session).catch((err) => setError(errorMessage(err)));
   return (
     <div className="card">
       <p className="hint">{t("docs.explain")}</p>
@@ -885,6 +888,26 @@ function Docs({
           onClick={() => void open(`/documents/class/${classId}/payout.pdf`)}
         >
           {t("docs.payout")} (PDF)
+        </button>
+      </div>
+      <div className="row">
+        <button
+          className="btn small"
+          onClick={() => void csv(`/documents/class/${classId}/start-list.csv`)}
+        >
+          {t("docs.startList")} (CSV)
+        </button>
+        <button
+          className="btn small"
+          onClick={() => void csv(`/documents/class/${classId}/results.csv`)}
+        >
+          {t("docs.results")} (CSV)
+        </button>
+        <button
+          className="btn small"
+          onClick={() => void csv(`/documents/class/${classId}/payout.csv`)}
+        >
+          {t("docs.payout")} (CSV)
         </button>
       </div>
     </div>
