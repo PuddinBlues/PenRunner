@@ -1,17 +1,18 @@
 import { randomInt } from "node:crypto";
 
 // ---------------------------------------------------------------------------
-// Generazione del draw (flusso E, BR-19). Funzione pura con RNG iniettabile.
+// Generazione del draw (flusso E, BR-19/BR-91). Funzione pura con RNG
+// iniettabile.
 //
 // Distanziamento: tra due partenze dello stesso cavaliere nella stessa classe
-// l'obiettivo è avere ALMENO `minRiderGap` cavalli in mezzo (default 8 — il
-// tempo di scaldare il cavallo successivo, ~31-36' con slot da 4'30").
-// gap(a, b) = |pos_a − pos_b| − 1 (cavalli in mezzo).
+// l'obiettivo è avere ALMENO `minRiderGap` cavalli in mezzo — parametro
+// dell'evento (BR-91: default 10, minimo ammesso 8 — il tempo di scaldare il
+// cavallo successivo). gap(a, b) = |pos_a − pos_b| − 1 (cavalli in mezzo).
 //
 // La generazione NON fallisce mai (spirito BR-18): si degrada a scala
-// (8→7→…→1) e, se perfino il "mai back-to-back" è impossibile, restituisce il
-// best-effort che massimizza il gap minimo, con warnings sulle coppie sotto
-// l'obiettivo richiesto. Il sistema segnala, l'organizzatore decide.
+// (target→…→1) e, se perfino il "mai back-to-back" è impossibile, restituisce
+// il best-effort che massimizza il gap minimo, con warnings sulle coppie
+// sotto l'obiettivo richiesto. Il sistema segnala, l'organizzatore decide.
 // ---------------------------------------------------------------------------
 
 export interface DrawCandidate {
@@ -110,7 +111,7 @@ export function generateDraw(
   candidates: DrawCandidate[],
   opts: { minRiderGap?: number; rng?: Rng; attemptsPerGap?: number } = {},
 ): DrawResult {
-  const targetGap = opts.minRiderGap ?? 8; // BR-19
+  const targetGap = opts.minRiderGap ?? 10; // BR-91 (era 8, BR-19)
   const rng = opts.rng ?? defaultRng;
   const attempts = opts.attemptsPerGap ?? 30;
 
@@ -121,7 +122,7 @@ export function generateDraw(
   let best: DrawCandidate[] = shuffle(candidates, rng);
   let bestGap = minGapOf(best);
 
-  // Scala di degradazione: 8 → 7 → … → 1.
+  // Scala di degradazione: target → … → 1.
   for (let gap = Math.min(targetGap, candidates.length - 1); gap >= 1; gap--) {
     for (let attempt = 0; attempt < attempts; attempt++) {
       const repaired = tryRepair(shuffle(candidates, rng), gap);
@@ -142,7 +143,14 @@ export function generateDraw(
   return buildResult(best, targetGap);
 }
 
-function buildResult(order: DrawCandidate[], targetGap: number): DrawResult {
+/**
+ * BR-91: le coppie sotto l'obiettivo, PUNTUALI (chi, dove, quanto) — usate
+ * dal generatore, dal riordino manuale (flag live) e dal suggerimento.
+ */
+export function computeGapWarnings(
+  order: DrawCandidate[],
+  targetGap: number,
+): DrawWarning[] {
   const warnings: DrawWarning[] = [];
   const lastSeen = new Map<string, number>();
   order.forEach((c, i) => {
@@ -160,12 +168,50 @@ function buildResult(order: DrawCandidate[], targetGap: number): DrawResult {
     }
     lastSeen.set(c.riderId, i);
   });
+  return warnings;
+}
+
+function buildResult(order: DrawCandidate[], targetGap: number): DrawResult {
   return {
     order: order.map((c) => c.entryId),
     targetGap,
     achievedGap: minGapOf(order),
-    warnings,
+    warnings: computeGapWarnings(order, targetGap),
   };
+}
+
+export interface SuggestResult extends DrawResult {
+  /** entryId spostati rispetto all'ordine di partenza del suggerimento */
+  moved: string[];
+}
+
+/**
+ * BR-91 "sistema l'ordine": riparazione ANCORATA all'ordine corrente —
+ * niente shuffle, si spostano solo i binomi in violazione verso lo slot
+ * legale più vicino (minime modifiche). Deterministica: stessa lista, stessa
+ * proposta. Se il vincolo è impossibile, degrada a scala e restituisce il
+ * best-effort coi warnings — mai un errore.
+ */
+export function suggestRepair(
+  current: DrawCandidate[],
+  targetGap: number,
+): SuggestResult {
+  const posOf = new Map(current.map((c, i) => [c.entryId, i]));
+  const movedOf = (order: DrawCandidate[]) =>
+    order
+      .filter((c, i) => posOf.get(c.entryId) !== i)
+      .map((c) => c.entryId);
+
+  for (let gap = Math.min(targetGap, current.length - 1); gap >= 1; gap--) {
+    const repaired = tryRepair([...current], gap);
+    if (!repaired) continue;
+    const achieved = minGapOf(repaired);
+    if (achieved === null || achieved >= gap) {
+      return { ...buildResult(repaired, targetGap), moved: movedOf(repaired) };
+    }
+  }
+  // nemmeno "mai back-to-back" è possibile: l'ordine resta quello, coi flag
+  return { ...buildResult(current, targetGap), moved: [] };
 }
 
 // ---------------------------------------------------------------------------

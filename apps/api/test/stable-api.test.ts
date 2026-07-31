@@ -2,6 +2,7 @@ import { eq } from "drizzle-orm";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { schema } from "@penrunner/db";
 import {
+  futureDate,
   registerUserWithProfile,
   setupApi,
   type TestApi,
@@ -48,8 +49,8 @@ beforeAll(async () => {
     organizationId,
     name: "Evento Scuderie",
     venue: "Arena",
-    startDate: "2026-10-01",
-    endDate: "2026-10-02",
+    startDate: futureDate(45),
+    endDate: futureDate(46),
     feePerHorse: "15",
   }));
   const anon = await api.as();

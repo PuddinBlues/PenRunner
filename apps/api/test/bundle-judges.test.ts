@@ -3,6 +3,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { schema } from "@penrunner/db";
 import { extractToken } from "../src/services/mailer.js";
 import {
+  futureDate,
   registerUserWithProfile,
   setupApi,
   type TestApi,
@@ -59,8 +60,8 @@ beforeAll(async () => {
     organizationId,
     name: "Bundle Slide 2026",
     venue: "Arena",
-    startDate: "2026-09-25",
-    endDate: "2026-09-26",
+    startDate: futureDate(45),
+    endDate: futureDate(46),
   }));
   const [pattern6] = await api.db
     .select()

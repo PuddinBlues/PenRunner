@@ -7,6 +7,7 @@ import {
   type SyncPayload,
 } from "@penrunner/core";
 import {
+  futureDate,
   registerUserWithProfile,
   setupApi,
   type TestApi,
@@ -102,8 +103,8 @@ beforeAll(async () => {
     organizationId,
     name: "Review Slide",
     venue: "Arena",
-    startDate: "2026-09-10",
-    endDate: "2026-09-10",
+    startDate: futureDate(45),
+    endDate: futureDate(46),
   });
   eventIdGlobal = eventId;
   const [pattern6] = await api.db

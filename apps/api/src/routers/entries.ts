@@ -3,6 +3,7 @@ import { and, eq, inArray, ne, sql } from "drizzle-orm";
 import { z } from "zod";
 import { schema, type Db } from "@penrunner/db";
 import { personDisplayNameSql } from "../services/names.js";
+import { selfServeEntriesClosed } from "../services/cutoff.js";
 import { evaluateEligibility, type EligibilityWarning } from "../eligibility.js";
 import { can, type Actor } from "../policy/policy.js";
 import { liveBus } from "../services/livebus.js";
@@ -47,6 +48,15 @@ function guardRegistrationsOpen(event: typeof schema.events.$inferSelect) {
     throw new TRPCError({
       code: "BAD_REQUEST",
       message: "Le iscrizioni per questo evento non sono aperte",
+    });
+  }
+  // BR-90: dal cut-off della vigilia il self-serve chiude — si passa dalla
+  // segreteria (l'organizzatore inserisce sempre, via regia). Lo scratch
+  // self-serve NON è toccato: resta BR-17, fino al proprio turno.
+  if (selfServeEntriesClosed(event)) {
+    throw new TRPCError({
+      code: "BAD_REQUEST",
+      message: `Le iscrizioni online per questo evento hanno chiuso alle ${event.entryChangeCutoff} del giorno prima: contatta la segreteria dello show`,
     });
   }
 }

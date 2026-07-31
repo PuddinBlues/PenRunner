@@ -2,6 +2,7 @@ import { and, eq } from "drizzle-orm";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { schema } from "@penrunner/db";
 import {
+  futureDate,
   registerUserWithProfile,
   setupApi,
   type TestApi,
@@ -57,8 +58,8 @@ beforeAll(async () => {
     organizationId: orgId,
     name: "Summer Slide 2026",
     venue: "Arena Lombardia",
-    startDate: "2026-09-01",
-    endDate: "2026-09-02",
+    startDate: futureDate(45),
+    endDate: futureDate(46),
   }));
   await caller.events.setStatus({ eventId, status: "iscrizioni_aperte" });
 

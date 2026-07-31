@@ -8,6 +8,7 @@ import {
 } from "@penrunner/core";
 import { extractToken } from "../src/services/mailer.js";
 import {
+  futureDate,
   expectDbError,
   registerUserWithProfile,
   setupApi,
@@ -112,8 +113,8 @@ beforeAll(async () => {
     organizationId: orgId,
     name: "Scoring Slide 2026",
     venue: "Arena",
-    startDate: "2026-09-01",
-    endDate: "2026-09-02",
+    startDate: futureDate(45),
+    endDate: futureDate(46),
   }));
 
   const [pattern6] = await api.db

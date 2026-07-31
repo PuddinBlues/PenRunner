@@ -188,6 +188,12 @@ export const eventsRouter = router({
         slotDurationS: z.number().int().min(1).optional(),
         dragEveryNRuns: z.number().int().min(1).optional(),
         dragDurationS: z.number().int().min(0).optional(),
+        // BR-91: distanza draw, mai sotto 8. BR-90: cut-off "HH:MM".
+        drawDistanceTarget: z.number().int().min(8).max(50).optional(),
+        entryChangeCutoff: z
+          .string()
+          .regex(/^([01]\d|2[0-3]):[0-5]\d$/)
+          .optional(),
         sponsorName: z.string().max(200).nullable().optional(),
         sponsorImageUrl: z.string().max(2000).nullable().optional(),
       }),

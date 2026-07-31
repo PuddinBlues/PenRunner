@@ -7,6 +7,7 @@ import {
   numeric,
   pgTable,
   text,
+  timestamp,
   uuid,
 } from "drizzle-orm/pg-core";
 import { organizations } from "./accounts.js";
@@ -56,6 +57,13 @@ export const events = pgTable(
     // BR-43: chirurgia del draw pubblicato — capacità concessa per evento dal
     // Platform Admin (mai dall'organizzatore), auditata come la platform fee.
     drawSurgeryEnabled: boolean("draw_surgery_enabled").notNull().default(false),
+    // BR-91: distanza tra due cavalli dello stesso cavaliere nel draw —
+    // parametro dell'evento (default 10, minimo ammesso 8; il generatore
+    // degrada a scala e SEGNALA, mai fallisce).
+    drawDistanceTarget: integer("draw_distance_target").notNull().default(10),
+    // BR-90: cut-off delle modifiche self-serve per il giorno dopo ("HH:MM",
+    // Europe/Rome, default 18:00) — regola dell'evento, mai hardcoded.
+    entryChangeCutoff: text("entry_change_cutoff").notNull().default("18:00"),
     // Fascia sponsor della scoreboard (statica in MVP; upload con la UI
     // organizzatore, il posto è pronto).
     sponsorName: text("sponsor_name"),
@@ -71,6 +79,8 @@ export const events = pgTable(
       "events_eta_positive",
       sql`${t.slotDurationS} > 0 and ${t.dragEveryNRuns} > 0 and ${t.dragDurationS} >= 0`,
     ),
+    // BR-91: sotto 8 il warm-up del cavallo successivo non ci sta.
+    check("events_draw_distance_min", sql`${t.drawDistanceTarget} >= 8`),
   ],
 );
 
@@ -107,6 +117,11 @@ export const classes = pgTable(
     // (vincolo di capienza, non giudizio di eleggibilità: BR-18 non c'entra).
     maxEntries: integer("max_entries"),
     drawStatus: drawStatus("draw_status").notNull().default("nessuno"),
+    // BR-91/BR-43 via di mezzo: prima pubblicazione e ultima RI-pubblicazione
+    // (riordino a classe non iniziata) — lo stamp "draw aggiornato il …"
+    // sulla start list pubblica deriva da qui, mai da testo a mano.
+    drawPublishedAt: timestamp("draw_published_at", { withTimezone: true }),
+    drawRepublishedAt: timestamp("draw_republished_at", { withTimezone: true }),
     // Ordine di giornata (per la cascata ETA sulle classi successive, BR-52).
     // L'entità schedule con orari e pause è Fase 2.
     scheduledOrder: integer("scheduled_order"),

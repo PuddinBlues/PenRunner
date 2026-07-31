@@ -4,6 +4,7 @@ import { schema } from "@penrunner/db";
 import { liveBus } from "../src/services/livebus.js";
 import { extractToken } from "../src/services/mailer.js";
 import {
+  futureDate,
   registerUserWithProfile,
   setupApi,
   type TestApi,
@@ -86,8 +87,8 @@ beforeAll(async () => {
     organizationId,
     name: "Live Slide 2026",
     venue: "Arena",
-    startDate: "2026-09-10",
-    endDate: "2026-09-11",
+    startDate: futureDate(45),
+    endDate: futureDate(46),
   }));
 
   const [pattern6] = await api.db
