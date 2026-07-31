@@ -9,7 +9,7 @@ Autonomia graduata, guadagnata sul campo. Vale per ogni sessione:
 - **CLASSE A — autonomia piena** (si fixa senza aspettare l'ok): bug con fix ovvio e reversibile, nessuna BR toccata, nessuna migrazione o cambio schema, nessuna decisione di prodotto, niente auth/sicurezza/denaro. Esempio storico: il `COPY reference` mancante nel Dockerfile. Restano obbligatori: PR piccola su main (ready + merge) e riepilogo con consuntivo rischi a valle.
 - **CLASSE B — rito invariato** (piano breve → ok esplicito del titolare → codice): tutto ciò che tocca BR o regole di dominio, schema e migrazioni, auth e sicurezza, denaro (fee, payout, quadrature), architettura di deploy, superficie di prodotto nuova. **In dubbio → Classe B.**
 
-Invarianti di sempre: test tutti verdi prima del merge, riepilogo con consuntivo rischi a fine giro, numerazione BR progressiva (prossimi liberi dopo l'ultima assegnata — vedi BR-82), mai segreti in chat (vivono nei pannelli dei servizi).
+Invarianti di sempre: test tutti verdi prima del merge, riepilogo con consuntivo rischi a fine giro, numerazione BR progressiva (prossimi liberi dopo l'ultima assegnata — vedi BR-82), mai segreti in chat (vivono nei pannelli dei servizi). **Norma anti-perdite:** nessun artefatto vive solo in chat — ogni artefatto ratificato si committa nel repo nello stesso giro: `prototypes/` (JSX/TSX), `pitch/` (presentazioni), `docs/design/` (REGOLE-DESIGN.md, MAPPA-UX.md). Gli zip per terzi si generano dal repo, mai a mano.
 
 **Addendum (autopsia del vicolo cieco loggato-non-verificato):**
 
@@ -104,7 +104,7 @@ Identità: "Apple per il rigore, Netflix per lo spettacolo". Due registri:
 - **Registro chiaro** (lavoro: iscrizione, scoring, segreteria) — bianco, slate, un solo accento verde, massima leggibilità.
 - **Registro scuro** (spettacolo: pagina evento pubblica, live results) — fondo notte, numeri protagonisti, trattamento fotografico.
 
-Regole chiave (dettaglio in `design/design-tokens.md` e `design/styleguide.html`):
+Regole chiave (dettaglio in `design/design-tokens.md`, `design/styleguide.html` e `docs/design/REGOLE-DESIGN.md` — quest'ultimo è il testo ratificato delle regole di design):
 - **Accento unico:** verde sella `#15803D`, solo per le azioni di sistema. Non spargere altri accenti.
 - **Rosso `#DC2626` = solo "in diretta".** Mai per errori (quello è danger `#B91C1C`).
 - **Numeri sempre tabulari** (`font-variant-numeric: tabular-nums`) ovunque compaiano punteggi/importi.
@@ -132,16 +132,19 @@ Dettaglio completo in `docs/data-model.md`. Entità principali:
 
 ## Le schermate (prototipi di riferimento)
 
-In `prototypes/` ci sono 4 prototipi React funzionanti, già validati. Usali come specifica viva di UI e interazioni — riproduci comportamento e look, non necessariamente il codice (è prototipale, stato locale, dati mock in cima a ogni file).
+In `prototypes/` ci sono 9 prototipi React funzionanti, già validati (un prototipo vincolante è UNO SOLO per superficie: le versioni superate vivono nella storia git). Usali come specifica viva di UI e interazioni — riproduci comportamento e look, non necessariamente il codice (è prototipale, stato locale, dati mock in cima a ogni file). Le foto embedded nei prototipi e nel pitch hanno licenze da regolarizzare: MAI in produzione.
 
-**I prototipi sono VINCOLANTI, non ispirazionali** (decisione del titolare, programma qualità): una superficie con prototipo di riferimento (Home/portale, PaginaEvento, IscrizioneMassiva, ScoringGiudice) si chiude solo con confronto side-by-side prototipo vs build; le UI nuove nascono già conformi a prototipo + `design/styleguide.html` (griglia, gerarchia, token), mai come layout di servizio da ristilizzare dopo. **Le superfici nuove senza prototipo si progettano prima col titolare, poi si implementano.**
+**I prototipi sono VINCOLANTI, non ispirazionali** (decisione del titolare, programma qualità): una superficie con prototipo di riferimento si chiude solo con confronto side-by-side prototipo vs build; le UI nuove nascono già conformi a prototipo + `design/styleguide.html` + `docs/design/REGOLE-DESIGN.md` (griglia, gerarchia, token), mai come layout di servizio da ristilizzare dopo. **Le superfici nuove senza prototipo si progettano prima col titolare, poi si implementano.** La mappa complessiva dei percorsi utente è in `docs/design/MAPPA-UX.md`; il deck di presentazione (IRHA) vive in `pitch/` (HTML canonico + PDF gemello, si rigenera dal repo).
 
-1. `Home.jsx` — home pubblica. Hero scuro + corpo chiaro, calendario con tema/tier, ricerca e filtri regione.
-2. `PaginaEvento.jsx` — pagina evento pubblica, registro scuro. Live results, classifica che si riordina all'arrivo di uno score, binomio "in campo".
+1. `HomePortale.jsx` — home pubblica v4, registro scuro produttizzato. Navigazione, ricerca funzionante, filtri regione, footer.
+2. `PaginaEventoPubblica.jsx` — pagina evento pubblica, registro scuro. La pagina cambia natura con lo stadio dell'evento (vetrina → iscrizioni → programma → DIRETTA → albo d'oro); classifiche per livello (BR-88) + generale di categoria "non ufficiale".
 3. `IscrizioneMassiva.jsx` — iscrizione scuderia, desktop. Griglia binomi, assegnazione classi multiple, calcolo costi+fee live, checkout.
-4. `ScoringGiudice.jsx` — scoring scribe, mobile. Voti per manovra, widget penalità (inserimento numerico), score live con viraggio colore, firma offline.
-5. `Scoreboard.jsx` — vista arena fullscreen per maxischermi (MVP, step 6): IN CAMPO, PRECEDENTE con score enorme, A SEGUIRE con ETA e marker drag, leader del go. Kiosk, registro scuro, auto-aggiornante, si apre su qualsiasi TV con browser. Rosso #DC2626 solo per lo stato live.
-6. `PaginaPattern.jsx` — pagina pattern pubblica (per classe). Regola d'ingresso, sequenza numerata delle manovre da `reference/patterns.json`. Linkata da pagina evento, start list e app scribe. Diagrammi: mai le tavole NRHA (copyright) — si generano SVG originali dai dati di patterns.json, in stile PenRunner; in MVP bastano i passi testuali.
+4. `MieIscrizioni.jsx` — le mie iscrizioni (scuderia). Stato per binomio orientato al "adesso" (ordine di partenza, diretta, risultato), avvisi umani con l'azione di chi li può risolvere, layout desktop+mobile.
+5. `CreazioneEvento.jsx` — wizard creazione evento v4 (organizer). Step classi a fondo: catalogo ufficiale, economia con stima live, eleggibilità leggibile, anteprima lato scuderia.
+6. `OrganizerRegia.tsx` — regia evento v4 (organizer). Draw multi-giornata/multi-classe, chips giornate, editor una classe alla volta, pubblicazione per giornata mai bloccata, "inserisci a distanza".
+7. `ScoringGiudice.jsx` — scoring scribe, mobile. Voti per manovra, widget penalità (inserimento numerico), score live con viraggio colore, firma offline.
+8. `Scoreboard.jsx` — vista arena fullscreen per maxischermi (MVP, step 6): IN CAMPO, PRECEDENTE con score enorme, A SEGUIRE con ETA e marker drag, leader del go. Kiosk, registro scuro, auto-aggiornante, si apre su qualsiasi TV con browser. Rosso #DC2626 solo per lo stato live.
+9. `PaginaPattern.jsx` — pagina pattern pubblica (per classe). Regola d'ingresso, sequenza numerata delle manovre da `reference/patterns.json`. Linkata da pagina evento, start list e app scribe. Diagrammi: mai le tavole NRHA (copyright) — si generano SVG originali dai dati di patterns.json, in stile PenRunner; in MVP bastano i passi testuali.
 Diagrammi dei pattern: NON esistono ancora asset validi. In MVP la PaginaPattern mostra i passi testuali (da `reference/patterns.json`, che è completo e valido). I diagrammi arriveranno per una di queste vie: (a) permesso IRHA/NRHA di usare le tavole ufficiali, oppure (b) ridisegno vettoriale manuale da parte di un designer (es. in Figma, ricalcando le tavole e ri-stilizzando). Non tentare di generarli programmaticamente: la geometria continua del tracciato è l'informazione, e le approssimazioni per primitivi risultano sbagliate a chi conosce i pattern.
 
 ## Priorità suggerita per l'MVP
