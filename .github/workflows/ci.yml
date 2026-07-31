@@ -1,0 +1,93 @@
+# FASE 2 — CI merge-blocking: suite completa + funnel E2E nei 2 viewport.
+# I job "tests" ed "e2e" sono i required status check della branch protection
+# su main (attivata dal titolare nei settings): non rinominarli alla leggera.
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  tests:
+    name: tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: penrunner
+          POSTGRES_PASSWORD: penrunner
+          POSTGRES_DB: penrunner_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U penrunner"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Suite completa (unit + guardie bundle)
+        run: pnpm -r test
+        env:
+          TEST_DATABASE_URL: postgres://penrunner:penrunner@localhost:5432/penrunner_test
+      - name: Typecheck
+        run: |
+          pnpm -r --if-present typecheck
+          pnpm --filter @penrunner/api exec tsc --noEmit
+
+  e2e:
+    name: e2e
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: penrunner
+          POSTGRES_PASSWORD: penrunner
+          POSTGRES_DB: penrunner_e2e
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U penrunner"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Build SPA (produzione)
+        run: |
+          pnpm --filter @penrunner/stable build
+          pnpm --filter @penrunner/organizer build
+      - name: Funnel E2E (2 round × 2 viewport)
+        run: node e2e/run.mjs
+        env:
+          E2E_DATABASE_URL: postgres://penrunner:penrunner@localhost:5432/penrunner_e2e
+          # Chrome stabile preinstallato sui runner ubuntu-latest
+          PW_BROWSER: /usr/bin/google-chrome
+      - name: Screenshot dei fallimenti
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-failures
+          path: e2e/failures/
+          if-no-files-found: ignore
