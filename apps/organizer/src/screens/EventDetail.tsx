@@ -8,6 +8,7 @@ import { Badge, Banner, Confirm, Empty, errorMessage } from "../components/Ui.js
 import { API_URL } from "../lib/api.js";
 import type { Client } from "../lib/api.js";
 import type { MessageKey, T } from "../lib/i18n.js";
+import { warningView } from "../lib/warnings.js";
 
 type EventDetailData = Awaited<ReturnType<Client["events"]["get"]["query"]>>;
 type AuditRow = Awaited<ReturnType<Client["audit"]["forEvent"]["query"]>>[number];
@@ -34,9 +35,9 @@ export function EventDetail({
 }) {
   void session;
   const [event, setEvent] = useState<EventDetailData | null>(null);
-  const [tab, setTab] = useState<"overview" | "classes" | "staff" | "settings" | "audit">(
-    "overview",
-  );
+  const [tab, setTab] = useState<
+    "overview" | "classes" | "vetting" | "staff" | "settings" | "audit"
+  >("overview");
   const [error, setError] = useState<string | null>(null);
   const [confirmStatus, setConfirmStatus] = useState<string | null>(null);
 
@@ -115,6 +116,7 @@ export function EventDetail({
           [
             ["overview", "detail.overview"],
             ["classes", "detail.classes"],
+            ["vetting", "vetting.tab"],
             ["staff", "detail.staff"],
             ["settings", "detail.settings"],
             ["audit", "detail.audit"],
@@ -140,6 +142,9 @@ export function EventDetail({
         <div className="card">
           <ClassesManager t={t} client={client} eventId={eventId} manage />
         </div>
+      )}
+      {tab === "vetting" && (
+        <VettingPanel t={t} client={client} eventId={eventId} />
       )}
       {tab === "staff" && (
         <OfficialsPanel t={t} client={client} eventId={eventId} vetted={event.organizationVetted} />
@@ -239,6 +244,122 @@ function AuditView({
             ))}
           </tbody>
         </table>
+      )}
+    </div>
+  );
+}
+
+type FlaggedRow = Awaited<
+  ReturnType<Client["entries"]["flaggedByEvent"]["query"]>
+>[number];
+
+/**
+ * B3 (BR-94): i binomi con controlli aperti, filtrabili per tipo, con
+ * "Avvisa la scuderia" a un tocco (email umana nella lingua del
+ * destinatario, auditata). BR-18: si segnala, non si blocca mai.
+ */
+function VettingPanel({
+  t,
+  client,
+  eventId,
+}: {
+  t: T;
+  client: Client;
+  eventId: string;
+}) {
+  const [rows, setRows] = useState<FlaggedRow[] | null>(null);
+  const [filter, setFilter] = useState<string>("all");
+  const [sent, setSent] = useState<Record<string, string>>({});
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    client.entries.flaggedByEvent
+      .query({ eventId })
+      .then(setRows)
+      .catch((err) => setError(errorMessage(err)));
+  }, [client, eventId]);
+
+  if (error) return <Banner tone="danger">{t("app.error", { msg: error })}</Banner>;
+  if (!rows) return <p className="muted">{t("app.loading")}</p>;
+
+  const codes = [...new Set(rows.flatMap((r) => r.warnings.map((w) => w.code)))];
+  const visible =
+    filter === "all"
+      ? rows
+      : rows.filter((r) => r.warnings.some((w) => w.code === filter));
+
+  return (
+    <div className="card">
+      <h2>{t("vetting.title")}</h2>
+      <p className="hint">{t("vetting.explain")}</p>
+      {rows.length === 0 ? (
+        <Empty>{t("vetting.empty")}</Empty>
+      ) : (
+        <>
+          <label className="field" style={{ maxWidth: 320, marginBottom: 12 }}>
+            <span>{t("vetting.filter")}</span>
+            <select value={filter} onChange={(e) => setFilter(e.target.value)}>
+              <option value="all">{t("vetting.filterAll")}</option>
+              {codes.map((c) => {
+                const sample = rows
+                  .flatMap((r) => r.warnings)
+                  .find((w) => w.code === c)!;
+                return (
+                  <option key={c} value={c}>
+                    {warningView(sample, t).title}
+                  </option>
+                );
+              })}
+            </select>
+          </label>
+          <table className="tbl">
+            <tbody>
+              {visible.map((r) => (
+                <tr key={r.entryId}>
+                  <td>
+                    <strong>{r.horseName}</strong> · {r.riderName}
+                    <div className="muted">{r.className}</div>
+                  </td>
+                  <td>
+                    {r.warnings.map((w, i) => {
+                      const v = warningView(w, t);
+                      return (
+                        <div key={i} style={{ marginBottom: 4 }}>
+                          <Badge tone="warn">{v.title}</Badge>{" "}
+                          <span className="muted">{v.body}</span>
+                        </div>
+                      );
+                    })}
+                  </td>
+                  <td style={{ textAlign: "right", whiteSpace: "nowrap" }}>
+                    {sent[r.entryId] ? (
+                      <span className="muted">
+                        {t("vetting.sent", { email: sent[r.entryId]! })}
+                      </span>
+                    ) : (
+                      <button
+                        className="btn small primary"
+                        onClick={async () => {
+                          setError(null);
+                          try {
+                            const res = await client.entries.notifyFlagged.mutate({
+                              entryId: r.entryId,
+                            });
+                            setSent((s) => ({ ...s, [r.entryId]: res.sentTo }));
+                          } catch (err) {
+                            setError(errorMessage(err));
+                          }
+                        }}
+                      >
+                        {t("vetting.notify")}
+                      </button>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </>
       )}
     </div>
   );
