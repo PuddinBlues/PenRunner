@@ -189,6 +189,8 @@ async function organizerCreateEvent(org, sfx) {
   await tap(org, "Continua");
   await tap(org, "Aggiungi classe");
   await tap(org, "Continua");
+  // passo Ufficiali di gara (B1/A4): nel funnel base si salta con Continua
+  await tap(org, "Continua");
   await tap(org, "Fine: vai all'evento");
   await org.waitForTimeout(700);
   await tap(org, "Passa a: Annunciato");
@@ -218,6 +220,11 @@ async function stableEnroll(st, sfx, desktop) {
   await fillNth(st, 3, `38027199900${String(Math.abs(hash(sfx)) % 10000).padStart(4, "0")}`);
   await tap(st, "Aggiungi cavallo");
   await st.waitForTimeout(600);
+  // secondo cavallo: serve al riordino del draw (round desktop)
+  await fillNth(st, 2, `Gun Smart ${sfx}`);
+  await fillNth(st, 3, `38027199901${String(Math.abs(hash(sfx)) % 10000).padStart(4, "0")}`);
+  await tap(st, "Aggiungi cavallo");
+  await st.waitForTimeout(600);
   // iscrizione
   await tap(st, "Iscrivi");
   await st.waitForTimeout(600);
@@ -229,6 +236,15 @@ async function stableEnroll(st, sfx, desktop) {
       await tap(st, "Aggiungi binomio");
     }
     await st.locator(".class-add").first().click();
+    await st.waitForTimeout(300);
+    await st.locator(".class-menu button:not([disabled])").first().click();
+    await st.waitForTimeout(400);
+    // secondo binomio (per il riordino del draw): riga nuova, secondo cavallo
+    await tap(st, "Aggiungi binomio");
+    const row2 = st.locator(".egrid-row").nth(1);
+    await row2.locator("select").first().selectOption({ label: `Gun Smart ${sfx}` });
+    await st.waitForTimeout(200);
+    await row2.locator(".class-add").click();
     await st.waitForTimeout(300);
     await st.locator(".class-menu button:not([disabled])").first().click();
     await st.waitForTimeout(400);
@@ -248,7 +264,7 @@ async function stableEnroll(st, sfx, desktop) {
   await expectText(st, `Smart Dunit ${sfx}`, "binomio nelle mie iscrizioni");
 }
 
-async function organizerDraw(org, sfx) {
+async function organizerDraw(org, sfx, withReorder) {
   await org.reload();
   await org.waitForTimeout(800);
   await tap(org, `E2E Show ${sfx}`);
@@ -271,6 +287,22 @@ async function organizerDraw(org, sfx) {
     `select count(*) from runs r join entries e on e.id=r.entry_id join classes c on c.id=e.class_id join events ev on ev.id=c.event_id where ev.name='E2E Show ${sfx}'`,
   );
   if (Number(runs) < 1) throw new Error(`nessuna run creata per E2E Show ${sfx}`);
+
+  if (withReorder) {
+    // Editor BR-91: sposta la prima riga in giù, applica → ri-pubblicazione
+    // (BR-43 via di mezzo) con stamp draw_republished_at.
+    await org.waitForTimeout(600);
+    await org.locator("button.down").first().click();
+    await org.waitForTimeout(300);
+    await tap(org, "Applica ordine");
+    await org.waitForTimeout(900);
+    const stamped = psql(
+      `select count(*) from classes c join events ev on ev.id=c.event_id where ev.name='E2E Show ${sfx}' and c.draw_republished_at is not null`,
+    );
+    if (Number(stamped) < 1) {
+      throw new Error(`riordino senza stamp di ri-pubblicazione per E2E Show ${sfx}`);
+    }
+  }
 }
 
 function hash(s) {
@@ -297,8 +329,10 @@ async function round(browser, name, orgViewport, stableViewport, desktopGrid) {
     console.log(`[e2e]   organizer: evento aperto ✓`);
     await stableEnroll(st, sfx, desktopGrid);
     console.log(`[e2e]   scuderia: binomio confermato ✓`);
-    await organizerDraw(org, sfx);
-    console.log(`[e2e]   organizer: draw pubblicato + run create ✓`);
+    await organizerDraw(org, sfx, desktopGrid);
+    console.log(
+      `[e2e]   organizer: draw pubblicato + run create${desktopGrid ? " + riordino ri-pubblicato" : ""} ✓`,
+    );
   } catch (err) {
     mkdirSync(FAIL_DIR, { recursive: true });
     await org.screenshot({ path: `${FAIL_DIR}${name}-organizer.png`, fullPage: true }).catch(() => {});

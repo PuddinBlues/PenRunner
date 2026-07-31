@@ -264,6 +264,63 @@ export const drawRouter = router({
     }),
 
   /**
+   * BR-91: l'ordine per l'EDITOR della regia — a qualsiasi stadio del draw
+   * (anche generato, che la start list pubblica non mostra), con ciò che
+   * serve ai flag live: riderId, target dell'evento, stato "classe iniziata".
+   */
+  orderForManage: verifiedProcedure
+    .input(z.object({ classId: z.string().uuid() }))
+    .query(async ({ ctx, input }) => {
+      const { cls, event } = await loadClass(ctx.db, input.classId);
+      requireDrawManage(ctx.actor, event);
+      const rows = await ctx.db
+        .select({
+          entryId: schema.entries.id,
+          drawNumber: schema.entries.drawNumber,
+          status: schema.entries.status,
+          riderId: schema.entries.riderId,
+          horseName: schema.horses.name,
+          riderName: personDisplayNameSql,
+        })
+        .from(schema.entries)
+        .innerJoin(schema.horses, eq(schema.horses.id, schema.entries.horseId))
+        .innerJoin(schema.persons, eq(schema.persons.id, schema.entries.riderId))
+        .where(
+          and(
+            eq(schema.entries.classId, input.classId),
+            isNotNull(schema.entries.drawNumber),
+          ),
+        )
+        .orderBy(asc(schema.entries.drawNumber));
+      const [started] = await ctx.db
+        .select({ id: schema.runs.id })
+        .from(schema.runs)
+        .innerJoin(schema.entries, eq(schema.entries.id, schema.runs.entryId))
+        .where(
+          and(
+            eq(schema.entries.classId, input.classId),
+            sql`${schema.runs.status} <> 'attesa'`,
+          ),
+        )
+        .limit(1);
+      return {
+        drawStatus: cls.drawStatus,
+        targetGap: event.drawDistanceTarget,
+        publishedAt: cls.drawPublishedAt,
+        updatedAt: cls.drawRepublishedAt,
+        started: Boolean(started),
+        entries: rows.map((r) => ({
+          entryId: r.entryId,
+          drawNumber: r.drawNumber,
+          riderId: r.riderId,
+          horseName: r.horseName,
+          riderName: r.riderName,
+          scratched: r.status === "ritirata" || r.status === "assente",
+        })),
+      };
+    }),
+
+  /**
    * BR-91: riordino dell'editor (drag&drop). Libero a draw GENERATO; a draw
    * PUBBLICATO consentito solo finché la classe non è iniziata (BR-43 "via
    * di mezzo", decisione titolare): il riordino vale come RI-pubblicazione,

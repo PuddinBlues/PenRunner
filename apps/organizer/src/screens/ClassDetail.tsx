@@ -275,7 +275,8 @@ function Draw({
   surgeryEnabled: boolean;
   onChanged: () => Promise<void>;
 }) {
-  const [gap, setGap] = useState("8");
+  // vuoto = target dell'evento (BR-91); override esplicito mai sotto 8
+  const [gap, setGap] = useState("");
   const [result, setResult] = useState<DrawResult | null>(null);
   const [startList, setStartList] = useState<StartList | null>(null);
   const [registry, setRegistry] = useState<Registry | null>(null);
@@ -316,8 +317,9 @@ function Draw({
               <input
                 className="num"
                 type="number"
-                min="0"
+                min="8"
                 max="50"
+                placeholder={t("draw.gapAuto")}
                 value={gap}
                 onChange={(e) => setGap(e.target.value)}
               />
@@ -330,7 +332,7 @@ function Draw({
                   setResult(
                     await client.draw.generate.mutate({
                       classId,
-                      minRiderGap: Number(gap),
+                      ...(gap ? { minRiderGap: Number(gap) } : {}),
                     }),
                   );
                   await onChanged();
@@ -364,7 +366,15 @@ function Draw({
           )}
           {drawStatus === "nessuno" && !result && <Empty>{t("draw.empty")}</Empty>}
           {drawStatus === "generato" && (
-            <Badge tone="info">{t("draw.generated")}</Badge>
+            <>
+              <Badge tone="info">{t("draw.generated")}</Badge>
+              <OrderEditor
+                t={t}
+                client={client}
+                classId={classId}
+                onApplied={onChanged}
+              />
+            </>
           )}
         </>
       )}
@@ -394,7 +404,16 @@ function Draw({
       {drawStatus === "pubblicato" && (
         <>
           <Badge tone="green">{t("draw.published")}</Badge>
-          {startList && (
+          <OrderEditor
+            t={t}
+            client={client}
+            classId={classId}
+            onApplied={async () => {
+              await onChanged();
+              await reloadStartList();
+            }}
+          />
+          {surgeryEnabled && startList && (
             <table className="tbl" style={{ margin: "12px 0" }}>
               <tbody>
                 {startList.entries.map((e) => (
@@ -909,6 +928,210 @@ function Docs({
         >
           {t("docs.payout")} (CSV)
         </button>
+      </div>
+    </div>
+  );
+}
+
+type ManageOrder = Awaited<ReturnType<Client["draw"]["orderForManage"]["query"]>>;
+
+/**
+ * Editor dell'ordine (BR-91): frecce su/giù con flag di vicinanza LIVE a ogni
+ * spostamento, "Sistema l'ordine" (proposta ancorata, minime modifiche) e
+ * applicazione esplicita. A classe pubblicata ma non iniziata l'applicazione
+ * vale come RI-pubblicazione (auditata, con stamp sulla start list pubblica);
+ * a classe iniziata l'editor si blocca e resta la chirurgia concessa.
+ */
+function OrderEditor({
+  t,
+  client,
+  classId,
+  onApplied,
+}: {
+  t: T;
+  client: Client;
+  classId: string;
+  onApplied: () => Promise<void>;
+}) {
+  const [data, setData] = useState<ManageOrder | null>(null);
+  const [order, setOrder] = useState<string[]>([]);
+  const [moved, setMoved] = useState<Set<string>>(new Set());
+  const [fixInfo, setFixInfo] = useState<string | null>(null);
+  const [applied, setApplied] = useState<null | "ok" | "republished">(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const reload = useCallback(async () => {
+    try {
+      const d = await client.draw.orderForManage.query({ classId });
+      setData(d);
+      setOrder(d.entries.map((e) => e.entryId));
+      setMoved(new Set());
+      setFixInfo(null);
+    } catch (err) {
+      setError(errorMessage(err));
+    }
+  }, [client, classId]);
+
+  useEffect(() => {
+    void reload();
+  }, [reload]);
+
+  if (!data || data.entries.length === 0) return null;
+
+  const byId = new Map(data.entries.map((e) => [e.entryId, e]));
+  const serverOrder = data.entries.map((e) => e.entryId);
+  const dirty = order.some((id, i) => serverOrder[i] !== id);
+
+  // Flag LIVE: distanza dalla partenza precedente dello stesso cavaliere,
+  // ricalcolata sull'ordine locale a ogni spostamento (BR-91).
+  const flags = new Map<string, { gap: number; rider: string }>();
+  const lastSeen = new Map<string, number>();
+  order.forEach((id, i) => {
+    const r = byId.get(id)!;
+    const prev = lastSeen.get(r.riderId);
+    if (prev !== undefined) {
+      const gap = i - prev - 1;
+      if (gap < data.targetGap) flags.set(id, { gap, rider: r.riderName });
+    }
+    lastSeen.set(r.riderId, i);
+  });
+
+  const stamp = (
+    <p className="hint" style={{ margin: "6px 0" }}>
+      {data.publishedAt &&
+        t("draw.publishedAt", {
+          when: new Date(data.publishedAt as unknown as string).toLocaleString(),
+        })}
+      {data.updatedAt && (
+        <>
+          {" · "}
+          {t("draw.updatedAtStamp", {
+            when: new Date(data.updatedAt as unknown as string).toLocaleString(),
+          })}
+        </>
+      )}
+    </p>
+  );
+
+  if (data.started) {
+    return (
+      <div style={{ margin: "12px 0" }}>
+        {stamp}
+        <p className="hint">{t("draw.editorLocked")}</p>
+      </div>
+    );
+  }
+
+  const move = (i: number, dir: -1 | 1) => {
+    const j = i + dir;
+    if (j < 0 || j >= order.length) return;
+    setOrder((o) => {
+      const n = [...o];
+      [n[i], n[j]] = [n[j]!, n[i]!];
+      return n;
+    });
+    setApplied(null);
+    setFixInfo(null);
+  };
+
+  return (
+    <div style={{ margin: "12px 0" }}>
+      {stamp}
+      <h2 style={{ marginTop: 8 }}>{t("draw.editorTitle")}</h2>
+      <p className="hint">{t("draw.editorHint")}</p>
+      {error && <div className="error-inline">{error}</div>}
+      <table className="tbl" style={{ marginBottom: 12 }}>
+        <tbody>
+          {order.map((id, i) => {
+            const e = byId.get(id)!;
+            const flag = flags.get(id);
+            return (
+              <tr
+                key={id}
+                style={moved.has(id) ? { background: "#FFF7ED" } : {}}
+              >
+                <td className="num" style={{ width: 40 }}>
+                  {i + 1}
+                </td>
+                <td style={e.scratched ? { textDecoration: "line-through" } : {}}>
+                  <strong>{e.horseName}</strong> · {e.riderName}{" "}
+                  {e.scratched && <Badge tone="danger">{t("entry.ritirata")}</Badge>}{" "}
+                  {flag && (
+                    <Badge tone="warn">
+                      {t("draw.tooClose", {
+                        gap: flag.gap,
+                        target: data.targetGap,
+                      })}
+                    </Badge>
+                  )}
+                </td>
+                <td style={{ textAlign: "right", whiteSpace: "nowrap" }}>
+                  <button
+                    className="btn small up"
+                    disabled={i === 0}
+                    aria-label={t("draw.moveUp")}
+                    onClick={() => move(i, -1)}
+                  >
+                    ↑
+                  </button>{" "}
+                  <button
+                    className="btn small down"
+                    disabled={i === order.length - 1}
+                    aria-label={t("draw.moveDown")}
+                    onClick={() => move(i, 1)}
+                  >
+                    ↓
+                  </button>
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+      <div className="row">
+        <button
+          className="btn"
+          onClick={async () => {
+            setError(null);
+            try {
+              const sug = await client.draw.suggest.query({ classId });
+              if (sug.moved.length === 0) {
+                setFixInfo(t("draw.fixNone"));
+              } else {
+                setOrder(sug.order);
+                setMoved(new Set(sug.moved));
+                setFixInfo(t("draw.fixProposed", { n: sug.moved.length }));
+              }
+              setApplied(null);
+            } catch (err) {
+              setError(errorMessage(err));
+            }
+          }}
+        >
+          {t("draw.fix")}
+        </button>
+        <button
+          className="btn primary"
+          disabled={!dirty}
+          onClick={async () => {
+            setError(null);
+            try {
+              const res = await client.draw.reorder.mutate({ classId, order });
+              setApplied(res.republished ? "republished" : "ok");
+              await onApplied();
+              await reload();
+            } catch (err) {
+              setError(errorMessage(err));
+            }
+          }}
+        >
+          {t("draw.apply")}
+        </button>
+        {fixInfo && <span className="muted">{fixInfo}</span>}
+        {applied === "ok" && <Badge tone="green">{t("draw.applied")}</Badge>}
+        {applied === "republished" && (
+          <Badge tone="green">{t("draw.republished")}</Badge>
+        )}
       </div>
     </div>
   );
