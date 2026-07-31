@@ -269,6 +269,16 @@ async function organizerDraw(org, sfx, withReorder) {
   await org.waitForTimeout(800);
   await tap(org, `E2E Show ${sfx}`);
   await org.waitForTimeout(600);
+  // B3: la cavaliera è senza tesseramenti → binomio flaggato in "Controlli";
+  // un tocco avvisa la scuderia via email (verificata nello stdout API)
+  await tap(org, "Controlli");
+  await org.waitForTimeout(700);
+  await expectText(org, `Smart Dunit ${sfx}`, "binomio flaggato nei controlli");
+  await tap(org, "Avvisa la scuderia");
+  await org.waitForTimeout(900);
+  if (!apiLog.includes(`Controlli sull'iscrizione · Smart Dunit ${sfx}`)) {
+    throw new Error("email 'avvisa la scuderia' non trovata nello stdout API");
+  }
   await tap(org, "Classi");
   await tap(org, "Gestisci");
   await org.waitForTimeout(700);

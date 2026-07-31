@@ -16,6 +16,7 @@ import {
 
 let api: TestApi;
 let stableToken: string;
+let organizerToken: string;
 let stableId: string;
 let eventId: string;
 let classId: string;
@@ -31,6 +32,7 @@ beforeAll(async () => {
     "club@stable-test.example",
     "Referente Club",
   );
+  organizerToken = organizer.sessionToken;
   let orgCaller = await api.as(organizer.sessionToken);
   const { organizationId } = await orgCaller.org.create({ name: "Club Test" });
   const admin = await registerUserWithProfile(
@@ -227,6 +229,55 @@ describe("le mie iscrizioni (byStable)", () => {
     const codes = entries[0]!.warnings.map((w) => w.code);
     expect(codes).not.toContain("fise_license_missing");
     expect(codes).not.toContain("irha_membership_missing");
+  });
+
+  it("B3: il binomio flaggato compare in regia e 'avvisa la scuderia' manda l'email umana", async () => {
+    const caller = await api.as(stableToken);
+    // binomio nuovo con profilo vuoto → controlli aperti
+    const rider = await caller.roster.addRider({
+      stableId,
+      firstName: "Nino",
+      lastName: "Senza Dati",
+      email: "nino@example.com",
+    });
+    const horse = await caller.roster.addHorse({
+      stableId,
+      name: "Flag Me",
+      microchip: "380271000000999",
+      ownerPersonId: rider.personId,
+    });
+    const { entries } = await caller.entries.bulkCreate({
+      stableId,
+      items: [{ classId, horseId: horse.horseId, riderId: rider.personId }],
+    });
+    await caller.entries.confirm({ entryIds: entries.map((e) => e.entryId) });
+
+    // lato regia: lista dei flaggati con avvisi LIVE
+    const org = await api.as(organizerToken);
+    const flagged = await org.entries.flaggedByEvent({ eventId });
+    const row = flagged.find((r) => r.horseName === "Flag Me");
+    expect(row).toBeDefined();
+    expect(row!.warnings.map((w) => w.code)).toContain("irha_membership_missing");
+
+    // la scuderia NON può usare la vista regia
+    await expect(caller.entries.flaggedByEvent({ eventId })).rejects.toThrow(
+      /FORBIDDEN/,
+    );
+
+    // un tocco → email al referente della scuderia, in linguaggio umano
+    const res = await org.entries.notifyFlagged({ entryId: row!.entryId });
+    expect(res.sentTo).toBe("scuderia@stable-test.example");
+    const mail = JSON.stringify(api.mailer.lastTo("scuderia@stable-test.example"));
+    expect(mail).toMatch(/Controlli sull'iscrizione · Flag Me/);
+    expect(mail).toMatch(/Tesseramento IRHA mancante/);
+    expect(mail).not.toMatch(/BR-\d+/); // confine dei codici anche via email
+
+    // auditata (BR-71)
+    const audit = await api.db
+      .select()
+      .from(schema.auditLog)
+      .where(eq(schema.auditLog.action, "vetting.notify"));
+    expect(audit).toHaveLength(1);
   });
 
   it("chi non è referente non vede il roster altrui", async () => {

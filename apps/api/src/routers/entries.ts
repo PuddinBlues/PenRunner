@@ -4,6 +4,9 @@ import { z } from "zod";
 import { schema, type Db } from "@penrunner/db";
 import { personDisplayNameSql } from "../services/names.js";
 import { selfServeEntriesClosed } from "../services/cutoff.js";
+import { recordAudit } from "../services/audit.js";
+import { renderMail } from "../services/mailtemplate.js";
+import { warnLine } from "../services/warncopy.js";
 import { evaluateEligibility, type EligibilityWarning } from "../eligibility.js";
 import { can, type Actor } from "../policy/policy.js";
 import { liveBus } from "../services/livebus.js";
@@ -656,6 +659,176 @@ export const entriesRouter = router({
         .innerJoin(schema.persons, eq(schema.persons.id, schema.entries.riderId))
         .where(inArray(schema.entries.classId, classIds));
       return { horses, riders };
+    }),
+
+  /**
+   * B3 (BR-94): i binomi FLAGGATI dell'evento — avvisi ricalcolati LIVE
+   * (mai snapshot), lista filtrabile lato regia. Struttura estensibile: un
+   * flag nuovo è un codice nuovo dell'evaluator, niente migrazioni.
+   */
+  flaggedByEvent: verifiedProcedure
+    .input(z.object({ eventId: z.string().uuid() }))
+    .query(async ({ ctx, input }) => {
+      const [event] = await ctx.db
+        .select()
+        .from(schema.events)
+        .where(eq(schema.events.id, input.eventId));
+      if (!event) throw new TRPCError({ code: "NOT_FOUND" });
+      if (
+        !can(ctx.actor, "event.registry.manage", {
+          organizationId: event.organizationId,
+          eventId: event.id,
+        })
+      ) {
+        throw new TRPCError({ code: "FORBIDDEN" });
+      }
+      const rows = await ctx.db
+        .select({
+          entry: schema.entries,
+          className: schema.classes.name,
+          categoryId: schema.classes.categoryId,
+          horseName: schema.horses.name,
+          stableId: schema.horses.stableId,
+          riderName: personDisplayNameSql,
+        })
+        .from(schema.entries)
+        .innerJoin(schema.classes, eq(schema.classes.id, schema.entries.classId))
+        .innerJoin(schema.horses, eq(schema.horses.id, schema.entries.horseId))
+        .innerJoin(schema.persons, eq(schema.persons.id, schema.entries.riderId))
+        .where(
+          and(
+            eq(schema.classes.eventId, input.eventId),
+            inArray(schema.entries.status, ["confermata", "check_in"]),
+          ),
+        );
+      const year = new Date(event.startDate).getFullYear();
+      const withWarnings = await Promise.all(
+        rows.map(async (r) => ({
+          entryId: r.entry.id,
+          className: r.className,
+          horseName: r.horseName,
+          riderName: r.riderName,
+          stableId: r.stableId,
+          warnings: await computeWarnings(
+            ctx.db,
+            r.categoryId,
+            r.entry.riderId,
+            r.entry.horseId,
+            r.entry.tecnicoName,
+            year,
+          ),
+        })),
+      );
+      return withWarnings.filter((r) => r.warnings.length > 0);
+    }),
+
+  /**
+   * B3 (BR-94) "avvisa la scuderia": un tocco → email al referente della
+   * scuderia del cavallo (fallback: cavaliere, poi proprietario) col
+   * problema in linguaggio umano e l'azione richiesta, nella sua lingua
+   * (BR-62). Auditata. Il sistema SEGNALA, mai blocca (BR-18).
+   */
+  notifyFlagged: verifiedProcedure
+    .input(z.object({ entryId: z.string().uuid() }))
+    .mutation(async ({ ctx, input }) => {
+      const [row] = await ctx.db
+        .select({
+          entry: schema.entries,
+          cls: schema.classes,
+          event: schema.events,
+          horse: schema.horses,
+        })
+        .from(schema.entries)
+        .innerJoin(schema.classes, eq(schema.classes.id, schema.entries.classId))
+        .innerJoin(schema.events, eq(schema.events.id, schema.classes.eventId))
+        .innerJoin(schema.horses, eq(schema.horses.id, schema.entries.horseId))
+        .where(eq(schema.entries.id, input.entryId));
+      if (!row) throw new TRPCError({ code: "NOT_FOUND" });
+      if (
+        !can(ctx.actor, "event.registry.manage", {
+          organizationId: row.event.organizationId,
+          eventId: row.event.id,
+        })
+      ) {
+        throw new TRPCError({ code: "FORBIDDEN" });
+      }
+      const warnings = await computeWarnings(
+        ctx.db,
+        row.cls.categoryId,
+        row.entry.riderId,
+        row.entry.horseId,
+        row.entry.tecnicoName,
+        new Date(row.event.startDate).getFullYear(),
+      );
+      if (warnings.length === 0) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Nessun controllo aperto per questo binomio",
+        });
+      }
+      // Destinatario: referente della scuderia del cavallo; in mancanza il
+      // cavaliere, poi il proprietario del cavallo.
+      let recipient: { email: string | null; locale: string } | undefined;
+      if (row.horse.stableId) {
+        const [ref] = await ctx.db
+          .select({ email: schema.persons.email, locale: schema.persons.locale })
+          .from(schema.stables)
+          .innerJoin(schema.persons, eq(schema.persons.id, schema.stables.referentId))
+          .where(eq(schema.stables.id, row.horse.stableId));
+        if (ref?.email) recipient = ref;
+      }
+      if (!recipient) {
+        const [rider] = await ctx.db
+          .select({ email: schema.persons.email, locale: schema.persons.locale })
+          .from(schema.persons)
+          .where(eq(schema.persons.id, row.entry.riderId));
+        if (rider?.email) recipient = rider;
+      }
+      if (!recipient) {
+        const [owner] = await ctx.db
+          .select({ email: schema.persons.email, locale: schema.persons.locale })
+          .from(schema.persons)
+          .where(eq(schema.persons.id, row.horse.ownerId));
+        if (owner?.email) recipient = owner;
+      }
+      if (!recipient?.email) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message:
+            "Nessuna email a cui inviare l'avviso: né scuderia, né cavaliere, né proprietario",
+        });
+      }
+      const lang = recipient.locale === "en" ? ("en" as const) : ("it" as const);
+      const heading =
+        lang === "it"
+          ? `Controlli sull'iscrizione · ${row.horse.name}`
+          : `Entry checks · ${row.horse.name}`;
+      const intro =
+        lang === "it"
+          ? `La segreteria di ${row.event.name} segnala alcuni dati da sistemare per ${row.horse.name} (${row.cls.name}):`
+          : `The ${row.event.name} show office flagged some details to fix for ${row.horse.name} (${row.cls.name}):`;
+      const outro =
+        lang === "it"
+          ? "La maggior parte dei dati si sistema dal roster della tua scuderia su PenRunner. Nessuna iscrizione è bloccata: sono controlli da chiudere prima del check-in."
+          : "Most details can be fixed from your stable roster on PenRunner. No entry is blocked: these are checks to close before check-in.";
+      const { text, html } = renderMail(lang, {
+        heading,
+        paragraphs: [intro, ...warnings.map((w) => `• ${warnLine(w, lang)}`), outro],
+      });
+      await ctx.mailer.send({
+        to: recipient.email,
+        subject: `${heading} · ${row.event.name}`,
+        body: text,
+        html,
+      });
+      await recordAudit(ctx.db, {
+        actorUserId: ctx.actor.kind === "user" ? ctx.actor.userId : null,
+        action: "vetting.notify",
+        entityType: "entry",
+        entityId: row.entry.id,
+        after: { codes: warnings.map((w) => w.code), sentTo: recipient.email },
+      });
+      return { sentTo: recipient.email };
     }),
 
   /** Vista organizzatore/segreteria: iscrizioni di una classe con avvisi. */
