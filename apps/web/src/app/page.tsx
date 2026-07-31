@@ -55,8 +55,7 @@ const S = {
 
 export const metadata = {
   title: "PenRunner",
-  description:
-    "Tutta la gara di reining su un'unica piattaforma — veloce, sicura, integrata con la federazione.",
+  description: "Tutte le gare di reining su un'unica piattaforma — veloce, sicura.",
 };
 
 export default function WipPage() {
@@ -64,8 +63,8 @@ export default function WipPage() {
     <main style={S.page}>
       <h1 style={S.wordmark}>PenRunner</h1>
       <p style={S.tagline}>
-        Tutta la gara di reining su un&rsquo;unica piattaforma — veloce,
-        sicura, integrata con la federazione.
+        Tutte le gare di reining su un&rsquo;unica piattaforma — veloce,
+        sicura.
       </p>
       <p style={S.soon}>Prossimamente</p>
       <p style={S.footer}>TonettiMedia</p>

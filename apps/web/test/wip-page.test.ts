@@ -15,9 +15,10 @@ describe("pagina WIP alla root", () => {
 
   it("mostra wordmark, tagline, prossimamente e footer", () => {
     expect(html).toContain("PenRunner");
-    expect(html).toContain(
-      "unica piattaforma — veloce, sicura, integrata con la federazione",
-    );
+    expect(html).toContain("Tutte le gare di reining su un");
+    expect(html).toContain("unica piattaforma — veloce, sicura.");
+    // copy ritirato dal titolare: non deve rientrare
+    expect(html).not.toContain("integrata con la federazione");
     expect(html).toMatch(/Prossimamente/i);
     expect(html).toContain("TonettiMedia");
   });
