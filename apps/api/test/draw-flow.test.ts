@@ -2,6 +2,7 @@ import { and, asc, eq, isNotNull } from "drizzle-orm";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { schema } from "@penrunner/db";
 import {
+  futureDate,
   registerUserWithProfile,
   setupApi,
   type TestApi,
@@ -62,8 +63,8 @@ beforeAll(async () => {
     organizationId: orgId,
     name: "Autumn Slide 2026",
     venue: "Arena",
-    startDate: "2026-10-01",
-    endDate: "2026-10-02",
+    startDate: futureDate(45),
+    endDate: futureDate(46),
   }));
 
   const [pattern] = await api.db.select().from(schema.patterns).limit(1);
@@ -132,9 +133,19 @@ afterAll(async () => {
 });
 
 describe("generazione e pubblicazione", () => {
-  it("genera con distanziamento default 8 per il cavaliere doppio (BR-19)", async () => {
+  it("BR-91: senza override il target è il parametro dell'evento (default 10)", async () => {
     const caller = await api.as(organizerToken);
     const res = await caller.draw.generate({ classId });
+    expect(res.targetGap).toBe(10);
+    // l'override sotto il minimo di dominio è rifiutato a monte (zod min 8)
+    await expect(
+      caller.draw.generate({ classId, minRiderGap: 5 }),
+    ).rejects.toThrow();
+  });
+
+  it("genera col distanziamento richiesto per il cavaliere doppio (BR-19/91)", async () => {
+    const caller = await api.as(organizerToken);
+    const res = await caller.draw.generate({ classId, minRiderGap: 8 });
     expect(res.order).toHaveLength(12);
     expect(res.targetGap).toBe(8);
     expect(res.warnings).toEqual([]);
@@ -150,7 +161,7 @@ describe("generazione e pubblicazione", () => {
 
   it("re-draw libero finché in bozza; dopo la pubblicazione è negato", async () => {
     const caller = await api.as(organizerToken);
-    await caller.draw.generate({ classId }); // re-draw: ancora permesso
+    await caller.draw.generate({ classId, minRiderGap: 8 }); // re-draw: ancora permesso
     const { published } = await caller.draw.publish({ classId });
     expect(published).toBe(12);
     await expect(caller.draw.generate({ classId })).rejects.toThrow(
@@ -364,5 +375,144 @@ describe("chirurgia del draw = capacità concessa (BR-43)", () => {
     await expect(
       caller.draw.setPosition({ entryId: someEntry, position: 30 }),
     ).rejects.toThrow(/non è abilitata/);
+  });
+});
+
+describe("editor del draw (BR-91) + ri-pubblicazione a classe non iniziata (BR-43 via di mezzo)", () => {
+  async function currentOrder(): Promise<string[]> {
+    const rows = await api.db
+      .select()
+      .from(schema.entries)
+      .where(and(eq(schema.entries.classId, classId), isNotNull(schema.entries.drawNumber)))
+      .orderBy(asc(schema.entries.drawNumber));
+    return rows.map((r) => r.id);
+  }
+
+  it("suggest propone senza scrivere nulla", async () => {
+    const caller = await api.as(organizerToken);
+    const before = await drawNumbers();
+    const sug = await caller.draw.suggest({ classId });
+    expect(new Set(sug.order).size).toBe(sug.order.length);
+    expect(await drawNumbers()).toEqual(before);
+  });
+
+  it("un ordine che non è una permutazione dei sorteggiati è rifiutato", async () => {
+    const caller = await api.as(organizerToken);
+    const order = await currentOrder();
+    await expect(
+      caller.draw.reorder({ classId, order: order.slice(1) }),
+    ).rejects.toThrow(/non corrisponde/);
+  });
+
+  it("classe pubblicata NON iniziata: il riordino è una RI-pubblicazione auditata con stamp pubblico", async () => {
+    const caller = await api.as(organizerToken);
+    const anon = await api.as();
+    expect((await anon.draw.startList({ classId })).updatedAt).toBeNull();
+
+    const order = await currentOrder();
+    const reversed = [...order].reverse();
+    const res = await caller.draw.reorder({ classId, order: reversed });
+    expect(res.republished).toBe(true);
+
+    // rinumerazione contigua 1..n nell'ordine proposto
+    const after = await drawNumbers();
+    reversed.forEach((id, i) => expect(after.get(id)).toBe(i + 1));
+
+    // stamp visibile sulla start list pubblica + audit dedicato
+    expect((await anon.draw.startList({ classId })).updatedAt).not.toBeNull();
+    const audit = await api.db
+      .select()
+      .from(schema.auditLog)
+      .where(eq(schema.auditLog.action, "draw.reorder.published"));
+    expect(audit).toHaveLength(1);
+    expect(audit[0]!.note).toMatch(/prima dell'inizio della classe/);
+  });
+
+  it("dalla prima run in campo il riordino torna sotto BR-43 piena", async () => {
+    const caller = await api.as(organizerToken);
+    const order = await currentOrder();
+    const [anyRun] = await api.db
+      .select({ id: schema.runs.id })
+      .from(schema.runs)
+      .innerJoin(schema.entries, eq(schema.entries.id, schema.runs.entryId))
+      .where(eq(schema.entries.classId, classId))
+      .limit(1);
+    await api.db
+      .update(schema.runs)
+      .set({ status: "in_inserimento" })
+      .where(eq(schema.runs.id, anyRun!.id));
+    await expect(
+      caller.draw.reorder({ classId, order: [...order].reverse() }),
+    ).rejects.toThrow(/classe è iniziata/);
+    await api.db
+      .update(schema.runs)
+      .set({ status: "attesa" })
+      .where(eq(schema.runs.id, anyRun!.id));
+  });
+});
+
+describe("cut-off self-serve (BR-90) sull'iscrizione", () => {
+  it("a ridosso dell'evento il self-serve chiude con un messaggio umano; il parametro si valida", async () => {
+    const caller = await api.as(organizerToken);
+    // evento che INIZIA OGGI: la vigilia è passata → self-serve chiuso
+    const today = new Date().toISOString().slice(0, 10);
+    const tomorrow = futureDate(1);
+    const { eventId: nearEventId } = await caller.events.create({
+      organizationId: orgId,
+      name: "Show Imminente",
+      venue: "Arena",
+      startDate: today,
+      endDate: tomorrow,
+    });
+    await caller.events.setStatus({ eventId: nearEventId, status: "annunciato" });
+    await caller.events.setStatus({
+      eventId: nearEventId,
+      status: "iscrizioni_aperte",
+    });
+    const [pattern] = await api.db.select().from(schema.patterns).limit(1);
+    const [category] = await api.db
+      .select()
+      .from(schema.categories)
+      .where(eq(schema.categories.code, "101"));
+    const [cls] = await api.db
+      .insert(schema.classes)
+      .values({
+        eventId: nearEventId,
+        categoryId: category!.id,
+        name: "Classe imminente",
+        patternId: pattern!.id,
+      })
+      .returning();
+
+    const rider = await registerUserWithProfile(
+      api,
+      "lastminute@example.com",
+      "Last Minute",
+    );
+    const [horse] = await api.db
+      .insert(schema.horses)
+      .values({ name: "Last Horse", microchip: "380-LM-1", ownerId: rider.personId })
+      .returning();
+    await expect(
+      (await api.as(rider.sessionToken)).entries.create({
+        classId: cls!.id,
+        horseId: horse!.id,
+        riderId: rider.personId,
+      }),
+    ).rejects.toThrow(/hanno chiuso alle 18:00 .* segreteria/);
+
+    // il parametro è dell'evento e si valida: niente valori senza senso
+    await expect(
+      caller.events.update({ eventId: nearEventId, entryChangeCutoff: "25:99" }),
+    ).rejects.toThrow();
+    await expect(
+      caller.events.update({ eventId: nearEventId, drawDistanceTarget: 5 }),
+    ).rejects.toThrow();
+    const ok = await caller.events.update({
+      eventId: nearEventId,
+      entryChangeCutoff: "20:00",
+      drawDistanceTarget: 12,
+    });
+    expect(ok.updated).toBe(true);
   });
 });

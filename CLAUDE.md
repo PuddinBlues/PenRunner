@@ -74,9 +74,11 @@ Queste derivano dal regolamento di reining e da decisioni di design prese con cu
 - Se il digitale si ferma: carta + radio come oggi, poi BACKFILL delle carte cartacee da organizzatore/segreteria — ScoreCard con source=manual_backfill, auditata, firma digitale mai simulata (fa fede la carta cartacea agli atti). PenRunner non è mai un single point of failure dello show.
 - Fine go: al completamento dell'ultima run, la pagina evento mostra automaticamente classifica del go (provvisoria) + start list di chi entra — tutto derivato, zero azioni manuali.
 
-### Draw (BR-19, BR-43)
-- Distanziamento stesso cavaliere: obiettivo 7-8 cavalli in mezzo (warm-up del cavallo successivo), default generazione 8, degradazione a scala con warnings, mai fallimento.
+### Draw (BR-19, BR-43, BR-90, BR-91)
+- Distanziamento stesso cavaliere (BR-91): parametro dell'evento `draw_distance_target` (default 10, minimo di dominio 8 — vincolo a DB), degradazione a scala con warnings PUNTUALI, mai fallimento. Editor: `draw.reorder` (permutazione validata, flag di vicinanza ricalcolati) + `draw.suggest` ("sistema l'ordine": riparazione ANCORATA all'ordine corrente, minime modifiche, deterministica, mai un errore).
 - Chirurgia del draw pubblicato = capacità concessa PER EVENTO (events.draw_surgery_enabled, default off; attiva solo il Platform Admin, per l'intero evento; visibile read-only all'organizzatore; auditata). Flag off → solo late entry in coda. Flag on → spostamenti auditati; spostamento in prima posizione dopo un drag annotato automaticamente.
+- VIA DI MEZZO BR-43 (decisione titolare, cantiere B1): a draw pubblicato ma classe NON iniziata (tutte le run in attesa) l'organizzatore può riordinare e RI-pubblicare — auditato (`draw.reorder.published`) e con stamp visibile sulla start list pubblica ("draw aggiornato il …", da `classes.draw_republished_at`). Dalla prima run in campo vale BR-43 piena. Notifica alle scuderie sulla ri-pubblicazione: backlog.
+- Cut-off (BR-90): `events.entry_change_cutoff` ("HH:MM" Europe/Rome, default 18:00, mai hardcoded) — dal cut-off della vigilia dell'evento il self-serve delle NUOVE iscrizioni chiude con messaggio umano (la segreteria può sempre, via regia); lo scratch self-serve resta BR-17 (fino al proprio turno). Raffinamento per-giornata quando arriverà il draw multi-giornata (OrganizerRegia v4).
 - Drag a POSIZIONI FISSE del draw pubblicato (validato col giudice: lo scratch accorcia il blocco, il trattore resta lì — il marker non si muove mai). Intervallo = impostazione di gara (drag_every_n, default 5; regionali anche 7-10). Marker fissi sulla start list pubblica.
 
 ### Autonomia d'uso — self-serve (BR-80, BR-81)

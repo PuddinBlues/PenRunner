@@ -46,6 +46,17 @@ export async function setupApi(): Promise<TestApi> {
 }
 
 /**
+ * Data futura "YYYY-MM-DD" a N giorni da oggi. Gli eventi di test devono
+ * restare SEMPRE nel futuro: con date fisse, al passare del calendario
+ * scatterebbe il cut-off BR-90 e la suite diventerebbe rossa a orologeria.
+ */
+export function futureDate(daysFromNow: number): string {
+  const d = new Date();
+  d.setUTCDate(d.getUTCDate() + daysFromNow);
+  return d.toISOString().slice(0, 10);
+}
+
+/**
  * Verifica che una query fallisca per il motivo atteso. Drizzle incapsula
  * l'errore del driver: il testo va cercato nella catena delle cause.
  */

@@ -11,6 +11,7 @@ import {
 import { renderScoreCard, renderTable } from "../src/documents/render.js";
 import { extractToken } from "../src/services/mailer.js";
 import {
+  futureDate,
   registerUserWithProfile,
   setupApi,
   TEST_DATABASE_URL,
@@ -77,8 +78,8 @@ beforeAll(async () => {
     organizationId,
     name: "Payout Slide 2026",
     venue: "Arena",
-    startDate: "2026-09-20",
-    endDate: "2026-09-21",
+    startDate: futureDate(45),
+    endDate: futureDate(46),
   }));
 
   const [pattern6] = await api.db

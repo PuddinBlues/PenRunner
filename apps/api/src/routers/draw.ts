@@ -3,7 +3,12 @@ import { and, asc, eq, inArray, isNotNull, max, sql } from "drizzle-orm";
 import { z } from "zod";
 import { schema, type Db } from "@penrunner/db";
 import { personDisplayNameSql } from "../services/names.js";
-import { computeDragMarkers, generateDraw } from "../draw.js";
+import {
+  computeDragMarkers,
+  computeGapWarnings,
+  generateDraw,
+  suggestRepair,
+} from "../draw.js";
 import { can, type Actor } from "../policy/policy.js";
 import { recordAudit } from "../services/audit.js";
 import { renderMail } from "../services/mailtemplate.js";
@@ -134,12 +139,16 @@ async function createRunFor(tx: DbOrTx, entryId: string) {
 }
 
 export const drawRouter = router({
-  /** Generazione (o re-draw finché in bozza): shuffle + distanziamento BR-19. */
+  /**
+   * Generazione (o re-draw finché in bozza): shuffle + distanziamento.
+   * BR-91: il target è il parametro dell'evento (default 10), override
+   * esplicito possibile ma mai sotto 8.
+   */
   generate: verifiedProcedure
     .input(
       z.object({
         classId: z.string().uuid(),
-        minRiderGap: z.number().int().min(0).max(50).default(8),
+        minRiderGap: z.number().int().min(8).max(50).optional(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -168,7 +177,7 @@ export const drawRouter = router({
       }
       const result = generateDraw(
         candidates.map((e) => ({ entryId: e.id, riderId: e.riderId })),
-        { minRiderGap: input.minRiderGap },
+        { minRiderGap: input.minRiderGap ?? event.drawDistanceTarget },
       );
       await ctx.db.transaction(async (tx) => {
         // azzera e riassegna (evita collisioni con l'indice unico)
@@ -207,7 +216,7 @@ export const drawRouter = router({
         for (const entry of drawn) await createRunFor(tx, entry.id);
         await tx
           .update(schema.classes)
-          .set({ drawStatus: "pubblicato" })
+          .set({ drawStatus: "pubblicato", drawPublishedAt: new Date() })
           .where(eq(schema.classes.id, input.classId));
         await recordAudit(tx, {
           actorUserId: ctx.actor.kind === "user" ? ctx.actor.userId : null,
@@ -252,6 +261,131 @@ export const drawRouter = router({
         });
       }
       return { published: drawn.length };
+    }),
+
+  /**
+   * BR-91: riordino dell'editor (drag&drop). Libero a draw GENERATO; a draw
+   * PUBBLICATO consentito solo finché la classe non è iniziata (BR-43 "via
+   * di mezzo", decisione titolare): il riordino vale come RI-pubblicazione,
+   * auditata e con stamp visibile sulla start list pubblica. Dalla prima run
+   * in campo torna a valere BR-43 piena (capacità concessa).
+   */
+  reorder: verifiedProcedure
+    .input(
+      z.object({
+        classId: z.string().uuid(),
+        order: z.array(z.string().uuid()).min(1),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { cls, event } = await loadClass(ctx.db, input.classId);
+      requireDrawManage(ctx.actor, event);
+      if (cls.drawStatus === "nessuno") {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Genera il draw prima di riordinarlo",
+        });
+      }
+      const current = await classRows(ctx.db, input.classId);
+      const currentIds = new Set(current.map((e) => e.id));
+      const inputIds = new Set(input.order);
+      if (
+        input.order.length !== current.length ||
+        inputIds.size !== input.order.length ||
+        current.some((e) => !inputIds.has(e.id))
+      ) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message:
+            "L'ordine proposto non corrisponde ai binomi sorteggiati della classe",
+        });
+      }
+      const republished = cls.drawStatus === "pubblicato";
+      if (republished) {
+        const [started] = await ctx.db
+          .select({ id: schema.runs.id })
+          .from(schema.runs)
+          .innerJoin(schema.entries, eq(schema.entries.id, schema.runs.entryId))
+          .where(
+            and(
+              eq(schema.entries.classId, input.classId),
+              sql`${schema.runs.status} <> 'attesa'`,
+            ),
+          )
+          .limit(1);
+        if (started) {
+          throw new TRPCError({
+            code: "FORBIDDEN",
+            message:
+              "La classe è iniziata: il draw pubblicato si modifica solo con la capacità concessa da PenRunner (BR-43)",
+          });
+        }
+      }
+      const actorUserId = ctx.actor.kind === "user" ? ctx.actor.userId : null;
+      await ctx.db.transaction(async (tx) => {
+        await tx
+          .update(schema.entries)
+          .set({ drawNumber: null })
+          .where(
+            and(
+              eq(schema.entries.classId, input.classId),
+              inArray(schema.entries.id, [...currentIds]),
+            ),
+          );
+        for (const [i, entryId] of input.order.entries()) {
+          await tx
+            .update(schema.entries)
+            .set({ drawNumber: i + 1 })
+            .where(eq(schema.entries.id, entryId));
+        }
+        if (republished) {
+          await tx
+            .update(schema.classes)
+            .set({ drawRepublishedAt: new Date() })
+            .where(eq(schema.classes.id, input.classId));
+        }
+        await recordAudit(tx, {
+          actorUserId,
+          action: republished ? "draw.reorder.published" : "draw.reorder",
+          entityType: "class",
+          entityId: input.classId,
+          before: { order: current.map((e) => e.id) },
+          after: { order: input.order },
+          ...(republished
+            ? { note: "Draw ri-pubblicato prima dell'inizio della classe" }
+            : {}),
+        });
+      });
+      const byId = new Map(current.map((e) => [e.id, e]));
+      const warnings = computeGapWarnings(
+        input.order.map((id) => ({ entryId: id, riderId: byId.get(id)!.riderId })),
+        event.drawDistanceTarget,
+      );
+      return { republished, warnings };
+    }),
+
+  /**
+   * BR-91 "sistema l'ordine": proposta di riparazione ancorata all'ordine
+   * corrente (minime modifiche), senza scrivere nulla. L'organizzatore vede
+   * chi si sposta e applica con reorder.
+   */
+  suggest: verifiedProcedure
+    .input(z.object({ classId: z.string().uuid() }))
+    .query(async ({ ctx, input }) => {
+      const { event } = await loadClass(ctx.db, input.classId);
+      requireDrawManage(ctx.actor, event);
+      const rows = await classRows(ctx.db, input.classId);
+      if (rows.length === 0) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Nessun draw da sistemare per questa classe",
+        });
+      }
+      const result = suggestRepair(
+        rows.map((e) => ({ entryId: e.id, riderId: e.riderId })),
+        event.drawDistanceTarget,
+      );
+      return result;
     }),
 
   /** Chirurgia (BR-43, capacità concessa): sposta a una posizione libera. */
@@ -458,6 +592,10 @@ export const drawRouter = router({
       return {
         className: cls.name,
         dragEveryNRuns: event.dragEveryNRuns,
+        // BR-91: lo stamp pubblico — "pubblicato il" e, se riordinato prima
+        // dell'inizio, "draw aggiornato il" (mai silenzioso).
+        publishedAt: cls.drawPublishedAt,
+        updatedAt: cls.drawRepublishedAt,
         // Derivati sulle run effettive: uno scratch sposta il confine e qui
         // si vede subito (BR-51) — la numerazione del draw invece non cambia.
         dragAfter: computeDragMarkers(

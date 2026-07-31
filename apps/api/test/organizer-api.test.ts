@@ -2,6 +2,7 @@ import { eq } from "drizzle-orm";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { schema } from "@penrunner/db";
 import {
+  futureDate,
   registerUserWithProfile,
   setupApi,
   type TestApi,
@@ -73,8 +74,8 @@ describe("preparazione in bozza senza vetting (BR-80)", () => {
       organizationId: orgId,
       name: "Winter Classic 2026",
       venue: "Arena Piemonte",
-      startDate: "2026-11-07",
-      endDate: "2026-11-08",
+      startDate: futureDate(45),
+      endDate: futureDate(46),
     }));
     const { classId } = await caller.classes.create({
       eventId,
@@ -340,8 +341,8 @@ describe("audit event-scoped (trasparenza, non potere)", () => {
       organizationId: otherOrgId,
       name: "Evento altrui",
       venue: "Arena X",
-      startDate: "2026-12-01",
-      endDate: "2026-12-01",
+      startDate: futureDate(45),
+      endDate: futureDate(46),
     });
     const caller = await api.as(organizerToken);
     await expect(caller.audit.forEvent({ eventId: otherEventId })).rejects.toThrow(

@@ -3,6 +3,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { schema } from "@penrunner/db";
 import { extractToken } from "../src/services/mailer.js";
 import {
+  futureDate,
   registerUserWithProfile,
   setupApi,
   type TestApi,
@@ -36,8 +37,8 @@ beforeAll(async () => {
     organizationId: orgId,
     name: "Evento anticipato",
     venue: "Arena",
-    startDate: "2026-09-01",
-    endDate: "2026-09-02",
+    startDate: futureDate(45),
+    endDate: futureDate(46),
   });
   await expect(
     draftCaller.events.setStatus({
@@ -65,8 +66,8 @@ beforeAll(async () => {
     organizationId: orgId,
     name: "Summer Slide 2026",
     venue: "Arena Lombardia",
-    startDate: "2026-09-01",
-    endDate: "2026-09-02",
+    startDate: futureDate(45),
+    endDate: futureDate(46),
   }));
 });
 

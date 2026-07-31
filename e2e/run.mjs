@@ -182,8 +182,10 @@ async function organizerCreateEvent(org, sfx) {
   await tap(org, "Nuovo evento");
   await fillNth(org, 0, `E2E Show ${sfx}`);
   await fillNth(org, 1, "Arena E2E");
-  await org.locator("input[type=date]").nth(0).fill("2026-09-05");
-  await org.locator("input[type=date]").nth(1).fill("2026-09-06");
+  // date SEMPRE nel futuro: con date fisse il cut-off BR-90 renderebbe
+  // rossa la CI a orologeria
+  await org.locator("input[type=date]").nth(0).fill(futureDate(45));
+  await org.locator("input[type=date]").nth(1).fill(futureDate(46));
   await tap(org, "Continua");
   await tap(org, "Aggiungi classe");
   await tap(org, "Continua");
@@ -275,6 +277,12 @@ function hash(s) {
   let h = 0;
   for (const ch of s) h = (h * 31 + ch.codePointAt(0)) | 0;
   return h;
+}
+
+function futureDate(daysFromNow) {
+  const d = new Date();
+  d.setUTCDate(d.getUTCDate() + daysFromNow);
+  return d.toISOString().slice(0, 10);
 }
 
 async function round(browser, name, orgViewport, stableViewport, desktopGrid) {
