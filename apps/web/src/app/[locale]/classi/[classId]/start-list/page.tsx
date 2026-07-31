@@ -21,6 +21,18 @@ export default async function StartListPage({
       <h1 style={{ fontSize: 20 }}>
         {tr("startlist.title")} · {startList.className}
       </h1>
+      {/* BR-91: la ri-pubblicazione non è mai silenziosa — lo stamp è pubblico */}
+      {startList.updatedAt && (
+        <p style={{ fontSize: 12.5, color: "var(--slate-500)", margin: "0 0 10px" }}>
+          {tr("startlist.updatedAt")}{" "}
+          <span className="num">
+            {new Date(startList.updatedAt as unknown as string).toLocaleString(
+              locale === "it" ? "it-IT" : "en-GB",
+              { dateStyle: "medium", timeStyle: "short", timeZone: "Europe/Rome" },
+            )}
+          </span>
+        </p>
+      )}
       <div className="card" style={{ overflow: "hidden" }}>
         {startList.entries.map((e) => {
           const est = etaByEntry.get(e.entryId);

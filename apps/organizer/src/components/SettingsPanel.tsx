@@ -23,6 +23,11 @@ export function SettingsPanel({
   const [slot, setSlot] = useState(String(event.slotDurationS));
   const [dragEvery, setDragEvery] = useState(String(event.dragEveryNRuns));
   const [dragDuration, setDragDuration] = useState(String(event.dragDurationS));
+  // BR-91: distanza draw (min 8). BR-90: cut-off self-serve ("HH:MM").
+  const [drawDistance, setDrawDistance] = useState(
+    String(event.drawDistanceTarget),
+  );
+  const [cutoff, setCutoff] = useState(event.entryChangeCutoff);
   const [sponsorName, setSponsorName] = useState(event.sponsorName ?? "");
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
@@ -100,6 +105,28 @@ export function SettingsPanel({
             />
           </label>
         </div>
+        <p className="hint">{t("settings.drawRules")}</p>
+        <div className="row" style={{ marginBottom: 12 }}>
+          <label className="field">
+            <span>{t("settings.drawDistance")}</span>
+            <input
+              className="num"
+              type="number"
+              min="8"
+              max="50"
+              value={drawDistance}
+              onChange={(e) => setDrawDistance(e.target.value)}
+            />
+          </label>
+          <label className="field">
+            <span>{t("settings.cutoff")}</span>
+            <input
+              type="time"
+              value={cutoff}
+              onChange={(e) => setCutoff(e.target.value)}
+            />
+          </label>
+        </div>
         <p className="hint">{t("settings.sponsor")}</p>
         <label className="field">
           <span>{t("settings.sponsorName")}</span>
@@ -121,6 +148,8 @@ export function SettingsPanel({
                 slotDurationS: Number(slot),
                 dragEveryNRuns: Number(dragEvery),
                 dragDurationS: Number(dragDuration),
+                drawDistanceTarget: Number(drawDistance),
+                entryChangeCutoff: cutoff,
                 sponsorName: sponsorName || null,
               });
               setSaved(true);

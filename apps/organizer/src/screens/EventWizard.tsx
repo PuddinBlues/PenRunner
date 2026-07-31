@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { navigate } from "../App.js";
 import { ClassesManager } from "../components/ClassesManager.js";
 import { EventForm } from "../components/EventForm.js";
+import { OfficialsPanel } from "../components/OfficialsPanel.js";
 import { SettingsPanel } from "../components/SettingsPanel.js";
 import { Banner, errorMessage } from "../components/Ui.js";
 import type { Client } from "../lib/api.js";
@@ -10,8 +11,11 @@ import type { T } from "../lib/i18n.js";
 type EventDetail = Awaited<ReturnType<Client["events"]["get"]["query"]>>;
 
 /**
- * Wizard in tre passi (BR-80: guidato, ogni passo dice cosa succede dopo).
- * Il passo 1 crea l'evento in BOZZA — anche con organizzazione in verifica.
+ * Wizard in QUATTRO passi (BR-80: guidato, ogni passo dice cosa succede
+ * dopo). Il passo 1 crea l'evento in BOZZA — anche con organizzazione in
+ * verifica. Il passo 3 (cantiere B1, intervista organizzatore): gli
+ * ufficiali di gara si convocano PRIMA di organizzare l'evento, non solo
+ * in diretta — il magic link resta l'accesso del giorno.
  */
 export function EventWizard({ t, client }: { t: T; client: Client }) {
   const [step, setStep] = useState(1);
@@ -20,7 +24,7 @@ export function EventWizard({ t, client }: { t: T; client: Client }) {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (eventId && step === 3) {
+    if (eventId && step >= 3) {
       client.events.get
         .query({ eventId })
         .then(setEvent)
@@ -32,12 +36,20 @@ export function EventWizard({ t, client }: { t: T; client: Client }) {
     <>
       <h1>{t("wizard.title")}</h1>
       <div className="steps">
-        {[1, 2, 3].map((n) => (
+        {([1, 2, 3, 4] as const).map((n) => (
           <span
             key={n}
             className={`step ${step === n ? "active" : ""} ${step > n ? "done" : ""}`}
           >
-            {t(n === 1 ? "wizard.step1" : n === 2 ? "wizard.step2" : "wizard.step3")}
+            {t(
+              n === 1
+                ? "wizard.step1"
+                : n === 2
+                  ? "wizard.step2"
+                  : n === 3
+                    ? "wizard.stepOfficials"
+                    : "wizard.step3",
+            )}
           </span>
         ))}
       </div>
@@ -84,6 +96,23 @@ export function EventWizard({ t, client }: { t: T; client: Client }) {
       )}
 
       {step === 3 && eventId && (
+        <>
+          <p className="hint">{t("wizard.officialsHint")}</p>
+          <OfficialsPanel
+            t={t}
+            client={client}
+            eventId={eventId}
+            vetted={event?.organizationVetted ?? false}
+          />
+          <div style={{ marginTop: 16 }}>
+            <button className="btn primary" onClick={() => setStep(4)}>
+              {t("wizard.next")}
+            </button>
+          </div>
+        </>
+      )}
+
+      {step === 4 && eventId && (
         <>
           {event ? (
             <SettingsPanel
