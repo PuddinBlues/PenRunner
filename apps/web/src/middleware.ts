@@ -4,7 +4,10 @@ import { NextRequest, NextResponse } from "next/server";
 // La scelta manuale (selettore) persiste via cookie.
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  // La ROOT mostra la pagina WIP (il deck è in mano a IRHA): niente redirect.
+  // /it /en /scoreboard restano raggiungibili per la demo, non linkati.
   if (
+    pathname === "/" ||
     pathname.startsWith("/it") ||
     pathname.startsWith("/en") ||
     pathname.startsWith("/scoreboard") ||
