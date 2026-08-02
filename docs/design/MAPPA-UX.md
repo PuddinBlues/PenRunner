@@ -38,7 +38,7 @@
 **Buchi**: collaudo offline/iOS-PWA su staging (rischio dichiarato, collaudo umano).
 
 ## Viaggio 6 — Admin (noi)
-Tutto 🕳: pannello admin mai progettato (richiesto a Code, PENDING piano). Minimo vitale per il pilota: vedere eventi/utenti, sbloccare una verifica, correggere uno score con audit, rigenerare un documento. Da progettare qui prima che Code lo implementi (regola 21).
+**Progettato ✅** — prototipo VINCOLANTE `prototypes/AdminPanel.jsx` (v2 ratificata da Marco). Concetto: sidebar scura + barra comando ⌘K (cerca eventi/persone/run, azioni rapide), home "Oggi" a **triage con anzianità** (non dashboard), **pattern ispettore laterale** (ogni riga apre un pannello, il contesto non si perde mai), correzione score dentro l'ispettore della run con **motivo obbligatorio**, registro a **timeline solo-aggiunta** filtrabile. Solo desktop, per scelta. Principio di spec: **"qui non esistono azioni silenziose"** — ogni azione admin firmata, motivata, a registro append-only. Implementazione NON in coda dev: resta la sequenza approvata (BR-89 → cantiere L1).
 
 ## I passaggi di testimone (dove gli attori si toccano — i punti più fragili)
 - Pubblico→Scuderia: CTA "Iscrivi la tua scuderia" ✅
@@ -66,7 +66,7 @@ Sara organizza da sola, ~20 giorni di lavoro a evento, ed è titubante: "è tutt
 5. **Claim di cavaliere e giudice** — sblocca scratch autonomo, earnings affidabili, firma verificata (una macchina, due attori)
 6. **Box/paytime** — bozza sotto; le 3 domande operative restano aperte
 7. **Pagina cavallo/cavaliere + Risultati cross-evento** — le promesse della nav; la pagina cavaliere è anche la casa post-claim
-8. **Scoreboard proiettato** al canone · **Admin panel** minimo vitale · Comunicazioni organizer→scuderie · QR su start list
+8. **Scoreboard proiettato** al canone · **Admin panel** minimo vitale (progettato ✅ — `AdminPanel.jsx`, implementazione non in coda) · Comunicazioni organizer→scuderie · QR su start list
 
 ---
 
