@@ -207,8 +207,12 @@ async function insertEntry(
   }
 }
 
-/** Il riepilogo costi del prototipo: costo classi + fee × cavalli distinti. */
-async function quoteForEntries(
+/**
+ * Il riepilogo costi del prototipo: costo classi + fee × cavalli distinti.
+ * UNICA funzione di pricing: la usa il checkout E il conto scuderia (BR-89) —
+ * se i due numeri divergono è un bug, non una scelta.
+ */
+export async function quoteForEntries(
   db: DbOrTx,
   entryIds: string[],
 ): Promise<{
@@ -365,6 +369,16 @@ export const entriesRouter = router({
             .update(schema.entries)
             .set({ status: "confermata", eligibilityWarnings: warnings })
             .where(eq(schema.entries.id, entryId));
+          // BR-89: la transizione che fa maturare la fee lascia una riga
+          // append-only — è lo storico del conto scuderia.
+          await recordAudit(tx, {
+            actorUserId: ctx.actor.kind === "user" ? ctx.actor.userId : null,
+            action: "entry.confirm",
+            entityType: "entry",
+            entityId: entryId,
+            before: { status: "bozza" },
+            after: { status: "confermata" },
+          });
         }
       });
       const quote = await quoteForEntries(ctx.db, input.entryIds);
@@ -468,6 +482,16 @@ export const entriesRouter = router({
           .update(schema.entries)
           .set({ status: "ritirata" })
           .where(eq(schema.entries.id, input.entryId));
+        // BR-89: lo scratch NON tocca il conto (fee dovuta, BR-03) ma è un
+        // movimento dello storico — si vede QUANDO e per mano di chi.
+        await recordAudit(tx, {
+          actorUserId: ctx.actor.kind === "user" ? ctx.actor.userId : null,
+          action: "entry.scratch",
+          entityType: "entry",
+          entityId: entry.id,
+          before: { status: entry.status },
+          after: { status: "ritirata" },
+        });
       });
       liveBus.tick(event.id, "entry.scratched"); // ETA e marker drag si muovono
       return { status: "ritirata" as const };

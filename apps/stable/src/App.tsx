@@ -212,7 +212,13 @@ export function App() {
         ) : stableId === null ? (
           <Onboarding t={t} client={client} onDone={loadStable} />
         ) : tab === "entries" ? (
-          <MyEntries t={t} client={client} stableId={stableId} onGoRoster={() => setTab("roster")} />
+          <MyEntries
+            t={t}
+            client={client}
+            stableId={stableId}
+            session={session}
+            onGoRoster={() => setTab("roster")}
+          />
         ) : tab === "enroll" ? (
           <Enroll
             t={t}

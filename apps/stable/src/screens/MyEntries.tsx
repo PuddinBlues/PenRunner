@@ -1,12 +1,15 @@
 import { useCallback, useEffect, useState } from "react";
 import { Badge, Banner, Confirm, Empty, errorMessage } from "@penrunner/ui";
-import { PORTAL_URL } from "../lib/api.js";
+import { PORTAL_URL, downloadDoc } from "../lib/api.js";
 import type { Client } from "../lib/api.js";
 import type { MessageKey, T } from "../lib/i18n.js";
 import { warningView } from "../lib/warnings.js";
 
 type MyEntry = Awaited<ReturnType<Client["entries"]["byStable"]["query"]>>[number];
 type Ranking = Awaited<ReturnType<Client["live"]["classRanking"]["query"]>>;
+type StableAccount = Awaited<
+  ReturnType<Client["account"]["byStable"]["query"]>
+>[number];
 
 /**
  * Le mie iscrizioni: stato per binomio, draw number quando pubblicato, avvisi
@@ -23,16 +26,19 @@ export function MyEntries({
   t,
   client,
   stableId,
+  session,
   onGoRoster,
 }: {
   t: T;
   client: Client;
   stableId: string;
+  session: string | null;
   /** fase b: l'avviso risolvibile porta DOVE si risolve (roster) */
   onGoRoster: () => void;
 }) {
   const [rows, setRows] = useState<MyEntry[] | null>(null);
   const [scores, setScores] = useState<Record<string, string>>({});
+  const [accounts, setAccounts] = useState<StableAccount[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [scratching, setScratching] = useState<MyEntry | null>(null);
@@ -42,6 +48,12 @@ export function MyEntries({
     try {
       const data = await client.entries.byStable.query({ stableId });
       setRows(data);
+      // BR-89: il conto per evento — derivato, si ricarica insieme alle
+      // iscrizioni (uno scratch non lo cambia, una conferma sì).
+      client.account.byStable
+        .query({ stableId })
+        .then(setAccounts)
+        .catch(() => setAccounts([]));
       // Score pubblicati: dalla classifica PUBBLICA (fonte comune col portale),
       // solo per le classi con draw pubblicato.
       const classIds = [
@@ -197,6 +209,13 @@ export function MyEntries({
                 })}
               </tbody>
             </table>
+            <AccountBox
+              t={t}
+              account={accounts.find((a) => a.eventId === eventId)}
+              stableId={stableId}
+              session={session}
+              onError={(msg) => setError(msg)}
+            />
           </div>
         ))
       )}
@@ -237,5 +256,88 @@ export function MyEntries({
         />
       )}
     </>
+  );
+}
+
+/**
+ * BR-89: il conto dell'evento — SEMPRE derivato (niente salvato), stessa
+ * funzione di pricing del checkout. Lo storico viene dai movimenti auditati
+ * (conferma, ritiro, late entry): il conto di Sara che si aggiorna da solo.
+ */
+function AccountBox({
+  t,
+  account,
+  stableId,
+  session,
+  onError,
+}: {
+  t: T;
+  account: StableAccount | undefined;
+  stableId: string;
+  session: string | null;
+  onError: (msg: string) => void;
+}) {
+  const [showHistory, setShowHistory] = useState(false);
+  if (!account || account.quote.enrollments === 0) return null;
+  const { quote, history } = account;
+  const eur = (n: number) => `${n} €`;
+  return (
+    <div
+      style={{
+        marginTop: 12,
+        paddingTop: 12,
+        borderTop: "1px solid var(--s100, #F1F5F9)",
+      }}
+    >
+      <div className="row" style={{ alignItems: "baseline", gap: 12, flexWrap: "wrap" }}>
+        <strong>{t("account.title")}</strong>
+        <span className="muted num" style={{ fontSize: 13 }}>
+          {t("account.lines", {
+            enrollments: String(quote.enrollments),
+            classesCost: eur(quote.classesCost),
+          })}{" "}
+          · {t("account.feeLine", {
+            horses: String(quote.horses),
+            fee: eur(quote.fee),
+          })}
+        </span>
+        <span className="num" style={{ fontWeight: 700 }}>
+          {t("account.total")}: {eur(quote.total)}
+        </span>
+      </div>
+      <p className="muted" style={{ fontSize: 12, margin: "4px 0 8px" }}>
+        {t("account.derived")}
+      </p>
+      <div className="row" style={{ gap: 8 }}>
+        <button
+          className="btn small"
+          onClick={() => {
+            void downloadDoc(
+              `/documents/event/${account.eventId}/stable/${stableId}/account.csv`,
+              session,
+            ).catch((err) => onError(errorMessage(err)));
+          }}
+        >
+          {t("account.csv")}
+        </button>
+        {history.length > 0 && (
+          <button className="btn small" onClick={() => setShowHistory((v) => !v)}>
+            {showHistory ? t("account.hideHistory") : t("account.history")}
+          </button>
+        )}
+      </div>
+      {showHistory && (
+        <ul className="muted" style={{ fontSize: 12.5, margin: "8px 0 0", paddingLeft: 18 }}>
+          {history.map((h, i) => (
+            <li key={i} className="num">
+              {new Date(h.occurredAt as unknown as string).toLocaleString()} —{" "}
+              {t(`account.action.${h.action.replaceAll(".", "_")}` as MessageKey)}
+              {h.horseName ? ` · ${h.horseName}` : ""}
+              {h.className ? ` · ${h.className}` : ""}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
   );
 }

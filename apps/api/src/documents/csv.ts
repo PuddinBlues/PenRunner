@@ -1,6 +1,7 @@
 import { asc, eq } from "drizzle-orm";
 import { schema, type Db } from "@penrunner/db";
 import { personOfficialNameSql } from "../services/names.js";
+import { buildStableAccount } from "../routers/account.js";
 import { buildClassRanking } from "../routers/live.js";
 import { buildClassPayout } from "../routers/payout.js";
 
@@ -85,6 +86,42 @@ export async function buildResultsCsv(
   return {
     headers: ["position", "horse", "rider", "score", "outcome", "state"],
     rows,
+  };
+}
+
+/**
+ * BR-89: il conto scuderia come dati grezzi. Una riga per iscrizione maturata
+ * (kind=entry, quota della classe) e una per cavallo distinto (kind=horse_fee,
+ * fee dell'evento) — nessuna riga totale: raw, pronto per SUM(). Il ritiro
+ * resta in conto con status=ritirata (BR-03: la quota è dovuta comunque).
+ */
+export async function buildStableAccountCsv(
+  db: DbOrTx,
+  eventId: string,
+  stableId: string,
+): Promise<CsvDoc> {
+  const { rows } = await buildStableAccount(db, eventId, stableId);
+  const [event] = await db
+    .select({ feePerHorse: schema.events.feePerHorse })
+    .from(schema.events)
+    .where(eq(schema.events.id, eventId));
+  const out: (string | number | null)[][] = rows.map((r) => [
+    "entry",
+    r.className,
+    r.horseName,
+    r.riderName,
+    r.status,
+    Number(r.entryFee),
+  ]);
+  const seen = new Set<string>();
+  for (const r of rows) {
+    if (seen.has(r.horseId)) continue;
+    seen.add(r.horseId);
+    out.push(["horse_fee", null, r.horseName, null, null, Number(event?.feePerHorse ?? 0)]);
+  }
+  return {
+    headers: ["kind", "class", "horse", "rider", "status", "amount_eur"],
+    rows: out,
   };
 }
 

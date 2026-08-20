@@ -6,6 +6,7 @@ import { can } from "../policy/policy.js";
 import {
   buildPayoutCsv,
   buildResultsCsv,
+  buildStableAccountCsv,
   buildStartListCsv,
   csvSeparator,
   csvString,
@@ -29,7 +30,7 @@ import { renderScoreCard, renderTable } from "./render.js";
 // sopravvivere al download.
 // ---------------------------------------------------------------------------
 
-type DocType = "StartList" | "Results" | "Payout" | "ScoreCard";
+type DocType = "StartList" | "Results" | "Payout" | "ScoreCard" | "Conto";
 
 function slugPart(s: string): string {
   const cleaned = s
@@ -230,6 +231,42 @@ export function registerDocumentRoutes(server: FastifyInstance) {
         reply,
         csvString(doc, csvSeparator(req.query)),
         docFilename("Payout", cls.name, event!.name, now, "csv"),
+      );
+    },
+  );
+
+  // BR-89: il conto scuderia (CSV). Lo scarica il referente della scuderia
+  // (dalla sezione Conto) o la segreteria dell'evento (da Conti scuderie) —
+  // mai terzi: il conto è materia tra scuderia e organizzazione.
+  server.get<{
+    Params: { eventId: string; stableId: string };
+    Querystring: { sep?: string };
+  }>(
+    "/documents/event/:eventId/stable/:stableId/account.csv",
+    async (req, reply) => {
+      const [event] = await db
+        .select()
+        .from(schema.events)
+        .where(eq(schema.events.id, req.params.eventId));
+      const [stable] = await db
+        .select()
+        .from(schema.stables)
+        .where(eq(schema.stables.id, req.params.stableId));
+      if (!event || !stable) return reply.code(404).send({ error: "not found" });
+      const { actor } = await resolveActor(db, sessionOf(req));
+      const allowed =
+        can(actor, "entries.bulk", { stableId: stable.id }) ||
+        can(actor, "event.registry.manage", {
+          organizationId: event.organizationId,
+          eventId: event.id,
+        });
+      if (!allowed) return reply.code(403).send({ error: "forbidden" });
+      const now = new Date();
+      const doc = await buildStableAccountCsv(db, event.id, stable.id);
+      sendCsv(
+        reply,
+        csvString(doc, csvSeparator(req.query)),
+        docFilename("Conto", stable.name, event.name, now, "csv"),
       );
     },
   );
