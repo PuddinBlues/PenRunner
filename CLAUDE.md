@@ -97,6 +97,10 @@ Queste derivano dal regolamento di reining e da decisioni di design prese con cu
 - La fee è per **cavallo iscritto distinto**, non per iscrizione a classe. `fee = COUNT(DISTINCT horse) × fee_per_horse`.
 - È inclusa e mostrata in modo trasparente nella quota; in MVP non si incassa in piattaforma.
 
+### Conto scuderia (BR-89)
+- Il conto è una **vista derivata** (zero totali memorizzati) e usa la **stessa funzione di pricing del checkout** (`quoteForEntries`): se i due numeri divergono è un bug. Conta le iscrizioni da "confermata" in poi — la fee matura alla conferma ed è dovuta anche dopo lo scratch (BR-03/17); le bozze non sono conto. Il conto è della scuderia del CAVALLO (la fee è per cavallo).
+- Lo **storico** viene dalle transizioni auditate append-only (`entry.confirm`, `entry.scratch`, `draw.late_entry.add`) — mai da contatori. Superfici: sezione "Conto" in Le mie iscrizioni (scuderia), tab "Conti scuderie" in regia (organizer), CSV `Conto_<Scuderia>_<Evento>_<data>.csv` scaricabile da entrambe (referente o segreteria, mai terzi).
+
 ### Classifica e payout
 - Sono **viste derivate**, non entità memorizzate: si ricalcolano da run e iscrizioni. Questo evita disallineamenti quando uno score viene corretto.
 

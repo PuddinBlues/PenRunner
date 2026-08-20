@@ -5,7 +5,7 @@ import { EventForm } from "../components/EventForm.js";
 import { OfficialsPanel } from "../components/OfficialsPanel.js";
 import { SettingsPanel } from "../components/SettingsPanel.js";
 import { Badge, Banner, Confirm, Empty, errorMessage } from "../components/Ui.js";
-import { API_URL } from "../lib/api.js";
+import { API_URL, downloadDoc } from "../lib/api.js";
 import type { Client } from "../lib/api.js";
 import type { MessageKey, T } from "../lib/i18n.js";
 import { warningView } from "../lib/warnings.js";
@@ -33,10 +33,9 @@ export function EventDetail({
   eventId: string;
   session: string;
 }) {
-  void session;
   const [event, setEvent] = useState<EventDetailData | null>(null);
   const [tab, setTab] = useState<
-    "overview" | "classes" | "vetting" | "staff" | "settings" | "audit"
+    "overview" | "classes" | "vetting" | "accounts" | "staff" | "settings" | "audit"
   >("overview");
   const [error, setError] = useState<string | null>(null);
   const [confirmStatus, setConfirmStatus] = useState<string | null>(null);
@@ -117,6 +116,7 @@ export function EventDetail({
             ["overview", "detail.overview"],
             ["classes", "detail.classes"],
             ["vetting", "vetting.tab"],
+            ["accounts", "accounts.tab"],
             ["staff", "detail.staff"],
             ["settings", "detail.settings"],
             ["audit", "detail.audit"],
@@ -145,6 +145,9 @@ export function EventDetail({
       )}
       {tab === "vetting" && (
         <VettingPanel t={t} client={client} eventId={eventId} />
+      )}
+      {tab === "accounts" && (
+        <AccountsPanel t={t} client={client} eventId={eventId} session={session} />
       )}
       {tab === "staff" && (
         <OfficialsPanel t={t} client={client} eventId={eventId} vetted={event.organizationVetted} />
@@ -252,6 +255,100 @@ function AuditView({
 type FlaggedRow = Awaited<
   ReturnType<Client["entries"]["flaggedByEvent"]["query"]>
 >[number];
+type AccountRow = Awaited<
+  ReturnType<Client["account"]["byEvent"]["query"]>
+>[number];
+
+/**
+ * BR-89 lato regia: "Conti scuderie" — per scuderia il totale DERIVATO
+ * (stessa funzione di pricing del checkout, zero numeri memorizzati).
+ * Essenziale: la segreteria incassa al check-in, qui vede quanto e da chi;
+ * il dettaglio riga per riga sta nel CSV.
+ */
+function AccountsPanel({
+  t,
+  client,
+  eventId,
+  session,
+}: {
+  t: T;
+  client: Client;
+  eventId: string;
+  session: string;
+}) {
+  const [rows, setRows] = useState<AccountRow[] | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    client.account.byEvent
+      .query({ eventId })
+      .then(setRows)
+      .catch((err) => setError(errorMessage(err)));
+  }, [client, eventId]);
+
+  if (error) return <Banner tone="danger">{t("app.error", { msg: error })}</Banner>;
+  if (!rows) return <p className="muted">{t("app.loading")}</p>;
+
+  const eur = (n: number) => `${n} €`;
+  return (
+    <div className="card">
+      <h2>{t("accounts.title")}</h2>
+      <p className="hint">{t("accounts.explain")}</p>
+      {rows.length === 0 ? (
+        <Empty>{t("accounts.empty")}</Empty>
+      ) : (
+        <table className="tbl">
+          <thead>
+            <tr>
+              <th>{t("accounts.stable")}</th>
+              <th className="num">{t("accounts.horses")}</th>
+              <th className="num">{t("accounts.enrollments")}</th>
+              <th className="num">{t("accounts.classesCost")}</th>
+              <th className="num">{t("accounts.fee")}</th>
+              <th className="num">{t("accounts.total")}</th>
+              <th />
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((r) => (
+              <tr key={r.stableId}>
+                <td>
+                  <strong>{r.stableName}</strong>
+                  {r.scratched > 0 && (
+                    <div className="muted" style={{ fontSize: 12 }}>
+                      {t("accounts.scratched", { n: String(r.scratched) })}
+                    </div>
+                  )}
+                </td>
+                <td className="num">{r.horses}</td>
+                <td className="num">{r.enrollments}</td>
+                <td className="num">{eur(r.classesCost)}</td>
+                <td className="num">{eur(r.fee)}</td>
+                <td className="num">
+                  <strong>{eur(r.total)}</strong>
+                </td>
+                <td style={{ textAlign: "right" }}>
+                  <button
+                    className="btn small"
+                    onClick={() => {
+                      setError(null);
+                      void downloadDoc(
+                        `/documents/event/${eventId}/stable/${r.stableId}/account.csv`,
+                        session,
+                      ).catch((err) => setError(errorMessage(err)));
+                    }}
+                  >
+                    CSV
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </div>
+  );
+}
 
 /**
  * B3 (BR-94): i binomi con controlli aperti, filtrabili per tipo, con

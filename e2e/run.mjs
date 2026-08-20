@@ -262,6 +262,11 @@ async function stableEnroll(st, sfx, desktop) {
   await tap(st, "Iscrizioni");
   await st.waitForTimeout(800);
   await expectText(st, `Smart Dunit ${sfx}`, "binomio nelle mie iscrizioni");
+  // BR-89: il conto DERIVATO in fondo alla card — quote classi + fee per
+  // cavallo distinto (100 € a classe, 15 € a cavallo: default del wizard).
+  const totale = desktop ? "230 €" : "115 €";
+  await expectText(st, "Conto", "sezione conto nella card evento");
+  await expectText(st, totale, `totale conto derivato (${totale})`);
 }
 
 async function organizerDraw(org, sfx, withReorder) {
@@ -278,6 +283,18 @@ async function organizerDraw(org, sfx, withReorder) {
   await org.waitForTimeout(900);
   if (!apiLog.includes(`Controlli sull'iscrizione · Smart Dunit ${sfx}`)) {
     throw new Error("email 'avvisa la scuderia' non trovata nello stdout API");
+  }
+  // BR-89: "Conti scuderie" in regia — stesso totale derivato che vede la
+  // scuderia (115 € mobile, 230 € desktop), e lo storico è auditato a DB.
+  await tap(org, "Conti scuderie");
+  await org.waitForTimeout(700);
+  await expectText(org, `Scuderia E2E ${sfx}`, "scuderia nei conti");
+  await expectText(org, withReorder ? "230 €" : "115 €", "totale conto in regia");
+  const confirmAudits = psql(
+    `select count(*) from audit_log a join entries e on e.id=a.entity_id join classes c on c.id=e.class_id join events ev on ev.id=c.event_id where a.action='entry.confirm' and ev.name='E2E Show ${sfx}'`,
+  );
+  if (Number(confirmAudits) < 1) {
+    throw new Error(`nessun movimento entry.confirm auditato per E2E Show ${sfx}`);
   }
   await tap(org, "Classi");
   await tap(org, "Gestisci");
